@@ -61,62 +61,62 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
   const allowedTabs = rolePermissions[user?.role_id] || rolePermissions['role-admin'];
 
-  // Clean Real Production ERP Software Navigation Menu
+  // Clean Real Production ERP Software Navigation Menu (No Section Numbers)
   const menuGroups = [
     {
       group: "MAIN OVERVIEW",
       items: [
-        { id: 'sec-5', label: '5. Dashboard Page', icon: LayoutDashboard }
+        { id: 'sec-5', label: 'Executive Dashboard', icon: LayoutDashboard }
       ]
     },
     {
       group: "MASTER DATA DIRECTORY",
       items: [
-        { id: 'sec-6', label: '6. Item Master Page', icon: Package },
-        { id: 'sec-7', label: '7. Supplier Master Page', icon: Users },
-        { id: 'sec-8', label: '8. Department Master Page', icon: Building2 },
-        { id: 'sec-9', label: '9. Warehouse & Location Master', icon: Layers },
-        { id: 'sec-10', label: '10. User Management Page', icon: UserCheck }
+        { id: 'sec-6', label: 'Item Master', icon: Package },
+        { id: 'sec-7', label: 'Supplier Directory', icon: Users },
+        { id: 'sec-8', label: 'Department Master', icon: Building2 },
+        { id: 'sec-9', label: 'Warehouse & Locations', icon: Layers },
+        { id: 'sec-10', label: 'User Management', icon: UserCheck }
       ]
     },
     {
       group: "PROCUREMENT CYCLE",
       items: [
-        { id: 'sec-11', label: '11. Indent Management Page', icon: FileText },
-        { id: 'sec-12', label: '12. Approval Workflow Page', icon: CheckSquare, badge: '1' },
-        { id: 'sec-13', label: '13. Stock Availability Review', icon: ClipboardCheck },
-        { id: 'sec-14', label: '14. RFQ Page', icon: Send },
-        { id: 'sec-15', label: '15. Quotation Management Page', icon: Send },
-        { id: 'sec-16', label: '16. Purchase Order Page', icon: ShoppingCart }
+        { id: 'sec-11', label: 'Indent Requisitions', icon: FileText },
+        { id: 'sec-12', label: 'Approval Workflows', icon: CheckSquare, badge: '1' },
+        { id: 'sec-13', label: 'Stock Availability Review', icon: ClipboardCheck },
+        { id: 'sec-14', label: 'RFQ Management', icon: Send },
+        { id: 'sec-15', label: 'Quotation Matrix', icon: Send },
+        { id: 'sec-16', label: 'Purchase Orders', icon: ShoppingCart }
       ]
     },
     {
       group: "INVENTORY OPERATIONS",
       items: [
-        { id: 'sec-17', label: '17. Goods Receipt Note Page', icon: ClipboardCheck },
-        { id: 'sec-18', label: '18. Quality Inspection Page', icon: CheckSquare },
-        { id: 'sec-19', label: '19. Inventory Ledger Page', icon: Boxes },
-        { id: 'sec-20', label: '20. Current Stock Page', icon: Layers },
-        { id: 'sec-21', label: '21. Stock Issue Page', icon: Boxes },
-        { id: 'sec-22', label: '22. Stock Return Page', icon: RotateCcw },
-        { id: 'sec-23', label: '23. Supplier Return Page', icon: Truck },
-        { id: 'sec-24', label: '24. Stock Transfer Page', icon: Boxes },
-        { id: 'sec-25', label: '25. Stock Adjustment Page', icon: Sliders },
-        { id: 'sec-26', label: '26. Physical Stock Verification', icon: ClipboardList },
-        { id: 'sec-27', label: '27. Reservation Management', icon: BookmarkCheck },
-        { id: 'sec-28', label: '28. Asset Tracking Page', icon: Laptop }
+        { id: 'sec-17', label: 'Goods Receipt Note (GRN)', icon: ClipboardCheck },
+        { id: 'sec-18', label: 'Quality Inspection', icon: CheckSquare },
+        { id: 'sec-19', label: 'Inventory Stock Ledger', icon: Boxes },
+        { id: 'sec-20', label: 'Current Stock Page', icon: Layers },
+        { id: 'sec-21', label: 'Stock Issue Page', icon: Boxes },
+        { id: 'sec-22', label: 'Stock Return Page', icon: RotateCcw },
+        { id: 'sec-23', label: 'Supplier Return Page', icon: Truck },
+        { id: 'sec-24', label: 'Stock Transfers', icon: Boxes },
+        { id: 'sec-25', label: 'Stock Adjustments', icon: Sliders },
+        { id: 'sec-26', label: 'Physical Verification', icon: ClipboardList },
+        { id: 'sec-27', label: 'Reservation Management', icon: BookmarkCheck },
+        { id: 'sec-28', label: 'Asset Tracking', icon: Laptop }
       ]
     },
     {
       group: "INTELLIGENCE & SYSTEM",
       items: [
-        { id: 'sec-29', label: '29. Notifications Page', icon: Bell },
-        { id: 'sec-30', label: '30. Reports Page (16 Reports)', icon: BarChart3 },
-        { id: 'sec-31', label: '31. Audit Log Page', icon: History },
-        { id: 'sec-32', label: '32. Settings Page', icon: SettingsIcon },
-        { id: 'sec-33', label: '33. Import and Export Page', icon: Upload },
-        { id: 'sec-34', label: '34. Search and Filters Engine', icon: Search },
-        { id: 'sec-35', label: '35. Document Attachments Page', icon: Paperclip }
+        { id: 'sec-29', label: 'System Notifications', icon: Bell },
+        { id: 'sec-30', label: 'Specialized Reports', icon: BarChart3 },
+        { id: 'sec-31', label: 'Audit Activity Logs', icon: History },
+        { id: 'sec-32', label: 'System Settings', icon: SettingsIcon },
+        { id: 'sec-33', label: 'Data Import & Export', icon: Upload },
+        { id: 'sec-34', label: 'Search & Filters Engine', icon: Search },
+        { id: 'sec-35', label: 'Document Attachments', icon: Paperclip }
       ]
     }
   ];
@@ -135,7 +135,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
           </div>
         </div>
 
-        {/* Real Software Menu */}
+        {/* Clean Real Software Menu (No Numbers) */}
         <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
           {menuGroups.map((group, idx) => {
             const filteredItems = group.items.filter(item => allowedTabs.includes(item.id));
