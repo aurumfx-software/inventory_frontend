@@ -24,44 +24,41 @@ import AuditLogs from './views/AuditLogs';
 import Settings from './views/Settings';
 
 // Exact Enterprise PDF Section Views
-import SystemOverview from './views/pdf/SystemOverview';
 import StockAvailabilityReview from './views/pdf/StockAvailabilityReview';
 import StockAdjustment from './views/pdf/StockAdjustment';
 import ReservationManagement from './views/pdf/ReservationManagement';
 import NotificationsPage from './views/pdf/NotificationsPage';
 import ImportAttachments from './views/pdf/ImportAttachments';
-import TechnicalDocs from './views/pdf/TechnicalDocs';
 
 function MainLayout() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('sec-1');
+  const [activeTab, setActiveTab] = useState('sec-5');
 
-  // Full Role Permissions Scoping for all 43 PDF Sections
+  // Real Enterprise Software RBAC Module Permissions
   const rolePermissions = {
     'role-admin': [
-      'sec-1', 'sec-2', 'sec-3', 'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
+      'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
       'sec-11', 'sec-12', 'sec-13', 'sec-14', 'sec-15', 'sec-16', 'sec-17', 'sec-18', 'sec-19', 'sec-20',
       'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30',
-      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35', 'sec-36', 'sec-37', 'sec-38', 'sec-39', 'sec-40',
-      'sec-41', 'sec-42', 'sec-43'
+      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35'
     ],
     'role-purchase': [
-      'sec-1', 'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
+      'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
     ],
     'role-store': [
-      'sec-1', 'sec-5', 'sec-6', 'sec-8', 'sec-9', 'sec-13', 'sec-17', 'sec-18', 'sec-19', 'sec-20', 'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30'
+      'sec-5', 'sec-6', 'sec-8', 'sec-9', 'sec-13', 'sec-17', 'sec-18', 'sec-19', 'sec-20', 'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30'
     ],
     'role-dept-mgr': [
-      'sec-1', 'sec-5', 'sec-8', 'sec-11', 'sec-12', 'sec-20', 'sec-22', 'sec-29', 'sec-30'
+      'sec-5', 'sec-8', 'sec-11', 'sec-12', 'sec-20', 'sec-22', 'sec-29', 'sec-30'
     ],
     'role-requester': [
-      'sec-1', 'sec-5', 'sec-11', 'sec-22', 'sec-29'
+      'sec-5', 'sec-11', 'sec-22', 'sec-29'
     ],
     'role-finance': [
-      'sec-1', 'sec-5', 'sec-12', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
+      'sec-5', 'sec-12', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
     ],
     'role-auditor': [
-      'sec-1', 'sec-5', 'sec-19', 'sec-20', 'sec-26', 'sec-29', 'sec-30', 'sec-31', 'sec-36', 'sec-37', 'sec-38', 'sec-39'
+      'sec-5', 'sec-19', 'sec-20', 'sec-26', 'sec-29', 'sec-30', 'sec-31'
     ]
   };
 
@@ -70,7 +67,7 @@ function MainLayout() {
     if (user) {
       const allowed = rolePermissions[user.role_id] || rolePermissions['role-admin'];
       if (!allowed.includes(activeTab)) {
-        setActiveTab('sec-1');
+        setActiveTab('sec-5');
       }
     }
   }, [user]);
@@ -82,12 +79,6 @@ function MainLayout() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'sec-1':
-        return <SystemOverview section={1} />;
-      case 'sec-2':
-        return <SystemOverview section={2} />;
-      case 'sec-3':
-        return <SystemOverview section={3} />;
       case 'sec-5':
         return <Dashboard setActiveTab={setActiveTab} />;
       case 'sec-6':
@@ -150,24 +141,8 @@ function MainLayout() {
         return <ImportAttachments initialTab="search" />;
       case 'sec-35':
         return <ImportAttachments initialTab="attachments" />;
-      case 'sec-36':
-        return <TechnicalDocs initialTab="erd" />;
-      case 'sec-37':
-        return <TechnicalDocs initialTab="api" />;
-      case 'sec-38':
-        return <TechnicalDocs initialTab="rules" />;
-      case 'sec-39':
-        return <TechnicalDocs initialTab="security" />;
-      case 'sec-40':
-        return <TechnicalDocs initialTab="security" />;
-      case 'sec-41':
-        return <TechnicalDocs initialTab="testing" />;
-      case 'sec-42':
-        return <TechnicalDocs initialTab="phases" />;
-      case 'sec-43':
-        return <TechnicalDocs initialTab="workflow-sim" />;
       default:
-        return <SystemOverview section={1} />;
+        return <Dashboard setActiveTab={setActiveTab} />;
     }
   };
 

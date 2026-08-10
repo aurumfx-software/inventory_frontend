@@ -1,10 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { 
-  Target,
-  Cpu,
-  Database,
-  Lock,
   LayoutDashboard, 
   Package, 
   Users, 
@@ -29,63 +25,52 @@ import {
   Settings as SettingsIcon,
   Upload,
   Search,
-  Paperclip,
-  GitGraph,
-  Code,
-  ShieldCheck,
-  Zap,
-  TestTube,
-  ListOrdered,
-  PlayCircle
+  Paperclip
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const { user } = useAuth();
 
-  // Full Role Permissions Scoping for all 43 PDF Sections in Exact Chronological Order
+  // Pure Real Software RBAC Module Permissions
   const rolePermissions = {
     'role-admin': [
-      'sec-1', 'sec-2', 'sec-3', 'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
+      'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
       'sec-11', 'sec-12', 'sec-13', 'sec-14', 'sec-15', 'sec-16', 'sec-17', 'sec-18', 'sec-19', 'sec-20',
       'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30',
-      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35', 'sec-36', 'sec-37', 'sec-38', 'sec-39', 'sec-40',
-      'sec-41', 'sec-42', 'sec-43'
+      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35'
     ],
     'role-purchase': [
-      'sec-1', 'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
+      'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
     ],
     'role-store': [
-      'sec-1', 'sec-5', 'sec-6', 'sec-8', 'sec-9', 'sec-13', 'sec-17', 'sec-18', 'sec-19', 'sec-20', 'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30'
+      'sec-5', 'sec-6', 'sec-8', 'sec-9', 'sec-13', 'sec-17', 'sec-18', 'sec-19', 'sec-20', 'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30'
     ],
     'role-dept-mgr': [
-      'sec-1', 'sec-5', 'sec-8', 'sec-11', 'sec-12', 'sec-20', 'sec-22', 'sec-29', 'sec-30'
+      'sec-5', 'sec-8', 'sec-11', 'sec-12', 'sec-20', 'sec-22', 'sec-29', 'sec-30'
     ],
     'role-requester': [
-      'sec-1', 'sec-5', 'sec-11', 'sec-22', 'sec-29'
+      'sec-5', 'sec-11', 'sec-22', 'sec-29'
     ],
     'role-finance': [
-      'sec-1', 'sec-5', 'sec-12', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
+      'sec-5', 'sec-12', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
     ],
     'role-auditor': [
-      'sec-1', 'sec-5', 'sec-19', 'sec-20', 'sec-26', 'sec-29', 'sec-30', 'sec-31', 'sec-36', 'sec-37', 'sec-38', 'sec-39'
+      'sec-5', 'sec-19', 'sec-20', 'sec-26', 'sec-29', 'sec-30', 'sec-31'
     ]
   };
 
   const allowedTabs = rolePermissions[user?.role_id] || rolePermissions['role-admin'];
 
-  // All 43 Sections Organized in Groups in Exact PDF Chronological Order (Page 1 to Page 39)
+  // Clean Real Production ERP Software Navigation Menu
   const menuGroups = [
     {
-      group: "SECTION 1 - 5: SYSTEM & DASHBOARD",
+      group: "MAIN OVERVIEW",
       items: [
-        { id: 'sec-1', label: '1. System Objective', icon: Target },
-        { id: 'sec-2', label: '2. Technical Architecture', icon: Cpu },
-        { id: 'sec-3', label: '3. Common Database Fields', icon: Database },
         { id: 'sec-5', label: '5. Dashboard Page', icon: LayoutDashboard }
       ]
     },
     {
-      group: "SECTION 6 - 10: MASTERS & ACCESS",
+      group: "MASTER DATA DIRECTORY",
       items: [
         { id: 'sec-6', label: '6. Item Master Page', icon: Package },
         { id: 'sec-7', label: '7. Supplier Master Page', icon: Users },
@@ -95,7 +80,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       ]
     },
     {
-      group: "SECTION 11 - 16: PROCUREMENT CYCLE",
+      group: "PROCUREMENT CYCLE",
       items: [
         { id: 'sec-11', label: '11. Indent Management Page', icon: FileText },
         { id: 'sec-12', label: '12. Approval Workflow Page', icon: CheckSquare, badge: '1' },
@@ -106,7 +91,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       ]
     },
     {
-      group: "SECTION 17 - 28: INVENTORY OPERATIONS",
+      group: "INVENTORY OPERATIONS",
       items: [
         { id: 'sec-17', label: '17. Goods Receipt Note Page', icon: ClipboardCheck },
         { id: 'sec-18', label: '18. Quality Inspection Page', icon: CheckSquare },
@@ -123,7 +108,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       ]
     },
     {
-      group: "SECTION 29 - 35: SYSTEM & INTELLIGENCE",
+      group: "INTELLIGENCE & SYSTEM",
       items: [
         { id: 'sec-29', label: '29. Notifications Page', icon: Bell },
         { id: 'sec-30', label: '30. Reports Page (16 Reports)', icon: BarChart3 },
@@ -132,19 +117,6 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         { id: 'sec-33', label: '33. Import and Export Page', icon: Upload },
         { id: 'sec-34', label: '34. Search and Filters Engine', icon: Search },
         { id: 'sec-35', label: '35. Document Attachments Page', icon: Paperclip }
-      ]
-    },
-    {
-      group: "SECTION 36 - 43: TECHNICAL & WORKFLOW",
-      items: [
-        { id: 'sec-36', label: '36. Database Relationships', icon: GitGraph },
-        { id: 'sec-37', label: '37. Recommended API Structure', icon: Code },
-        { id: 'sec-38', label: '38. Important Coding Rules', icon: Code },
-        { id: 'sec-39', label: '39. Security Requirements', icon: ShieldCheck },
-        { id: 'sec-40', label: '40. Performance Requirements', icon: Zap },
-        { id: 'sec-41', label: '41. Testing Requirements', icon: TestTube },
-        { id: 'sec-42', label: '42. Development Phases', icon: ListOrdered },
-        { id: 'sec-43', label: '43. Final Workflow Example (Sim)', icon: PlayCircle }
       ]
     }
   ];
@@ -159,11 +131,11 @@ export default function Sidebar({ activeTab, setActiveTab }) {
           </div>
           <div>
             <h1 className="font-bold text-base text-slate-900 font-heading tracking-tight leading-none">Apex SerQ</h1>
-            <span className="text-[10px] text-purple-600 font-bold tracking-wider uppercase block mt-1">43 PDF Sections</span>
+            <span className="text-[10px] text-purple-600 font-bold tracking-wider uppercase block mt-1">Enterprise ERP</span>
           </div>
         </div>
 
-        {/* Dynamic Navigation Menu Listing All 43 PDF Sections in Exact Chronological Order */}
+        {/* Real Software Menu */}
         <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
           {menuGroups.map((group, idx) => {
             const filteredItems = group.items.filter(item => allowedTabs.includes(item.id));
