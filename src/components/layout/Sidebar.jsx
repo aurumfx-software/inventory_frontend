@@ -61,7 +61,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
   const allowedTabs = rolePermissions[user?.role_id] || rolePermissions['role-admin'];
 
-  // Clean Real Production ERP Software Navigation Menu (No Section Numbers)
+  // Clean Real Production ERP Software Navigation Menu (No Numbers)
   const menuGroups = [
     {
       group: "MAIN OVERVIEW",
@@ -130,12 +130,12 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             <Boxes className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="font-bold text-base text-slate-900 font-heading tracking-tight leading-none">Apex SerQ</h1>
-            <span className="text-[10px] text-purple-600 font-bold tracking-wider uppercase block mt-1">Enterprise ERP</span>
+            <h1 className="font-bold text-sm text-slate-900 font-heading tracking-tight leading-none">Inventory Software</h1>
+            <span className="text-[10px] text-purple-600 font-bold tracking-wider uppercase block mt-1">Management System</span>
           </div>
         </div>
 
-        {/* Clean Real Software Menu (No Numbers) */}
+        {/* Clean Real Software Menu */}
         <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
           {menuGroups.map((group, idx) => {
             const filteredItems = group.items.filter(item => allowedTabs.includes(item.id));

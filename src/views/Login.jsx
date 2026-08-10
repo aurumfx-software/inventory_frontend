@@ -114,7 +114,7 @@ export default function Login() {
         >
           {/* Top Header inside section card */}
           <div className="flex items-center justify-between z-10">
-            <span className="font-bold text-sm tracking-wide text-white/90 font-heading">Selected Works</span>
+            <span className="font-bold text-sm tracking-wide text-white/90 font-heading">Inventory System</span>
             <div className="flex items-center space-x-2">
               <span className="text-[11px] font-bold text-white/80">Sign Up</span>
               <button 
@@ -167,7 +167,7 @@ export default function Login() {
               <div className="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-sm shadow-md shadow-rose-500/20">
                 <Boxes className="w-4 h-4" />
               </div>
-              <h1 className="font-black text-lg text-slate-900 tracking-tight font-heading">UISOCIAL</h1>
+              <h1 className="font-black text-lg text-slate-900 tracking-tight font-heading">INVENTORY SOFTWARE</h1>
             </div>
 
             <div className="bg-slate-50 border border-slate-200/80 px-3 py-1 rounded-full text-slate-600 text-[11px] font-bold flex items-center space-x-1">
@@ -182,7 +182,7 @@ export default function Login() {
               Hi Administrator
             </h2>
             <p className="text-xs text-slate-500 font-medium">
-              Welcome to UISOCIAL Inventory System
+              Welcome to Inventory & Procurement Management System
             </p>
           </div>
 

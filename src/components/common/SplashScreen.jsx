@@ -12,7 +12,7 @@ export default function SplashScreen({ onComplete }) {
       { at: 40, text: 'Loading Master Data & Stock Balances...' },
       { at: 70, text: 'Syncing Requisitions & Approval Matrix...' },
       { at: 90, text: 'Finalizing Dashboard Analytics...' },
-      { at: 100, text: 'System Ready. Welcome to Apex SerQ!' }
+      { at: 100, text: 'System Ready. Welcome to Inventory Software!' }
     ];
 
     const timer = setInterval(() => {
@@ -60,10 +60,10 @@ export default function SplashScreen({ onComplete }) {
         {/* Brand Title */}
         <div className="space-y-1">
           <h1 className="text-3xl font-black tracking-tight font-heading bg-gradient-to-r from-white via-purple-200 to-rose-200 bg-clip-text text-transparent">
-            APEX SERQ
+            Inventory Software
           </h1>
           <p className="text-xs font-bold text-purple-400 tracking-widest uppercase">
-            Inventory & Procurement ERP System
+            Inventory & Procurement Management System
           </p>
         </div>
 
