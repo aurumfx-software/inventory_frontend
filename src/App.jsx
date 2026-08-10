@@ -24,25 +24,45 @@ import AuditLogs from './views/AuditLogs';
 import Settings from './views/Settings';
 
 // Exact Enterprise PDF Section Views
+import SystemOverview from './views/pdf/SystemOverview';
 import StockAvailabilityReview from './views/pdf/StockAvailabilityReview';
 import StockAdjustment from './views/pdf/StockAdjustment';
 import ReservationManagement from './views/pdf/ReservationManagement';
 import NotificationsPage from './views/pdf/NotificationsPage';
 import ImportAttachments from './views/pdf/ImportAttachments';
+import TechnicalDocs from './views/pdf/TechnicalDocs';
 
 function MainLayout() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('sec-1');
 
-  // Real Enterprise Software RBAC Permissions
+  // Full Role Permissions Scoping for all 43 PDF Sections
   const rolePermissions = {
-    'role-admin': ['dashboard', 'current-stock', 'item-master', 'supplier-master', 'dept-wh-master', 'indents', 'approvals', 'stock-review', 'rfq-quotes', 'purchase-orders', 'grn-inspection', 'stock-ops', 'stock-returns', 'supplier-returns', 'stock-adjustment', 'stock-verification', 'reservation-management', 'asset-tracking', 'notifications-page', 'reports', 'audit-logs', 'settings', 'import-attachments'],
-    'role-purchase': ['dashboard', 'current-stock', 'item-master', 'supplier-master', 'indents', 'rfq-quotes', 'purchase-orders', 'supplier-returns', 'reports', 'notifications-page'],
-    'role-store': ['dashboard', 'current-stock', 'item-master', 'grn-inspection', 'stock-ops', 'stock-review', 'stock-returns', 'supplier-returns', 'stock-adjustment', 'stock-verification', 'asset-tracking', 'reports', 'notifications-page'],
-    'role-dept-mgr': ['dashboard', 'current-stock', 'indents', 'approvals', 'dept-wh-master', 'stock-returns', 'reports', 'notifications-page'],
-    'role-requester': ['dashboard', 'indents', 'stock-returns', 'notifications-page'],
-    'role-finance': ['dashboard', 'current-stock', 'approvals', 'rfq-quotes', 'purchase-orders', 'supplier-returns', 'reports', 'notifications-page'],
-    'role-auditor': ['dashboard', 'current-stock', 'stock-ops', 'stock-returns', 'supplier-returns', 'stock-verification', 'reports', 'audit-logs']
+    'role-admin': [
+      'sec-1', 'sec-2', 'sec-3', 'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
+      'sec-11', 'sec-12', 'sec-13', 'sec-14', 'sec-15', 'sec-16', 'sec-17', 'sec-18', 'sec-19', 'sec-20',
+      'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30',
+      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35', 'sec-36', 'sec-37', 'sec-38', 'sec-39', 'sec-40',
+      'sec-41', 'sec-42', 'sec-43'
+    ],
+    'role-purchase': [
+      'sec-1', 'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
+    ],
+    'role-store': [
+      'sec-1', 'sec-5', 'sec-6', 'sec-8', 'sec-9', 'sec-13', 'sec-17', 'sec-18', 'sec-19', 'sec-20', 'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30'
+    ],
+    'role-dept-mgr': [
+      'sec-1', 'sec-5', 'sec-8', 'sec-11', 'sec-12', 'sec-20', 'sec-22', 'sec-29', 'sec-30'
+    ],
+    'role-requester': [
+      'sec-1', 'sec-5', 'sec-11', 'sec-22', 'sec-29'
+    ],
+    'role-finance': [
+      'sec-1', 'sec-5', 'sec-12', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
+    ],
+    'role-auditor': [
+      'sec-1', 'sec-5', 'sec-19', 'sec-20', 'sec-26', 'sec-29', 'sec-30', 'sec-31', 'sec-36', 'sec-37', 'sec-38', 'sec-39'
+    ]
   };
 
   // Reset active tab if user role does not have access to current tab
@@ -50,7 +70,7 @@ function MainLayout() {
     if (user) {
       const allowed = rolePermissions[user.role_id] || rolePermissions['role-admin'];
       if (!allowed.includes(activeTab)) {
-        setActiveTab('dashboard');
+        setActiveTab('sec-1');
       }
     }
   }, [user]);
@@ -62,54 +82,92 @@ function MainLayout() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'dashboard':
+      case 'sec-1':
+        return <SystemOverview section={1} />;
+      case 'sec-2':
+        return <SystemOverview section={2} />;
+      case 'sec-3':
+        return <SystemOverview section={3} />;
+      case 'sec-5':
         return <Dashboard setActiveTab={setActiveTab} />;
-      case 'item-master':
+      case 'sec-6':
         return <ItemMaster />;
-      case 'supplier-master':
+      case 'sec-7':
         return <SupplierMaster />;
-      case 'dept-wh-master':
-        return <DeptWarehouseMaster />;
-      case 'indents':
+      case 'sec-8':
+        return <DeptWarehouseMaster initialSubTab="dept" />;
+      case 'sec-9':
+        return <DeptWarehouseMaster initialSubTab="wh" />;
+      case 'sec-10':
+        return <Settings initialSubTab="users" />;
+      case 'sec-11':
         return <IndentManagement />;
-      case 'approvals':
+      case 'sec-12':
         return <ApprovalWorkflow />;
-      case 'stock-review':
+      case 'sec-13':
         return <StockAvailabilityReview />;
-      case 'rfq-quotes':
-        return <RFQQuotationComparison setActiveTab={setActiveTab} />;
-      case 'purchase-orders':
+      case 'sec-14':
+        return <RFQQuotationComparison initialSubTab="rfq" />;
+      case 'sec-15':
+        return <RFQQuotationComparison initialSubTab="quotes" />;
+      case 'sec-16':
         return <PurchaseOrder />;
-      case 'grn-inspection':
-        return <GRNInspection />;
-      case 'current-stock':
-        return <StockOperations initialSubTab="current-stock" />;
-      case 'stock-ops':
+      case 'sec-17':
+        return <GRNInspection initialSubTab="grn" />;
+      case 'sec-18':
+        return <GRNInspection initialSubTab="inspection" />;
+      case 'sec-19':
         return <StockOperations initialSubTab="ledger" />;
-      case 'stock-returns':
+      case 'sec-20':
+        return <StockOperations initialSubTab="current-stock" />;
+      case 'sec-21':
+        return <StockOperations initialSubTab="issue" />;
+      case 'sec-22':
         return <StockReturns />;
-      case 'supplier-returns':
+      case 'sec-23':
         return <SupplierReturns />;
-      case 'stock-adjustment':
+      case 'sec-24':
+        return <StockOperations initialSubTab="transfer" />;
+      case 'sec-25':
         return <StockAdjustment />;
-      case 'stock-verification':
+      case 'sec-26':
         return <StockVerification />;
-      case 'reservation-management':
+      case 'sec-27':
         return <ReservationManagement />;
-      case 'asset-tracking':
+      case 'sec-28':
         return <AssetTracking />;
-      case 'notifications-page':
+      case 'sec-29':
         return <NotificationsPage />;
-      case 'reports':
+      case 'sec-30':
         return <Reports />;
-      case 'audit-logs':
+      case 'sec-31':
         return <AuditLogs />;
-      case 'settings':
-        return <Settings />;
-      case 'import-attachments':
-        return <ImportAttachments />;
+      case 'sec-32':
+        return <Settings initialSubTab="company" />;
+      case 'sec-33':
+        return <ImportAttachments initialTab="import" />;
+      case 'sec-34':
+        return <ImportAttachments initialTab="search" />;
+      case 'sec-35':
+        return <ImportAttachments initialTab="attachments" />;
+      case 'sec-36':
+        return <TechnicalDocs initialTab="erd" />;
+      case 'sec-37':
+        return <TechnicalDocs initialTab="api" />;
+      case 'sec-38':
+        return <TechnicalDocs initialTab="rules" />;
+      case 'sec-39':
+        return <TechnicalDocs initialTab="security" />;
+      case 'sec-40':
+        return <TechnicalDocs initialTab="security" />;
+      case 'sec-41':
+        return <TechnicalDocs initialTab="testing" />;
+      case 'sec-42':
+        return <TechnicalDocs initialTab="phases" />;
+      case 'sec-43':
+        return <TechnicalDocs initialTab="workflow-sim" />;
       default:
-        return <Dashboard setActiveTab={setActiveTab} />;
+        return <SystemOverview section={1} />;
     }
   };
 
