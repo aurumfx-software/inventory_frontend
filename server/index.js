@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 
+// Initialize Database Schemas & Persistence (All 22 PDF Tables)
+import './db/initDb.js';
+
 import authRoutes from './routes/auth.js';
 import masterRoutes from './routes/masters.js';
 import indentRoutes from './routes/indents.js';
