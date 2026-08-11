@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# Standalone Server Backend Folder (Maintained in separate inventory_backend repo)
-server/
+# Standalone Server Backend Folder
+# server/

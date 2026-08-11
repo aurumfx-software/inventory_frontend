@@ -1,0 +1,17 @@
+{
+  "name": "inventory-procurement-backend",
+  "version": "1.0.0",
+  "description": "Express REST API Backend for Inventory & Procurement Management System",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
