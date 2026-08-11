@@ -18,11 +18,23 @@ import {
   FileText,
   ShoppingCart,
   ArrowRight,
+  Sun,
+  Moon,
   X
 } from 'lucide-react';
 
 export default function Header({ setActiveTab }) {
-  const { user, switchRole, activeWarehouse, setActiveWarehouse, notifications, setNotifications, logout } = useAuth();
+  const { 
+    user, 
+    switchRole, 
+    activeWarehouse, 
+    setActiveWarehouse, 
+    notifications, 
+    setNotifications, 
+    logout,
+    themeMode,
+    toggleThemeMode 
+  } = useAuth();
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -271,6 +283,19 @@ export default function Header({ setActiveTab }) {
             <option value="wh-03" className="bg-white text-slate-800">WH-TRANS (Transit Store)</option>
           </select>
         </div>
+
+        {/* Dark / Light Theme Toggle Button */}
+        <button
+          onClick={toggleThemeMode}
+          title={themeMode === 'dark' ? "Switch to Light Theme" : "Switch to Dark Theme"}
+          className="p-2 bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl text-slate-600 transition shadow-xs cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95 group"
+        >
+          {themeMode === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400 animate-spin" style={{ animationDuration: '12s' }} />
+          ) : (
+            <Moon className="w-4 h-4 text-slate-600 group-hover:text-purple-600 transition-colors" />
+          )}
+        </button>
 
         {/* Live Role Switcher */}
         <div className="relative">

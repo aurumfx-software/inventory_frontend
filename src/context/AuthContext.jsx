@@ -17,11 +17,28 @@ export function AuthProvider({ children }) {
 
   const [token, setToken] = useState('active-session-token');
   const [activeWarehouse, setActiveWarehouse] = useState('wh-01');
+  const [themeMode, setThemeMode] = useState(() => {
+    return localStorage.getItem('app-theme') || 'light';
+  });
+
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'New Indent Submitted', message: 'Indent IND-2026-001001 requires approval', time: '10 mins ago', type: 'info', unread: true },
     { id: 2, title: 'Low Stock Warning', message: 'Dell Latitude Laptops reached reorder level (5 units left)', time: '1 hr ago', type: 'warning', unread: true },
     { id: 3, title: 'GRN Received', message: 'GRN-2026-004001 posted by Store Manager', time: '3 hrs ago', type: 'success', unread: false }
   ]);
+
+  React.useEffect(() => {
+    if (themeMode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('app-theme', themeMode);
+  }, [themeMode]);
+
+  const toggleThemeMode = () => {
+    setThemeMode(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const switchRole = (roleId) => {
     const roleMap = {
@@ -90,7 +107,9 @@ export function AuthProvider({ children }) {
       activeWarehouse,
       setActiveWarehouse,
       notifications,
-      setNotifications
+      setNotifications,
+      themeMode,
+      toggleThemeMode
     }}>
       {children}
     </AuthContext.Provider>
