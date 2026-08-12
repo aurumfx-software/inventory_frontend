@@ -30,6 +30,26 @@ import {
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const { user } = useAuth();
+  const [pendingApprovalCount, setPendingApprovalCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const res = await fetch('/api/approvals');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          const pending = data.data.filter(a => a.status === 'Pending').length;
+          setPendingApprovalCount(pending);
+        }
+      } catch (err) {
+        console.error('Failed to load pending approval count:', err);
+      }
+    };
+
+    fetchPendingCount();
+    const interval = setInterval(fetchPendingCount, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Pure Real Software RBAC Module Permissions
   const rolePermissions = {
@@ -83,7 +103,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       group: "PROCUREMENT CYCLE",
       items: [
         { id: 'sec-11', label: 'Indent Requisitions', icon: FileText },
-        { id: 'sec-12', label: 'Approval Workflows', icon: CheckSquare, badge: '1' },
+        { id: 'sec-12', label: 'Approval Workflows', icon: CheckSquare, badge: pendingApprovalCount > 0 ? String(pendingApprovalCount) : null },
         { id: 'sec-13', label: 'Stock Availability Review', icon: ClipboardCheck },
         { id: 'sec-14', label: 'RFQ Management', icon: Send },
         { id: 'sec-15', label: 'Quotation Matrix', icon: Send },

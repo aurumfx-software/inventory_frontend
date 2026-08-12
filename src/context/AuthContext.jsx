@@ -60,9 +60,17 @@ export function AuthProvider({ children }) {
       role: target.name,
       role_id: roleId,
       department_id: 'dept-01',
-      department_name: 'Information Technology'
+      department_name: 'Information Technology',
+      permissions: rolePermissionsMap[roleId] || ['*']
     });
     setToken('active-session-token');
+  };
+
+  const hasPermission = (permissionCode) => {
+    if (!user) return false;
+    if (user.role_id === 'role-admin') return true;
+    const perms = user.permissions || rolePermissionsMap[user.role_id] || [];
+    return perms.includes(permissionCode) || perms.includes('*');
   };
 
   const login = async (email, password) => {
@@ -86,7 +94,8 @@ export function AuthProvider({ children }) {
       role: found.name,
       role_id: found.role_id,
       department_id: 'dept-01',
-      department_name: 'Information Technology'
+      department_name: 'Information Technology',
+      permissions: rolePermissionsMap[found.role_id] || ['*']
     });
     setToken('active-session-token');
     return { success: true };
@@ -104,6 +113,7 @@ export function AuthProvider({ children }) {
       login,
       logout,
       switchRole,
+      hasPermission,
       activeWarehouse,
       setActiveWarehouse,
       notifications,

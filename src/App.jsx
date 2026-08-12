@@ -11,6 +11,7 @@ import SupplierMaster from './views/masters/SupplierMaster';
 import DeptWarehouseMaster from './views/masters/DeptWarehouseMaster';
 import IndentManagement from './views/procurement/IndentManagement';
 import ApprovalWorkflow from './views/procurement/ApprovalWorkflow';
+import RFQManagement from './views/procurement/RFQManagement';
 import RFQQuotationComparison from './views/procurement/RFQQuotationComparison';
 import PurchaseOrder from './views/procurement/PurchaseOrder';
 import GRNInspection from './views/inventory/GRNInspection';
@@ -98,9 +99,9 @@ function MainLayout() {
       case 'sec-13':
         return <StockAvailabilityReview />;
       case 'sec-14':
-        return <RFQQuotationComparison initialSubTab="rfq" />;
+        return <RFQManagement />;
       case 'sec-15':
-        return <RFQQuotationComparison initialSubTab="quotes" />;
+        return <RFQQuotationComparison initialSubTab="matrix" setActiveTab={setActiveTab} />;
       case 'sec-16':
         return <PurchaseOrder />;
       case 'sec-17':

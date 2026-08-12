@@ -6,11 +6,13 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+ 
+ 
 node_modules
 dist
 dist-ssr
 *.local
+inventory_backend/
 
 # Editor directories and files
 .vscode/*
@@ -23,5 +25,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Standalone Server Backend Folder
-# server/
+
+# Standalone Server Backend Folder (Maintained in separate inventory_backend repo)
+server/
