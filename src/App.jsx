@@ -9,13 +9,16 @@ import Dashboard from './views/Dashboard';
 import ItemMaster from './views/masters/ItemMaster';
 import SupplierMaster from './views/masters/SupplierMaster';
 import DeptWarehouseMaster from './views/masters/DeptWarehouseMaster';
+import UserManagement from './views/masters/UserManagement';
 import IndentManagement from './views/procurement/IndentManagement';
 import ApprovalWorkflow from './views/procurement/ApprovalWorkflow';
 import RFQManagement from './views/procurement/RFQManagement';
 import RFQQuotationComparison from './views/procurement/RFQQuotationComparison';
 import PurchaseOrder from './views/procurement/PurchaseOrder';
 import GRNInspection from './views/inventory/GRNInspection';
+import QualityInspection from './views/inventory/QualityInspection';
 import StockOperations from './views/inventory/StockOperations';
+import StockIssue from './views/inventory/StockIssue';
 import StockReturns from './views/inventory/StockReturns';
 import SupplierReturns from './views/inventory/SupplierReturns';
 import StockVerification from './views/inventory/StockVerification';
@@ -26,8 +29,8 @@ import Settings from './views/Settings';
 
 // Exact Enterprise PDF Section Views
 import StockAvailabilityReview from './views/pdf/StockAvailabilityReview';
-import StockAdjustment from './views/pdf/StockAdjustment';
-import ReservationManagement from './views/pdf/ReservationManagement';
+import StockAdjustment from './views/inventory/StockAdjustment';
+import ReservationManagement from './views/inventory/ReservationManagement';
 import NotificationsPage from './views/pdf/NotificationsPage';
 import ImportAttachments from './views/pdf/ImportAttachments';
 
@@ -91,7 +94,7 @@ function MainLayout() {
       case 'sec-9':
         return <DeptWarehouseMaster initialSubTab="wh" />;
       case 'sec-10':
-        return <Settings initialSubTab="users" />;
+        return <UserManagement />;
       case 'sec-11':
         return <IndentManagement />;
       case 'sec-12':
@@ -107,13 +110,13 @@ function MainLayout() {
       case 'sec-17':
         return <GRNInspection initialSubTab="grn" />;
       case 'sec-18':
-        return <GRNInspection initialSubTab="inspection" />;
+        return <QualityInspection />;
       case 'sec-19':
         return <StockOperations initialSubTab="ledger" />;
       case 'sec-20':
         return <StockOperations initialSubTab="current-stock" />;
       case 'sec-21':
-        return <StockOperations initialSubTab="issue" />;
+        return <StockIssue />;
       case 'sec-22':
         return <StockReturns />;
       case 'sec-23':
