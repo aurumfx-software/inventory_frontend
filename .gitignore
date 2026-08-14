@@ -12,6 +12,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.vercel
+*.zip
 inventory_backend/
 
 # Editor directories and files
