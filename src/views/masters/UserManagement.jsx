@@ -238,14 +238,34 @@ export default function UserManagement() {
     try {
       const res = await fetch('/api/users');
       const data = await res.json();
-      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-        setUsers(data.data);
+      if (data.success && Array.isArray(data.data)) {
+        const savedLocal = localStorage.getItem('app_users_master');
+        if (data.data.length > 0) {
+          setUsers(data.data);
+          localStorage.setItem('app_users_master', JSON.stringify(data.data));
+        } else if (savedLocal !== null) {
+          try { setUsers(JSON.parse(savedLocal)); } catch(e) { setUsers([]); }
+        } else {
+          setUsers(sampleUsersFallback);
+          localStorage.setItem('app_users_master', JSON.stringify(sampleUsersFallback));
+        }
       } else {
-        setUsers(sampleUsersFallback);
+        const saved = localStorage.getItem('app_users_master');
+        if (saved !== null) {
+          try { setUsers(JSON.parse(saved)); } catch(e) { setUsers(sampleUsersFallback); }
+        } else {
+          setUsers(sampleUsersFallback);
+          localStorage.setItem('app_users_master', JSON.stringify(sampleUsersFallback));
+        }
       }
     } catch (err) {
       console.error(err);
-      setUsers(sampleUsersFallback);
+      const saved = localStorage.getItem('app_users_master');
+      if (saved !== null) {
+        try { setUsers(JSON.parse(saved)); } catch(e) { setUsers(sampleUsersFallback); }
+      } else {
+        setUsers(sampleUsersFallback);
+      }
     }
   };
 
@@ -299,7 +319,9 @@ export default function UserManagement() {
     if (!deleteConfirmUser) return;
     const target = deleteConfirmUser;
 
-    setUsers(prev => prev.filter(u => u.id !== target.id && u.emp_code !== target.emp_code));
+    const filtered = users.filter(u => u.id !== target.id && u.emp_code !== target.emp_code);
+    setUsers(filtered);
+    localStorage.setItem('app_users_master', JSON.stringify(filtered));
     setDeleteConfirmUser(null);
 
     showToastNotification(
@@ -308,7 +330,8 @@ export default function UserManagement() {
       `User "${target.name}" (${target.emp_code}) has been deleted.`
     );
 
-    fetch(`/api/users/${target.id}`, {
+    const targetId = target.id || target.emp_code;
+    fetch(`/api/users/${encodeURIComponent(targetId)}`, {
       method: 'DELETE'
     }).catch(err => console.error(err));
   };
@@ -345,6 +368,7 @@ export default function UserManagement() {
       if (editingUser) {
         const updated = users.map(u => (u.id === editingUser.id || u.emp_code === editingUser.emp_code) ? { ...u, ...payload } : u);
         setUsers(updated);
+        localStorage.setItem('app_users_master', JSON.stringify(updated));
         setShowCreateModal(false);
         setEditingUser(null);
 
@@ -354,18 +378,22 @@ export default function UserManagement() {
           `User "${payload.name}" (${payload.emp_code}) account details updated.`
         );
 
-        fetch(`/api/users/${editingUser.id}`, {
+        const targetId = editingUser.id || editingUser.emp_code;
+        fetch(`/api/users/${encodeURIComponent(targetId)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         }).catch(() => null);
       } else {
+        const tempId = `usr-${Date.now()}`;
         const newUser = {
-          id: `usr-${Date.now()}`,
+          id: tempId,
           ...payload
         };
 
-        setUsers([newUser, ...users]);
+        const updatedList = [newUser, ...users];
+        setUsers(updatedList);
+        localStorage.setItem('app_users_master', JSON.stringify(updatedList));
         setShowCreateModal(false);
 
         showToastNotification(
@@ -378,7 +406,20 @@ export default function UserManagement() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
-        }).catch(() => null);
+        })
+          .then(r => r.json())
+          .then(resData => {
+            if (resData.success && resData.data) {
+              const realId = resData.data.id || tempId;
+              const realCode = resData.data.emp_code || newUser.emp_code;
+              setUsers(prev => {
+                const synced = prev.map(u => u.id === tempId ? { ...u, id: realId, emp_code: realCode } : u);
+                localStorage.setItem('app_users_master', JSON.stringify(synced));
+                return synced;
+              });
+            }
+          })
+          .catch(() => null);
       }
     } catch (err) {
       console.error(err);

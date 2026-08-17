@@ -258,13 +258,33 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     try {
       const res = await fetch('/api/departments');
       const data = await res.json();
-      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-        setDepartments(data.data);
+      if (data.success && Array.isArray(data.data)) {
+        const savedLocal = localStorage.getItem('app_departments_master');
+        if (data.data.length > 0) {
+          setDepartments(data.data);
+          localStorage.setItem('app_departments_master', JSON.stringify(data.data));
+        } else if (savedLocal !== null) {
+          try { setDepartments(JSON.parse(savedLocal)); } catch(e) { setDepartments([]); }
+        } else {
+          setDepartments(sampleDepartmentsFallback);
+          localStorage.setItem('app_departments_master', JSON.stringify(sampleDepartmentsFallback));
+        }
+      } else {
+        const saved = localStorage.getItem('app_departments_master');
+        if (saved !== null) {
+          try { setDepartments(JSON.parse(saved)); } catch(e) { setDepartments(sampleDepartmentsFallback); }
+        } else {
+          setDepartments(sampleDepartmentsFallback);
+          localStorage.setItem('app_departments_master', JSON.stringify(sampleDepartmentsFallback));
+        }
+      }
+    } catch {
+      const saved = localStorage.getItem('app_departments_master');
+      if (saved !== null) {
+        try { setDepartments(JSON.parse(saved)); } catch(e) { setDepartments(sampleDepartmentsFallback); }
       } else {
         setDepartments(sampleDepartmentsFallback);
       }
-    } catch {
-      setDepartments(sampleDepartmentsFallback);
     }
   };
 
@@ -272,13 +292,33 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     try {
       const res = await fetch('/api/warehouses');
       const data = await res.json();
-      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-        setWarehouses(data.data);
+      if (data.success && Array.isArray(data.data)) {
+        const savedLocal = localStorage.getItem('app_warehouses_master');
+        if (data.data.length > 0) {
+          setWarehouses(data.data);
+          localStorage.setItem('app_warehouses_master', JSON.stringify(data.data));
+        } else if (savedLocal !== null) {
+          try { setWarehouses(JSON.parse(savedLocal)); } catch(e) { setWarehouses([]); }
+        } else {
+          setWarehouses(sampleWarehousesFallback);
+          localStorage.setItem('app_warehouses_master', JSON.stringify(sampleWarehousesFallback));
+        }
+      } else {
+        const saved = localStorage.getItem('app_warehouses_master');
+        if (saved !== null) {
+          try { setWarehouses(JSON.parse(saved)); } catch(e) { setWarehouses(sampleWarehousesFallback); }
+        } else {
+          setWarehouses(sampleWarehousesFallback);
+          localStorage.setItem('app_warehouses_master', JSON.stringify(sampleWarehousesFallback));
+        }
+      }
+    } catch {
+      const saved = localStorage.getItem('app_warehouses_master');
+      if (saved !== null) {
+        try { setWarehouses(JSON.parse(saved)); } catch(e) { setWarehouses(sampleWarehousesFallback); }
       } else {
         setWarehouses(sampleWarehousesFallback);
       }
-    } catch {
-      setWarehouses(sampleWarehousesFallback);
     }
   };
 
@@ -286,13 +326,33 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     try {
       const res = await fetch('/api/warehouse-locations');
       const data = await res.json();
-      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-        setLocations(data.data);
+      if (data.success && Array.isArray(data.data)) {
+        const savedLocal = localStorage.getItem('app_locations_master');
+        if (data.data.length > 0) {
+          setLocations(data.data);
+          localStorage.setItem('app_locations_master', JSON.stringify(data.data));
+        } else if (savedLocal !== null) {
+          try { setLocations(JSON.parse(savedLocal)); } catch(e) { setLocations([]); }
+        } else {
+          setLocations(sampleLocationsFallback);
+          localStorage.setItem('app_locations_master', JSON.stringify(sampleLocationsFallback));
+        }
+      } else {
+        const saved = localStorage.getItem('app_locations_master');
+        if (saved !== null) {
+          try { setLocations(JSON.parse(saved)); } catch(e) { setLocations(sampleLocationsFallback); }
+        } else {
+          setLocations(sampleLocationsFallback);
+          localStorage.setItem('app_locations_master', JSON.stringify(sampleLocationsFallback));
+        }
+      }
+    } catch {
+      const saved = localStorage.getItem('app_locations_master');
+      if (saved !== null) {
+        try { setLocations(JSON.parse(saved)); } catch(e) { setLocations(sampleLocationsFallback); }
       } else {
         setLocations(sampleLocationsFallback);
       }
-    } catch {
-      setLocations(sampleLocationsFallback);
     }
   };
 
@@ -300,7 +360,6 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
   const openCreateDeptModal = () => {
     setEditingDept(null);
     setDeptForm(initialDeptFormState);
-    setTouchedDept({});
     setShowCreateDeptModal(true);
   };
 
@@ -309,21 +368,20 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     setDeptForm({
       code: dept.code || '',
       name: dept.name || '',
-      head_name: dept.head_name || 'Dr. Ananya Roy',
+      head_name: dept.head_name || '',
       cost_centre: dept.cost_centre || '',
-      default_approver: dept.default_approver || 'Sarah Jenkins',
+      default_approver: dept.default_approver || '',
       branch: dept.branch || 'Main Campus - Bangalore',
-      budget_monthly: dept.budget_monthly || 200000,
-      budget_quarterly: dept.budget_quarterly || 600000,
-      budget_annual: dept.budget_annual || 2400000,
-      category_budget_it: dept.category_budgets?.['cat-01'] || 1200000,
-      category_budget_ele: dept.category_budgets?.['cat-02'] || 500000,
-      category_budget_off: dept.category_budgets?.['cat-03'] || 400000,
-      category_budget_raw: dept.category_budgets?.['cat-04'] || 300000,
+      budget_monthly: dept.budget_monthly || 500000,
+      budget_quarterly: dept.budget_quarterly || 1500000,
+      budget_annual: dept.budget_annual || 6000000,
+      category_budget_it: dept.category_budgets?.['cat-01'] || 250000,
+      category_budget_ele: dept.category_budgets?.['cat-02'] || 100000,
+      category_budget_off: dept.category_budgets?.['cat-03'] || 50000,
+      category_budget_raw: dept.category_budgets?.['cat-04'] || 100000,
       budget_control_rule: dept.budget_control_rule || 'Warn',
       active_status: dept.active_status !== false
     });
-    setTouchedDept({});
     setShowCreateDeptModal(true);
   };
 
@@ -352,11 +410,19 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     };
 
     if (editingDept) {
-      setDepartments(prev => prev.map(d => (d.id === editingDept.id ? { ...d, ...payload } : d)));
+      setDepartments(prev => {
+        const updated = prev.map(d => (d.id === editingDept.id ? { ...d, ...payload } : d));
+        localStorage.setItem('app_departments_master', JSON.stringify(updated));
+        return updated;
+      });
       showToastNotification('info', 'Department Updated', `Department "${payload.name}" updated.`);
     } else {
       const newDept = { id: `dept-${Date.now()}`, ...payload, ytd_consumption: 0, recent_issues_count: 0 };
-      setDepartments(prev => [newDept, ...prev]);
+      setDepartments(prev => {
+        const updated = [newDept, ...prev];
+        localStorage.setItem('app_departments_master', JSON.stringify(updated));
+        return updated;
+      });
       showToastNotification('success', 'Department Registered', `Department "${payload.name}" registered.`);
     }
     setShowCreateDeptModal(false);
@@ -364,7 +430,11 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
 
   const handleDeleteDeptConfirm = () => {
     if (!deleteConfirmDept) return;
-    setDepartments(prev => prev.filter(d => d.id !== deleteConfirmDept.id));
+    setDepartments(prev => {
+      const filtered = prev.filter(d => d.id !== deleteConfirmDept.id);
+      localStorage.setItem('app_departments_master', JSON.stringify(filtered));
+      return filtered;
+    });
     showToastNotification('danger', 'Department Deleted', `Department "${deleteConfirmDept.name}" deleted.`);
     setDeleteConfirmDept(null);
   };
@@ -403,11 +473,19 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     };
 
     if (editingWh) {
-      setWarehouses(prev => prev.map(w => (w.id === editingWh.id ? { ...w, ...payload } : w)));
+      setWarehouses(prev => {
+        const updated = prev.map(w => (w.id === editingWh.id ? { ...w, ...payload } : w));
+        localStorage.setItem('app_warehouses_master', JSON.stringify(updated));
+        return updated;
+      });
       showToastNotification('info', 'Warehouse Updated', `Warehouse "${payload.name}" updated.`);
     } else {
       const newWh = { id: `wh-${Date.now()}`, ...payload, total_bins: 10, occupied_bins: 2 };
-      setWarehouses(prev => [newWh, ...prev]);
+      setWarehouses(prev => {
+        const updated = [newWh, ...prev];
+        localStorage.setItem('app_warehouses_master', JSON.stringify(updated));
+        return updated;
+      });
       showToastNotification('success', 'Warehouse Created', `Warehouse "${payload.name}" created successfully.`);
     }
     setShowCreateWhModal(false);
@@ -415,7 +493,11 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
 
   const handleDeleteWhConfirm = () => {
     if (!deleteConfirmWh) return;
-    setWarehouses(prev => prev.filter(w => w.id !== deleteConfirmWh.id));
+    setWarehouses(prev => {
+      const filtered = prev.filter(w => w.id !== deleteConfirmWh.id);
+      localStorage.setItem('app_warehouses_master', JSON.stringify(filtered));
+      return filtered;
+    });
     showToastNotification('danger', 'Warehouse Deleted', `Warehouse "${deleteConfirmWh.name}" deleted.`);
     setDeleteConfirmWh(null);
   };
@@ -457,11 +539,19 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     };
 
     if (editingLoc) {
-      setLocations(prev => prev.map(l => (l.id === editingLoc.id ? { ...l, ...payload } : l)));
+      setLocations(prev => {
+        const updated = prev.map(l => (l.id === editingLoc.id ? { ...l, ...payload } : l));
+        localStorage.setItem('app_locations_master', JSON.stringify(updated));
+        return updated;
+      });
       showToastNotification('info', 'Location Updated', `Location "${payload.code}" updated.`);
     } else {
       const newLoc = { id: `loc-${Date.now()}`, ...payload, item_count: 0 };
-      setLocations(prev => [newLoc, ...prev]);
+      setLocations(prev => {
+        const updated = [newLoc, ...prev];
+        localStorage.setItem('app_locations_master', JSON.stringify(updated));
+        return updated;
+      });
       showToastNotification('success', 'Location Created', `Location "${payload.code}" registered.`);
     }
     setShowCreateLocModal(false);
@@ -469,7 +559,11 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
 
   const handleDeleteLocConfirm = () => {
     if (!deleteConfirmLoc) return;
-    setLocations(prev => prev.filter(l => l.id !== deleteConfirmLoc.id));
+    setLocations(prev => {
+      const filtered = prev.filter(l => l.id !== deleteConfirmLoc.id);
+      localStorage.setItem('app_locations_master', JSON.stringify(filtered));
+      return filtered;
+    });
     showToastNotification('danger', 'Location Deleted', `Location "${deleteConfirmLoc.code}" removed.`);
     setDeleteConfirmLoc(null);
   };

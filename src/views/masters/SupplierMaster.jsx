@@ -271,14 +271,34 @@ export default function SupplierMaster() {
     try {
       const res = await fetch('/api/suppliers');
       const data = await res.json();
-      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-        setSuppliers(data.data);
+      if (data.success && Array.isArray(data.data)) {
+        const savedLocal = localStorage.getItem('app_suppliers_master');
+        if (data.data.length > 0) {
+          setSuppliers(data.data);
+          localStorage.setItem('app_suppliers_master', JSON.stringify(data.data));
+        } else if (savedLocal !== null) {
+          try { setSuppliers(JSON.parse(savedLocal)); } catch(e) { setSuppliers([]); }
+        } else {
+          setSuppliers(sampleSuppliersFallback);
+          localStorage.setItem('app_suppliers_master', JSON.stringify(sampleSuppliersFallback));
+        }
       } else {
-        setSuppliers(sampleSuppliersFallback);
+        const saved = localStorage.getItem('app_suppliers_master');
+        if (saved !== null) {
+          try { setSuppliers(JSON.parse(saved)); } catch(e) { setSuppliers(sampleSuppliersFallback); }
+        } else {
+          setSuppliers(sampleSuppliersFallback);
+          localStorage.setItem('app_suppliers_master', JSON.stringify(sampleSuppliersFallback));
+        }
       }
     } catch (err) {
       console.error(err);
-      setSuppliers(sampleSuppliersFallback);
+      const saved = localStorage.getItem('app_suppliers_master');
+      if (saved !== null) {
+        try { setSuppliers(JSON.parse(saved)); } catch(e) { setSuppliers(sampleSuppliersFallback); }
+      } else {
+        setSuppliers(sampleSuppliersFallback);
+      }
     }
   };
 
@@ -357,6 +377,7 @@ export default function SupplierMaster() {
       is_active: newStatus !== 'Inactive' && newStatus !== 'Blacklisted'
     } : s);
     setSuppliers(updated);
+    localStorage.setItem('app_suppliers_master', JSON.stringify(updated));
 
     showToastNotification(
       newStatus === 'Approved' ? 'success' : newStatus === 'Blacklisted' ? 'danger' : 'warning',
@@ -364,7 +385,8 @@ export default function SupplierMaster() {
       `Supplier "${sup.supplier_name}" (${sup.supplier_code}) status changed to ${newStatus}.`
     );
 
-    fetch(`/api/suppliers/${sup.id}`, {
+    const targetId = sup.id || sup.supplier_code;
+    fetch(`/api/suppliers/${encodeURIComponent(targetId)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ approval_status: newStatus, is_active: newStatus !== 'Inactive' && newStatus !== 'Blacklisted' })
@@ -376,7 +398,9 @@ export default function SupplierMaster() {
     if (!deleteConfirmSupplier) return;
     const target = deleteConfirmSupplier;
 
-    setSuppliers(prev => prev.filter(s => s.id !== target.id && s.supplier_code !== target.supplier_code));
+    const filtered = suppliers.filter(s => s.id !== target.id && s.supplier_code !== target.supplier_code);
+    setSuppliers(filtered);
+    localStorage.setItem('app_suppliers_master', JSON.stringify(filtered));
     setDeleteConfirmSupplier(null);
     setOpenActionDropdown(null);
 
@@ -386,7 +410,8 @@ export default function SupplierMaster() {
       `Supplier "${target.supplier_name}" (${target.supplier_code}) has been permanently deleted.`
     );
 
-    fetch(`/api/suppliers/${target.id}`, {
+    const targetId = target.id || target.supplier_code;
+    fetch(`/api/suppliers/${encodeURIComponent(targetId)}`, {
       method: 'DELETE'
     }).catch(err => console.error(err));
   };
@@ -427,6 +452,7 @@ export default function SupplierMaster() {
           return s;
         });
         setSuppliers(updated);
+        localStorage.setItem('app_suppliers_master', JSON.stringify(updated));
         setShowCreateModal(false);
         setEditingSupplier(null);
 
@@ -438,15 +464,17 @@ export default function SupplierMaster() {
 
         setFormData(initialFormState);
 
-        fetch(`/api/suppliers/${editingSupplier.id}`, {
+        const targetId = editingSupplier.id || editingSupplier.supplier_code;
+        fetch(`/api/suppliers/${encodeURIComponent(targetId)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         }).catch(() => null);
       } else {
         // Register New Supplier
+        const tempId = `sup-${Date.now()}`;
         const newSup = {
-          id: `sup-${Date.now()}`,
+          id: tempId,
           supplier_code: formData.supplier_code || `SUP-${Math.floor(10000 + Math.random() * 90000)}`,
           supplier_name: formData.supplier_name,
           contact_person: formData.contact_person,
@@ -481,7 +509,9 @@ export default function SupplierMaster() {
           is_active: formData.approval_status !== 'Inactive' && formData.approval_status !== 'Blacklisted'
         };
 
-        setSuppliers([newSup, ...suppliers]);
+        const updatedList = [newSup, ...suppliers];
+        setSuppliers(updatedList);
+        localStorage.setItem('app_suppliers_master', JSON.stringify(updatedList));
         setShowCreateModal(false);
 
         showToastNotification(
@@ -496,7 +526,20 @@ export default function SupplierMaster() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
-        }).catch(() => null);
+        })
+          .then(r => r.json())
+          .then(resData => {
+            if (resData.success && resData.data) {
+              const realId = resData.data.id || tempId;
+              const realCode = resData.data.supplier_code || newSup.supplier_code;
+              setSuppliers(prev => {
+                const synced = prev.map(s => s.id === tempId ? { ...s, id: realId, supplier_code: realCode } : s);
+                localStorage.setItem('app_suppliers_master', JSON.stringify(synced));
+                return synced;
+              });
+            }
+          })
+          .catch(() => null);
       }
     } catch (err) {
       console.error(err);

@@ -389,17 +389,39 @@ export default function ItemMaster() {
         fetch('/api/taxes').then(r => r.json()).catch(() => ({}))
       ]);
 
-      if (resItems.success && Array.isArray(resItems.data) && resItems.data.length > 0) {
-        // Merge API data with subcategory/status formatting
+      if (resItems.success && Array.isArray(resItems.data)) {
         const formatted = resItems.data.map(i => ({
           ...i,
           subcategory: i.subcategory || (categorySubcategories[i.category_id] ? categorySubcategories[i.category_id][0] : 'General'),
           brand_name: i.brand_name || i.brand || 'Generic',
           status: i.status || (i.is_active === false ? 'Inactive' : 'Active')
         }));
-        setItems(formatted);
+        const savedLocal = localStorage.getItem('app_items_master');
+        if (formatted.length > 0) {
+          setItems(formatted);
+          localStorage.setItem('app_items_master', JSON.stringify(formatted));
+        } else if (savedLocal !== null) {
+          try {
+            setItems(JSON.parse(savedLocal));
+          } catch(e) {
+            setItems([]);
+          }
+        } else {
+          setItems(sampleItemsFallback);
+          localStorage.setItem('app_items_master', JSON.stringify(sampleItemsFallback));
+        }
       } else {
-        setItems(sampleItemsFallback);
+        const saved = localStorage.getItem('app_items_master');
+        if (saved !== null) {
+          try {
+            setItems(JSON.parse(saved));
+          } catch(e) {
+            setItems(sampleItemsFallback);
+          }
+        } else {
+          setItems(sampleItemsFallback);
+          localStorage.setItem('app_items_master', JSON.stringify(sampleItemsFallback));
+        }
       }
 
       if (resCats.success && Array.isArray(resCats.data)) setCategories(resCats.data);
@@ -408,7 +430,12 @@ export default function ItemMaster() {
       if (resTaxes.success && Array.isArray(resTaxes.data)) setTaxes(resTaxes.data);
     } catch (err) {
       console.error(err);
-      setItems(sampleItemsFallback);
+      const saved = localStorage.getItem('app_items_master');
+      if (saved !== null) {
+        try { setItems(JSON.parse(saved)); } catch(e) { setItems(sampleItemsFallback); }
+      } else {
+        setItems(sampleItemsFallback);
+      }
     }
   };
 
@@ -517,7 +544,9 @@ export default function ItemMaster() {
     if (!deactivateConfirmItem) return;
     const target = deactivateConfirmItem;
 
-    setItems(prevItems => prevItems.map(i => (i.id === target.id || i.item_code === target.item_code) ? { ...i, status: 'Inactive', is_active: false } : i));
+    const updated = items.map(i => (i.id === target.id || i.item_code === target.item_code) ? { ...i, status: 'Inactive', is_active: false } : i);
+    setItems(updated);
+    localStorage.setItem('app_items_master', JSON.stringify(updated));
     setDeactivateConfirmItem(null);
     setOpenActionDropdown(null);
 
@@ -527,7 +556,8 @@ export default function ItemMaster() {
       `Item "${target.item_name}" (${target.item_code}) has been marked as Inactive.`
     );
 
-    fetch(`/api/items/${target.id}`, {
+    const targetId = target.id || target.item_code;
+    fetch(`/api/items/${encodeURIComponent(targetId)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'Inactive', is_active: false })
@@ -540,7 +570,9 @@ export default function ItemMaster() {
     if (!deleteConfirmItem) return;
     const target = deleteConfirmItem;
 
-    setItems(prevItems => prevItems.filter(i => i.id !== target.id && i.item_code !== target.item_code));
+    const filtered = items.filter(i => i.id !== target.id && i.item_code !== target.item_code);
+    setItems(filtered);
+    localStorage.setItem('app_items_master', JSON.stringify(filtered));
     setDeleteConfirmItem(null);
     setOpenActionDropdown(null);
 
@@ -550,7 +582,8 @@ export default function ItemMaster() {
       `Item "${target.item_name}" (${target.item_code}) has been permanently deleted.`
     );
 
-    fetch(`/api/items/${target.id}`, {
+    const targetId = target.id || target.item_code;
+    fetch(`/api/items/${encodeURIComponent(targetId)}`, {
       method: 'DELETE'
     }).catch(err => console.error(err));
   };
@@ -588,6 +621,7 @@ export default function ItemMaster() {
           return i;
         });
         setItems(updatedItems);
+        localStorage.setItem('app_items_master', JSON.stringify(updatedItems));
         setShowCreateModal(false);
         setEditingItem(null);
 
@@ -599,15 +633,17 @@ export default function ItemMaster() {
 
         setFormData(initialFormState);
 
-        fetch(`/api/items/${editingItem.id}`, {
+        const targetId = editingItem.id || editingItem.item_code;
+        fetch(`/api/items/${encodeURIComponent(targetId)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         }).catch(() => null);
       } else {
         // Create New Item
+        const tempId = `item-${Date.now()}`;
         const newItem = {
-          id: `item-${Date.now()}`,
+          id: tempId,
           item_code: formData.item_code || `ITM-${Math.floor(1000 + Math.random() * 9000)}`,
           item_name: formData.item_name,
           description: formData.description,
@@ -646,7 +682,9 @@ export default function ItemMaster() {
           status: formData.status
         };
 
-        setItems([newItem, ...items]);
+        const updatedList = [newItem, ...items];
+        setItems(updatedList);
+        localStorage.setItem('app_items_master', JSON.stringify(updatedList));
         setShowCreateModal(false);
 
         showToastNotification(
@@ -661,7 +699,20 @@ export default function ItemMaster() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
-        }).catch(() => null);
+        })
+          .then(r => r.json())
+          .then(resData => {
+            if (resData.success && resData.data) {
+              const realId = resData.data.id || tempId;
+              const realCode = resData.data.item_code || newItem.item_code;
+              setItems(prevItems => {
+                const synced = prevItems.map(i => i.id === tempId ? { ...i, id: realId, item_code: realCode } : i);
+                localStorage.setItem('app_items_master', JSON.stringify(synced));
+                return synced;
+              });
+            }
+          })
+          .catch(() => null);
       }
     } catch (err) {
       console.error(err);

@@ -32,7 +32,9 @@ import StockAvailabilityReview from './views/system/StockAvailabilityReview';
 import StockAdjustment from './views/inventory/StockAdjustment';
 import ReservationManagement from './views/inventory/ReservationManagement';
 import NotificationsPage from './views/system/NotificationsPage';
-import ImportAttachments from './views/system/ImportAttachments';
+import DataImportExport from './views/system/DataImportExport';
+import SearchFiltersEngine from './views/system/SearchFiltersEngine';
+import DocumentAttachments from './views/system/DocumentAttachments';
 
 function MainLayout() {
   const { user } = useAuth();
@@ -147,11 +149,11 @@ function MainLayout() {
       case 'sec-32':
         return <Settings initialSubTab="company" />;
       case 'sec-33':
-        return <ImportAttachments initialTab="import" />;
+        return <DataImportExport />;
       case 'sec-34':
-        return <ImportAttachments initialTab="search" />;
+        return <SearchFiltersEngine />;
       case 'sec-35':
-        return <ImportAttachments initialTab="attachments" />;
+        return <DocumentAttachments />;
       default:
         return <Dashboard setActiveTab={setActiveTab} />;
     }
