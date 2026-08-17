@@ -27,16 +27,23 @@ import Reports from './views/Reports';
 import AuditLogs from './views/AuditLogs';
 import Settings from './views/Settings';
 
-// Exact Enterprise PDF Section Views
-import StockAvailabilityReview from './views/pdf/StockAvailabilityReview';
+// System & Document Feature Views
+import StockAvailabilityReview from './views/system/StockAvailabilityReview';
 import StockAdjustment from './views/inventory/StockAdjustment';
 import ReservationManagement from './views/inventory/ReservationManagement';
-import NotificationsPage from './views/pdf/NotificationsPage';
-import ImportAttachments from './views/pdf/ImportAttachments';
+import NotificationsPage from './views/system/NotificationsPage';
+import ImportAttachments from './views/system/ImportAttachments';
 
 function MainLayout() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('sec-5');
+  const [activeTab, setActiveTabState] = useState(() => {
+    return localStorage.getItem('app-active-tab') || 'sec-6';
+  });
+
+  const setActiveTab = (tabId) => {
+    localStorage.setItem('app-active-tab', tabId);
+    setActiveTabState(tabId);
+  };
 
   // Real Enterprise Software RBAC Module Permissions
   const rolePermissions = {
@@ -66,12 +73,12 @@ function MainLayout() {
     ]
   };
 
-  // Reset active tab if user role does not have access to current tab
+  // Ensure active tab is allowed for current user role
   useEffect(() => {
     if (user) {
       const allowed = rolePermissions[user.role_id] || rolePermissions['role-admin'];
       if (!allowed.includes(activeTab)) {
-        setActiveTab('sec-5');
+        setActiveTab('sec-6');
       }
     }
   }, [user]);
@@ -164,7 +171,7 @@ function MainLayout() {
 }
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
 
   return (
     <>

@@ -100,7 +100,7 @@ export default function ItemMaster() {
     rack: 'Rack R-01',
     shelf: 'Shelf S-1',
     bin: 'Bin B-101',
-    barcode: '890123456789',
+    barcode: '',
     qr_code: '',
     is_batch_tracked: false,
     batch_number: 'BAT-2026-0801',
@@ -435,7 +435,7 @@ export default function ItemMaster() {
         errors.expiry_date = 'Expiry date must be later than manufacturing date.';
       }
     }
-    if (formData.barcode && items.some(i => i.barcode === formData.barcode && i.id !== editingItem?.id)) {
+    if (formData.barcode && formData.barcode.trim() !== '' && items.some(i => i.barcode === formData.barcode.trim() && i.id !== editingItem?.id)) {
       errors.barcode = 'Barcode matches an existing item in the system.';
     }
     return errors;
@@ -651,8 +651,8 @@ export default function ItemMaster() {
 
         showToastNotification(
           'success',
-          'New Item Created',
-          `Item "${newItem.item_name}" (${newItem.item_code}) added to item master catalog.`
+          'Item Added',
+          `Item "${newItem.item_name}" (${newItem.item_code}) added successfully.`
         );
 
         setFormData(initialFormState);
@@ -828,15 +828,27 @@ export default function ItemMaster() {
 
                     {/* 14. Actions Dropdown / Menu */}
                     <td className="p-3.5 text-right relative">
-                      <div className="flex items-center justify-end space-x-1">
+                      <div className="flex items-center justify-end space-x-1.5">
                         {/* Quick View Button */}
                         <button 
                           type="button"
                           onClick={() => openViewModal(item)}
-                          className="p-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:text-purple-700 rounded-lg text-slate-600 transition"
+                          className="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer shadow-2xs"
                           title="View Complete Item Details"
                         >
                           <Eye className="w-3.5 h-3.5" />
+                          <span>View</span>
+                        </button>
+
+                        {/* Prominent High-Visibility EDIT Button */}
+                        <button 
+                          type="button"
+                          onClick={() => openEditModal(item)}
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-md shadow-blue-500/20 hover:scale-105"
+                          title="Edit Item Specifications"
+                        >
+                          <Edit className="w-3.5 h-3.5 text-white" />
+                          <span>Edit</span>
                         </button>
 
                         {/* Actions Menu Dropdown Trigger */}
@@ -844,8 +856,8 @@ export default function ItemMaster() {
                           <button 
                             type="button"
                             onClick={() => setOpenActionDropdown(openActionDropdown === item.id ? null : item.id)}
-                            className="p-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-lg text-slate-600 transition flex items-center space-x-1"
-                            title="Actions Menu"
+                            className="p-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl text-slate-600 transition flex items-center space-x-1 cursor-pointer"
+                            title="More Actions"
                           >
                             <MoreVertical className="w-3.5 h-3.5" />
                           </button>
@@ -1888,10 +1900,15 @@ export default function ItemMaster() {
             <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
               <div className="text-[11px] text-slate-500 font-medium">
                 {Object.keys(errors).length > 0 && Object.keys(touched).length > 0 ? (
-                  <span className="text-rose-600 font-bold flex items-center">
-                    <AlertTriangle className="w-3.5 h-3.5 mr-1" />
-                    Please fix {Object.keys(errors).length} validation error(s) before saving.
-                  </span>
+                  <div className="text-rose-600 font-bold flex flex-col space-y-0.5">
+                    <span className="flex items-center text-xs">
+                      <AlertTriangle className="w-3.5 h-3.5 mr-1 shrink-0 text-rose-600" />
+                      Please fix {Object.keys(errors).length} validation error(s):
+                    </span>
+                    <span className="text-[11px] font-semibold text-rose-600 pl-4">
+                      {Object.values(errors).join(' • ')}
+                    </span>
+                  </div>
                 ) : (
                   <span className="text-emerald-700 font-semibold flex items-center">
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1" />

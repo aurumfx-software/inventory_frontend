@@ -1,5 +1,32 @@
 import React, { createContext, useContext, useState } from 'react';
 
+const rolePermissionsMap = {
+  'role-admin': [
+    'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
+    'sec-11', 'sec-12', 'sec-13', 'sec-14', 'sec-15', 'sec-16', 'sec-17', 'sec-18', 'sec-19', 'sec-20',
+    'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30',
+    'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35'
+  ],
+  'role-purchase': [
+    'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
+  ],
+  'role-store': [
+    'sec-5', 'sec-6', 'sec-8', 'sec-9', 'sec-13', 'sec-17', 'sec-18', 'sec-19', 'sec-20', 'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30'
+  ],
+  'role-dept-mgr': [
+    'sec-5', 'sec-8', 'sec-11', 'sec-12', 'sec-20', 'sec-22', 'sec-29', 'sec-30'
+  ],
+  'role-requester': [
+    'sec-5', 'sec-11', 'sec-22', 'sec-29'
+  ],
+  'role-finance': [
+    'sec-5', 'sec-12', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
+  ],
+  'role-auditor': [
+    'sec-5', 'sec-19', 'sec-20', 'sec-26', 'sec-29', 'sec-30', 'sec-31'
+  ]
+};
+
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
