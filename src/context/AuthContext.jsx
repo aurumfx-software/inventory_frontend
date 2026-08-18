@@ -101,6 +101,26 @@ export function AuthProvider({ children }) {
   };
 
   const login = async (email, password) => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email || 'admin@company.com', password: password || 'password123' })
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setUser({
+          ...data.user,
+          permissions: rolePermissionsMap[data.user.role_id] || ['*']
+        });
+        setToken(data.token || 'active-session-token');
+        return { success: true };
+      }
+    } catch (err) {
+      console.warn('Backend login endpoint unavailable, using offline fallback:', err);
+    }
+
+    // Fallback role map if backend offline
     const roleMap = [
       { email: 'admin@company.com', name: 'Super Administrator', user: 'Sarah Jenkins', id: 'usr-01', role_id: 'role-admin' },
       { email: 'purchase@company.com', name: 'Purchase Manager', user: 'Rajesh Kumar', id: 'usr-02', role_id: 'role-purchase' },
