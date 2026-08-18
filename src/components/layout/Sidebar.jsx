@@ -25,7 +25,8 @@ import {
   Settings as SettingsIcon,
   Upload,
   Search,
-  Paperclip
+  Paperclip,
+  Zap
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
@@ -57,7 +58,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
       'sec-11', 'sec-12', 'sec-13', 'sec-14', 'sec-15', 'sec-16', 'sec-17', 'sec-18', 'sec-19', 'sec-20',
       'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30',
-      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35'
+      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35', 'sec-pos'
     ],
     'role-purchase': [
       'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
@@ -124,7 +125,8 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         { id: 'sec-25', label: 'Stock Adjustments', icon: Sliders },
         { id: 'sec-26', label: 'Physical Verification', icon: ClipboardList },
         { id: 'sec-27', label: 'Reservation Management', icon: BookmarkCheck },
-        { id: 'sec-28', label: 'Asset Tracking', icon: Laptop }
+        { id: 'sec-28', label: 'Asset Tracking', icon: Laptop },
+        { id: 'sec-pos', label: 'POS Billing & Invoicing', icon: Zap }
       ]
     },
     {

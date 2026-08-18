@@ -35,6 +35,7 @@ import NotificationsPage from './views/system/NotificationsPage';
 import DataImportExport from './views/system/DataImportExport';
 import SearchFiltersEngine from './views/system/SearchFiltersEngine';
 import DocumentAttachments from './views/system/DocumentAttachments';
+import BillingPOS from './views/BillingPOS';
 
 function MainLayout() {
   const { user } = useAuth();
@@ -154,6 +155,8 @@ function MainLayout() {
         return <SearchFiltersEngine />;
       case 'sec-35':
         return <DocumentAttachments />;
+      case 'sec-pos':
+        return <BillingPOS />;
       default:
         return <Dashboard setActiveTab={setActiveTab} />;
     }

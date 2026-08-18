@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Boxes, Eye, EyeOff, Mail, KeyRound, ChevronLeft, ChevronRight, CheckCircle2, X, RefreshCw } from 'lucide-react';
+import { Boxes, Eye, EyeOff, Mail, KeyRound, ChevronLeft, ChevronRight, CheckCircle2, X, RefreshCw, Zap, ShoppingCart } from 'lucide-react';
+import BillingPOS from './BillingPOS';
 
 export default function Login() {
   const { login } = useAuth();
@@ -9,6 +10,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showBillingPortal, setShowBillingPortal] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetSuccess, setResetSuccess] = useState('');
   const [error, setError] = useState('');
@@ -94,6 +96,10 @@ export default function Login() {
     setEmail(roles[nextIdx].email);
   };
 
+  if (showBillingPortal) {
+    return <BillingPOS onBackToLogin={() => setShowBillingPortal(false)} />;
+  }
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 select-none font-sans relative overflow-hidden">
       
@@ -169,7 +175,7 @@ export default function Login() {
 
         {/* Right Section Card - Form Area matching reference image */}
         <div className="md:w-7/12 p-6 sm:p-10 flex flex-col justify-center space-y-6">
-          {/* Brand & Language Selector */}
+          {/* Brand & Language Selector & Billing Portal Access */}
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-sm shadow-md shadow-rose-500/20">
@@ -178,9 +184,19 @@ export default function Login() {
               <h1 className="font-black text-lg text-slate-900 tracking-tight font-heading">INVENTORY SOFTWARE</h1>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200/80 px-3 py-1 rounded-full text-slate-600 text-[11px] font-bold flex items-center space-x-1">
-              <span>🇬🇧 EN</span>
-              <span className="text-slate-400">v</span>
+            <div className="flex items-center space-x-2">
+              <button 
+                type="button"
+                onClick={() => setShowBillingPortal(true)}
+                className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center space-x-1.5 shadow-md shadow-rose-500/20 transition cursor-pointer"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>POS Billing Portal</span>
+              </button>
+              <div className="bg-slate-50 border border-slate-200/80 px-3 py-1 rounded-full text-slate-600 text-[11px] font-bold flex items-center space-x-1">
+                <span>🇬🇧 EN</span>
+                <span className="text-slate-400">v</span>
+              </div>
             </div>
           </div>
 
