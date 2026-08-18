@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Boxes, Eye, EyeOff, Mail, KeyRound, ChevronLeft, ChevronRight, CheckCircle2, X } from 'lucide-react';
+import { Boxes, Eye, EyeOff, Mail, KeyRound, ChevronLeft, ChevronRight, CheckCircle2, X, RefreshCw } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
@@ -47,6 +47,10 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    // Show 2-second Authenticating loading state per user request
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     const res = await login(email, password);
     setLoading(false);
     if (!res.success) {
@@ -70,6 +74,10 @@ export default function Login() {
     setEmail(personaEmail);
     setPassword('password123');
     setLoading(true);
+
+    // Show 2-second Authenticating loading state per user request
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     await login(personaEmail, 'password123');
     setLoading(false);
   };
@@ -249,6 +257,7 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold text-sm py-3.5 rounded-full shadow-lg shadow-rose-500/25 flex items-center justify-center space-x-2 transition cursor-pointer"
             >
+              {loading && <RefreshCw className="w-4 h-4 animate-spin text-white" />}
               <span>{loading ? 'Authenticating...' : 'Login'}</span>
             </button>
           </form>
