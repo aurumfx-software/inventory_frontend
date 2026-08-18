@@ -181,7 +181,7 @@ export default function BillingPOS({ onBackToLogin }) {
   return (
     <div className="min-h-screen bg-[#f1f5f9] text-slate-800 font-sans flex flex-col select-none">
       
-      {/* 1. TOP NAVIGATION HEADER BAR (NO 3-LINE ICON, INVENTORY MANAGEMENT SYSTEM TITLE) */}
+      {/* 1. TOP NAVIGATION HEADER BAR */}
       <header className="h-14 bg-[#0a1931] text-white px-5 flex items-center justify-between shrink-0 shadow-md">
         <div className="flex items-center space-x-3">
           {onBackToLogin && (
@@ -228,443 +228,393 @@ export default function BillingPOS({ onBackToLogin }) {
         </div>
       </header>
 
-      {/* BODY LAYOUT: LEFT SIDEBAR + MAIN CONTENT AREA */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* FULL WIDTH MAIN CONTENT AREA (NO LEFT SIDEBAR) */}
+      <main className="flex-1 p-6 overflow-y-auto space-y-5 max-w-7xl mx-auto w-full">
         
-        {/* 2. LEFT SIDEBAR (NO DASHBOARD, INVENTORY SYSTEM NAVIGATION) */}
-        <aside className="w-60 bg-[#0a1931] text-slate-300 flex flex-col justify-between shrink-0 shadow-lg border-r border-slate-800">
-          <div className="py-4 space-y-1 overflow-y-auto">
-            {[
-              { label: 'Customer Management', icon: Users },
-              { label: 'Item Master & Stock', icon: Activity },
-              { label: 'Indents & Requisitions', icon: FileText },
-              { label: 'Purchase Orders', icon: CreditCard },
-              { label: 'Goods Receipt (GRN)', icon: Activity },
-              { label: 'Billing Update', icon: BarChart3, active: true },
-              { label: 'Reports', icon: BarChart3 },
-              { label: 'Messages', icon: Mail, badge: 2 },
-              { label: 'Settings', icon: Settings }
-            ].map((item, idx) => (
-              <button
-                key={idx}
-                className={`w-full px-5 py-2.5 flex items-center justify-between text-xs font-semibold transition cursor-pointer ${
-                  item.active 
-                    ? 'bg-[#1d4ed8] text-white font-bold shadow-md' 
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <item.icon className={`w-4 h-4 ${item.active ? 'text-white' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge && (
-                  <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            ))}
+        {/* Page Title & Breadcrumb */}
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight font-heading">Billing Update</h1>
+          <div className="text-xs text-slate-500 font-medium space-x-1 mt-0.5">
+            <span>Billing</span>
+            <span>&gt;</span>
+            <span className="text-blue-700 font-semibold">Billing Update</span>
           </div>
+        </div>
 
-          <div className="p-4 border-t border-slate-800">
-            <button 
-              onClick={onBackToLogin}
-              className="w-full flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Exit Billing</span>
-            </button>
-          </div>
-        </aside>
-
-        {/* 3. MAIN CONTENT AREA (NO DASHBOARD BREADCRUMB) */}
-        <main className="flex-1 p-6 overflow-y-auto space-y-5">
+        {/* TOP INFO PROFILE CARD + BALANCE DUE SUMMARY CARD */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           
-          {/* Page Title & Breadcrumb without separate Dashboard */}
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight font-heading">Billing Update</h1>
-            <div className="text-xs text-slate-500 font-medium space-x-1 mt-0.5">
-              <span>Billing</span>
-              <span>&gt;</span>
-              <span className="text-blue-700 font-semibold">Billing Update</span>
-            </div>
-          </div>
-
-          {/* TOP INFO PROFILE CARD + BALANCE DUE SUMMARY CARD */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            
-            {/* Left 3 Cols: Customer / Requester Details Box */}
-            <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
-                  <User className="w-8 h-8" />
-                </div>
-                
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-4 text-xs">
-                    <span className="text-slate-500 font-medium">Customer / Requester ID</span>
-                    <span className="font-bold text-slate-900 font-mono">{customer.id}</span>
-                    
-                    <span className="text-slate-400">|</span>
-                    
-                    <span className="text-slate-500 font-medium">Dept / Store</span>
-                    <span className="font-bold text-slate-900">{customer.dept}</span>
-                  </div>
-
-                  <div className="flex items-center space-x-4 text-xs pt-1">
-                    <span className="text-slate-500 font-medium">Customer Name</span>
-                    <span className="font-bold text-slate-900 text-sm font-heading">{customer.name}</span>
-                    
-                    <span className="text-slate-400">|</span>
-                    
-                    <span className="text-slate-500 font-medium">Ref Indent</span>
-                    <span className="font-bold text-blue-700 font-mono">{customer.ref_indent}</span>
-                  </div>
-                </div>
+          {/* Left 3 Cols: Customer / Requester Details Box */}
+          <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                <User className="w-8 h-8" />
               </div>
-            </div>
-
-            {/* Right 1 Col: Balance Due Card */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs flex flex-col justify-center items-center text-center">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">BALANCE DUE</span>
-              <span className="text-2xl font-black text-purple-700 font-mono mt-1">
-                ₹ {balanceDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-          </div>
-
-          {/* MAIN BILLING TABS & TABLES vs RIGHT SETTLEMENT PANEL */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            
-            {/* LEFT 2 COLS: Tab Navigation, Itemized Charges Table, Payment Summary Table */}
-            <div className="lg:col-span-2 space-y-6">
               
-              {/* Main Tabs Bar */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-1 shadow-2xs flex items-center space-x-1">
-                {['Itemized Charges', 'Payments', 'Adjustments', 'Payment History'].map(tab => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer border-b-2 ${
-                      activeTab === tab 
-                        ? 'border-blue-700 text-blue-700 bg-blue-50/50' 
-                        : 'border-transparent text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-
-              {/* ITEMIZED CHARGES TABLE CONTAINER */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-4">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead>
-                      <tr className="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
-                        <th className="p-2.5">Date</th>
-                        <th className="p-2.5">Category</th>
-                        <th className="p-2.5">Description</th>
-                        <th className="p-2.5 text-center">Qty</th>
-                        <th className="p-2.5 text-right">Unit Price</th>
-                        <th className="p-2.5 text-right">Amount</th>
-                        <th className="p-2.5 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 font-medium">
-                      {charges.map(row => (
-                        <tr key={row.id} className="hover:bg-slate-50 transition">
-                          <td className="p-2.5 text-slate-500 font-mono">{row.date}</td>
-                          <td className="p-2.5 font-semibold text-slate-800">{row.category}</td>
-                          <td className="p-2.5 text-slate-900 font-bold">{row.description}</td>
-                          <td className="p-2.5 text-center font-mono font-bold">{row.qty}</td>
-                          <td className="p-2.5 text-right font-mono">₹ {row.unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                          <td className="p-2.5 text-right font-mono font-bold text-slate-900">₹ {row.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                          <td className="p-2.5 text-center">
-                            <div className="flex items-center justify-center space-x-1.5">
-                              <button className="text-blue-600 hover:text-blue-800 p-1 cursor-pointer">
-                                <Edit2 className="w-3.5 h-3.5" />
-                              </button>
-                              <button onClick={() => handleDeleteCharge(row.id)} className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-4 text-xs">
+                  <span className="text-slate-500 font-medium">Customer / Requester ID</span>
+                  <span className="font-bold text-slate-900 font-mono">{customer.id}</span>
+                  
+                  <span className="text-slate-400">|</span>
+                  
+                  <span className="text-slate-500 font-medium">Dept / Store</span>
+                  <span className="font-bold text-slate-900">{customer.dept}</span>
                 </div>
 
-                {/* Table Footer Action & Total Charges */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                  <button 
-                    onClick={() => {
-                      document.getElementById('add-charge-section')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs rounded-xl hover:bg-blue-100 transition cursor-pointer flex items-center space-x-1"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>+ Add New Charge</span>
-                  </button>
-
-                  <div className="text-right">
-                    <span className="text-xs font-bold text-blue-900 mr-3">TOTAL CHARGES</span>
-                    <span className="text-lg font-black text-blue-900 font-mono">
-                      ₹ {totalCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
+                <div className="flex items-center space-x-4 text-xs pt-1">
+                  <span className="text-slate-500 font-medium">Customer Name</span>
+                  <span className="font-bold text-slate-900 text-sm font-heading">{customer.name}</span>
+                  
+                  <span className="text-slate-400">|</span>
+                  
+                  <span className="text-slate-500 font-medium">Ref Indent</span>
+                  <span className="font-bold text-blue-700 font-mono">{customer.ref_indent}</span>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* PAYMENTS SUMMARY TABLE CONTAINER */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-blue-900">PAYMENTS SUMMARY</h3>
-                
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead>
-                      <tr className="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
-                        <th className="p-2.5">Date</th>
-                        <th className="p-2.5">OR / Reference No.</th>
-                        <th className="p-2.5">Payment Method</th>
-                        <th className="p-2.5 text-right">Amount (₹)</th>
-                        <th className="p-2.5">Received By</th>
-                        <th className="p-2.5 text-center">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 font-medium">
-                      {payments.map(p => (
-                        <tr key={p.id} className="hover:bg-slate-50 transition">
-                          <td className="p-2.5 text-slate-500 font-mono">{p.date}</td>
-                          <td className="p-2.5 font-bold font-mono text-slate-800">{p.refNo}</td>
-                          <td className="p-2.5 font-semibold text-slate-900">{p.method}</td>
-                          <td className="p-2.5 text-right font-mono font-bold text-slate-900">₹ {p.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                          <td className="p-2.5 text-slate-600">{p.receivedBy}</td>
-                          <td className="p-2.5 text-center">
-                            <button onClick={() => handleDeletePayment(p.id)} className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
+          {/* Right 1 Col: Balance Due Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs flex flex-col justify-center items-center text-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">BALANCE DUE</span>
+            <span className="text-2xl font-black text-purple-700 font-mono mt-1">
+              ₹ {balanceDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        </div>
+
+        {/* MAIN BILLING TABS & TABLES vs RIGHT SETTLEMENT PANEL */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          
+          {/* LEFT 2 COLS: Tab Navigation, Itemized Charges Table, Payment Summary Table */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Main Tabs Bar */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-1 shadow-2xs flex items-center space-x-1">
+              {['Itemized Charges', 'Payments', 'Adjustments', 'Payment History'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer border-b-2 ${
+                    activeTab === tab 
+                      ? 'border-blue-700 text-blue-700 bg-blue-50/50' 
+                      : 'border-transparent text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* ITEMIZED CHARGES TABLE CONTAINER */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-4">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
+                      <th className="p-2.5">Date</th>
+                      <th className="p-2.5">Category</th>
+                      <th className="p-2.5">Description</th>
+                      <th className="p-2.5 text-center">Qty</th>
+                      <th className="p-2.5 text-right">Unit Price</th>
+                      <th className="p-2.5 text-right">Amount</th>
+                      <th className="p-2.5 text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium">
+                    {charges.map(row => (
+                      <tr key={row.id} className="hover:bg-slate-50 transition">
+                        <td className="p-2.5 text-slate-500 font-mono">{row.date}</td>
+                        <td className="p-2.5 font-semibold text-slate-800">{row.category}</td>
+                        <td className="p-2.5 text-slate-900 font-bold">{row.description}</td>
+                        <td className="p-2.5 text-center font-mono font-bold">{row.qty}</td>
+                        <td className="p-2.5 text-right font-mono">₹ {row.unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        <td className="p-2.5 text-right font-mono font-bold text-slate-900">₹ {row.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        <td className="p-2.5 text-center">
+                          <div className="flex items-center justify-center space-x-1.5">
+                            <button className="text-blue-600 hover:text-blue-800 p-1 cursor-pointer">
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => handleDeleteCharge(row.id)} className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                {/* Payments Total Summary */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                  <span className="text-xs font-bold text-emerald-800">TOTAL PAYMENTS</span>
-                  <span className="text-lg font-black text-emerald-600 font-mono">
-                    ₹ {totalPayments.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              {/* Table Footer Action & Total Charges */}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <button 
+                  onClick={() => {
+                    document.getElementById('add-charge-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs rounded-xl hover:bg-blue-100 transition cursor-pointer flex items-center space-x-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ Add New Charge</span>
+                </button>
+
+                <div className="text-right">
+                  <span className="text-xs font-bold text-blue-900 mr-3">TOTAL CHARGES</span>
+                  <span className="text-lg font-black text-blue-900 font-mono">
+                    ₹ {totalCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* RIGHT 1 COL: Billing Overview, Add New Charge Card, Payment Quick Entry Card & 4 Action Buttons */}
-            <div className="space-y-4">
+            {/* PAYMENTS SUMMARY TABLE CONTAINER */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-blue-900">PAYMENTS SUMMARY</h3>
               
-              {/* 1. BILLING OVERVIEW CARD */}
-              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
-                <div className="bg-[#1d4ed8] text-white px-4 py-2.5 font-bold text-xs tracking-wider uppercase font-heading">
-                  BILLING OVERVIEW
-                </div>
-                
-                <div className="p-4 space-y-2 text-xs font-medium">
-                  <div className="flex justify-between text-slate-600">
-                    <span>Total Charges</span>
-                    <span className="font-mono font-bold text-slate-900">₹ {totalCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  </div>
-                  
-                  <div className="flex justify-between text-emerald-600">
-                    <span>Total Payments</span>
-                    <span className="font-mono font-bold">₹ {totalPayments.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  </div>
-                  
-                  <div className="flex justify-between text-slate-600">
-                    <span>Discount / Adjustment</span>
-                    <span className="font-mono font-bold">₹ {discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center text-sm font-bold text-purple-800 pt-2 border-t border-slate-200">
-                    <span>Balance Due</span>
-                    <span className="text-base font-black font-mono">₹ {balanceDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                  </div>
-                </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
+                      <th className="p-2.5">Date</th>
+                      <th className="p-2.5">OR / Reference No.</th>
+                      <th className="p-2.5">Payment Method</th>
+                      <th className="p-2.5 text-right">Amount (₹)</th>
+                      <th className="p-2.5">Received By</th>
+                      <th className="p-2.5 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium">
+                    {payments.map(p => (
+                      <tr key={p.id} className="hover:bg-slate-50 transition">
+                        <td className="p-2.5 text-slate-500 font-mono">{p.date}</td>
+                        <td className="p-2.5 font-bold font-mono text-slate-800">{p.refNo}</td>
+                        <td className="p-2.5 font-semibold text-slate-900">{p.method}</td>
+                        <td className="p-2.5 text-right font-mono font-bold text-slate-900">₹ {p.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        <td className="p-2.5 text-slate-600">{p.receivedBy}</td>
+                        <td className="p-2.5 text-center">
+                          <button onClick={() => handleDeletePayment(p.id)} className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
-              {/* 2. ADD NEW CHARGE CARD */}
-              <div id="add-charge-section" className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-blue-900">ADD NEW CHARGE</h3>
+              {/* Payments Total Summary */}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <span className="text-xs font-bold text-emerald-800">TOTAL PAYMENTS</span>
+                <span className="text-lg font-black text-emerald-600 font-mono">
+                  ₹ {totalPayments.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT 1 COL: Billing Overview, Add New Charge Card, Payment Quick Entry Card & 4 Action Buttons */}
+          <div className="space-y-4">
+            
+            {/* 1. BILLING OVERVIEW CARD */}
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
+              <div className="bg-[#1d4ed8] text-white px-4 py-2.5 font-bold text-xs tracking-wider uppercase font-heading">
+                BILLING OVERVIEW
+              </div>
+              
+              <div className="p-4 space-y-2 text-xs font-medium">
+                <div className="flex justify-between text-slate-600">
+                  <span>Total Charges</span>
+                  <span className="font-mono font-bold text-slate-900">₹ {totalCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
                 
-                <form onSubmit={handleAddCharge} className="space-y-2.5 text-xs">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Category</label>
-                    <select 
-                      value={newCategory}
-                      onChange={e => setNewCategory(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs font-medium"
-                    >
-                      <option value="IT Equipment">IT Equipment</option>
-                      <option value="Electrical">Electrical</option>
-                      <option value="Office Supplies">Office Supplies</option>
-                      <option value="Chemicals">Chemicals</option>
-                    </select>
-                  </div>
+                <div className="flex justify-between text-emerald-600">
+                  <span>Total Payments</span>
+                  <span className="font-mono font-bold">₹ {totalPayments.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+                
+                <div className="flex justify-between text-slate-600">
+                  <span>Discount / Adjustment</span>
+                  <span className="font-mono font-bold">₹ {discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
 
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Description / Inventory Item</label>
-                    <select 
-                      value={newDesc}
-                      onChange={e => handleSelectProduct(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs font-medium"
-                    >
-                      {masterItems.map(item => (
-                        <option key={item.id} value={item.name}>{item.name}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="flex justify-between items-center text-sm font-bold text-purple-800 pt-2 border-t border-slate-200">
+                  <span>Balance Due</span>
+                  <span className="text-base font-black font-mono">₹ {balanceDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+            </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Quantity</label>
-                      <input 
-                        type="number" 
-                        min="1"
-                        value={newQty}
-                        onChange={e => setNewQty(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Unit Price (₹)</label>
-                      <input 
-                        type="number" 
-                        value={newUnitPrice}
-                        onChange={e => setNewUnitPrice(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs font-bold"
-                      />
-                    </div>
-                  </div>
+            {/* 2. ADD NEW CHARGE CARD */}
+            <div id="add-charge-section" className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-blue-900">ADD NEW CHARGE</h3>
+              
+              <form onSubmit={handleAddCharge} className="space-y-2.5 text-xs">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Category</label>
+                  <select 
+                    value={newCategory}
+                    onChange={e => setNewCategory(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs font-medium"
+                  >
+                    <option value="IT Equipment">IT Equipment</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Office Supplies">Office Supplies</option>
+                    <option value="Chemicals">Chemicals</option>
+                  </select>
+                </div>
 
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Description / Inventory Item</label>
+                  <select 
+                    value={newDesc}
+                    onChange={e => handleSelectProduct(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs font-medium"
+                  >
+                    {masterItems.map(item => (
+                      <option key={item.id} value={item.name}>{item.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Date</label>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Quantity</label>
                     <input 
-                      type="date" 
-                      value={newChargeDate}
-                      onChange={e => setNewChargeDate(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs font-medium"
+                      type="number" 
+                      min="1"
+                      value={newQty}
+                      onChange={e => setNewQty(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs font-bold"
                     />
                   </div>
-
-                  <button 
-                    type="submit"
-                    className="w-full bg-[#001f54] hover:bg-blue-900 text-white font-bold text-xs py-2 rounded-xl transition cursor-pointer shadow-2xs mt-1"
-                  >
-                    Add Charge
-                  </button>
-                </form>
-              </div>
-
-              {/* 3. PAYMENT QUICK ENTRY CARD */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-blue-900">PAYMENT QUICK ENTRY</h3>
-                
-                <form onSubmit={handleRecordPayment} className="space-y-2.5 text-xs">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Payment Method</label>
-                    <select 
-                      value={payMethod}
-                      onChange={e => setPayMethod(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs font-medium"
-                    >
-                      <option value="Select Payment Method">Select Payment Method</option>
-                      <option value="Cash">Cash</option>
-                      <option value="Card">Credit / Debit Card</option>
-                      <option value="UPI">UPI / QR Code</option>
-                      <option value="Net Banking">Net Banking</option>
-                    </select>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Unit Price (₹)</label>
+                    <input 
+                      type="number" 
+                      value={newUnitPrice}
+                      onChange={e => setNewUnitPrice(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs font-bold"
+                    />
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Amount (₹)</label>
-                      <input 
-                        type="number" 
-                        value={payAmount}
-                        onChange={e => setPayAmount(e.target.value)}
-                        placeholder="0.00"
-                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-600 mb-0.5">OR / Reference No.</label>
-                      <input 
-                        type="text" 
-                        value={payRefNo}
-                        onChange={e => setPayRefNo(e.target.value)}
-                        placeholder="Enter OR No."
-                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs"
-                      />
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Date</label>
+                  <input 
+                    type="date" 
+                    value={newChargeDate}
+                    onChange={e => setNewChargeDate(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs font-medium"
+                  />
+                </div>
 
-                  <button 
-                    type="submit"
-                    className="w-full bg-[#059669] hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-xl transition cursor-pointer shadow-2xs mt-1"
+                <button 
+                  type="submit"
+                  className="w-full bg-[#001f54] hover:bg-blue-900 text-white font-bold text-xs py-2 rounded-xl transition cursor-pointer shadow-2xs mt-1"
+                >
+                  Add Charge
+                </button>
+              </form>
+            </div>
+
+            {/* 3. PAYMENT QUICK ENTRY CARD */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-blue-900">PAYMENT QUICK ENTRY</h3>
+              
+              <form onSubmit={handleRecordPayment} className="space-y-2.5 text-xs">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Payment Method</label>
+                  <select 
+                    value={payMethod}
+                    onChange={e => setPayMethod(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 text-xs font-medium"
                   >
-                    Record Payment
-                  </button>
-                </form>
-              </div>
+                    <option value="Select Payment Method">Select Payment Method</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Credit / Debit Card</option>
+                    <option value="UPI">UPI / QR Code</option>
+                    <option value="Net Banking">Net Banking</option>
+                  </select>
+                </div>
 
-              {/* 4. FOUR BOTTOM ACTION BUTTONS GRID */}
-              <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Amount (₹)</label>
+                    <input 
+                      type="number" 
+                      value={payAmount}
+                      onChange={e => setPayAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">OR / Reference No.</label>
+                    <input 
+                      type="text" 
+                      value={payRefNo}
+                      onChange={e => setPayRefNo(e.target.value)}
+                      placeholder="Enter OR No."
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+
                 <button 
-                  onClick={() => setShowPrintModal(true)}
-                  className="bg-white border border-slate-200 hover:border-blue-400 p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs transition cursor-pointer hover:bg-blue-50/50"
+                  type="submit"
+                  className="w-full bg-[#059669] hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-xl transition cursor-pointer shadow-2xs mt-1"
                 >
-                  <Printer className="w-5 h-5 text-blue-600 mb-1" />
-                  <span className="text-[10px] font-bold text-slate-700 leading-tight">Print Bill</span>
+                  Record Payment
                 </button>
+              </form>
+            </div>
 
-                <button 
-                  onClick={() => setShowPrintModal(true)}
-                  className="bg-white border border-slate-200 hover:border-blue-400 p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs transition cursor-pointer hover:bg-blue-50/50"
-                >
-                  <FileText className="w-5 h-5 text-blue-600 mb-1" />
-                  <span className="text-[10px] font-bold text-slate-700 leading-tight">View Statement</span>
-                </button>
+            {/* 4. FOUR BOTTOM ACTION BUTTONS GRID */}
+            <div className="grid grid-cols-4 gap-2">
+              <button 
+                onClick={() => setShowPrintModal(true)}
+                className="bg-white border border-slate-200 hover:border-blue-400 p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs transition cursor-pointer hover:bg-blue-50/50"
+              >
+                <Printer className="w-5 h-5 text-blue-600 mb-1" />
+                <span className="text-[10px] font-bold text-slate-700 leading-tight">Print Bill</span>
+              </button>
 
-                <button 
-                  onClick={() => setShowDiscountModal(true)}
-                  className="bg-white border border-slate-200 hover:border-amber-400 p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs transition cursor-pointer hover:bg-amber-50/50"
-                >
-                  <Percent className="w-5 h-5 text-amber-600 mb-1" />
-                  <span className="text-[10px] font-bold text-slate-700 leading-tight">Apply Discount</span>
-                </button>
+              <button 
+                onClick={() => setShowPrintModal(true)}
+                className="bg-white border border-slate-200 hover:border-blue-400 p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs transition cursor-pointer hover:bg-blue-50/50"
+              >
+                <FileText className="w-5 h-5 text-blue-600 mb-1" />
+                <span className="text-[10px] font-bold text-slate-700 leading-tight">View Statement</span>
+              </button>
 
-                <button 
-                  onClick={() => setShowAdjustmentModal(true)}
-                  className="bg-white border border-slate-200 hover:border-purple-400 p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs transition cursor-pointer hover:bg-purple-50/50"
-                >
-                  <Sliders className="w-5 h-5 text-purple-600 mb-1" />
-                  <span className="text-[10px] font-bold text-slate-700 leading-tight">Add Adjustment</span>
-                </button>
-              </div>
+              <button 
+                onClick={() => setShowDiscountModal(true)}
+                className="bg-white border border-slate-200 hover:border-amber-400 p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs transition cursor-pointer hover:bg-amber-50/50"
+              >
+                <Percent className="w-5 h-5 text-amber-600 mb-1" />
+                <span className="text-[10px] font-bold text-slate-700 leading-tight">Apply Discount</span>
+              </button>
 
+              <button 
+                onClick={() => setShowAdjustmentModal(true)}
+                className="bg-white border border-slate-200 hover:border-purple-400 p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-2xs transition cursor-pointer hover:bg-purple-50/50"
+              >
+                <Sliders className="w-5 h-5 text-purple-600 mb-1" />
+                <span className="text-[10px] font-bold text-slate-700 leading-tight">Add Adjustment</span>
+              </button>
             </div>
 
           </div>
 
-          {/* FOOTER NOTICE */}
-          <div className="text-center pt-4 border-t border-slate-200 text-[11px] text-slate-500 font-medium">
-            This system is for authorized users only. All transactions are logged and monitored.
-          </div>
+        </div>
 
-        </main>
-      </div>
+        {/* FOOTER NOTICE */}
+        <div className="text-center pt-4 border-t border-slate-200 text-[11px] text-slate-500 font-medium">
+          This system is for authorized users only. All transactions are logged and monitored.
+        </div>
+
+      </main>
 
       {/* PRINT STATEMENT / BILL PDF MODAL */}
       {showPrintModal && (
