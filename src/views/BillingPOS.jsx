@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Home, Users, UserCheck, Stethoscope, HeartPulse, TestTube, Pill, Activity,
-  CreditCard, BarChart3, Mail, Settings, LogOut, Bell, Calendar, User, Search,
-  Plus, Edit2, Trash2, Printer, FileText, Percent, Sliders, CheckCircle2, X, ArrowLeft, RefreshCw, ChevronDown
+  Users, Activity, CreditCard, BarChart3, Mail, Settings, LogOut, Bell, Calendar, User, Search,
+  Plus, Edit2, Trash2, Printer, FileText, Percent, Sliders, CheckCircle2, X, ArrowLeft, RefreshCw, ChevronDown, Check
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -15,22 +14,41 @@ export default function BillingPOS({ onBackToLogin }) {
   // Profile / Customer Data (Inventory Software Content)
   const [customer, setCustomer] = useState({
     id: 'C-2026-07155',
-    name: 'DELA CRUZ, SARAH JENKINS',
+    name: 'SARAH JENKINS / DELL INDIA PVT LTD',
     code: 'CUST-IT-001',
-    dept: 'Information Technology / Central Store',
+    dept: 'Information Technology / Central Store (WH-MAIN)',
     ref_indent: 'IND-2026-001001',
     date: '07/20/2026'
   });
 
-  // Master Inventory Items for Selection
-  const masterItems = [
+  // Master Inventory Items for Selection (Live API Sync)
+  const [masterItems, setMasterItems] = useState([
     { id: 'itm-01', name: 'Dell Latitude 5440 Laptop', category: 'IT Equipment', price: 72000, code: 'IT-LAP-0001' },
     { id: 'itm-02', name: 'Cat6 Ethernet Cable (305m Drum)', category: 'Electrical', price: 4500, code: 'ELE-CBL-0002' },
     { id: 'itm-03', name: 'A4 Copy Paper 80GSM (Rim)', category: 'Office Supplies', price: 280, code: 'OFF-PPR-0003' },
     { id: 'itm-04', name: 'Industrial Cleaning Solvent C-40', category: 'Chemicals', price: 1850, code: 'RAW-CHM-0004' },
     { id: 'itm-05', name: 'Logitech Wireless Ergonomic Mouse', category: 'IT Equipment', price: 1490, code: 'IT-MOU-0005' },
     { id: 'itm-06', name: 'Ergonomic Mesh Executive Chair', category: 'Office Supplies', price: 8900, code: 'OFF-DES-0006' }
-  ];
+  ]);
+
+  // Fetch Live Backend Items API
+  useEffect(() => {
+    fetch('/api/items')
+      .then(r => r.json())
+      .then(res => {
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.map(i => ({
+            id: i.id,
+            name: i.item_name,
+            category: i.category || i.category_id || 'IT Equipment',
+            price: i.valuation_rate || 1000,
+            code: i.item_code
+          }));
+          setMasterItems(mapped);
+        }
+      })
+      .catch(err => console.warn('API items connection warning:', err));
+  }, []);
 
   // Itemized Charges List (Cart)
   const [charges, setCharges] = useState([
@@ -79,8 +97,8 @@ export default function BillingPOS({ onBackToLogin }) {
     }
   };
 
-  // Add New Charge Handler
-  const handleAddCharge = (e) => {
+  // Add New Charge Handler & Post to Audit Log API
+  const handleAddCharge = async (e) => {
     e.preventDefault();
     if (!newDesc || newQty <= 0) return;
     const amount = newQty * newUnitPrice;
@@ -95,12 +113,26 @@ export default function BillingPOS({ onBackToLogin }) {
     };
     setCharges([...charges, newEntry]);
     
-    // Reset defaults
+    // API Call to post audit log
+    try {
+      await fetch('/api/audit-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'BILLING_CHARGE_ADDED',
+          module: 'BILLING',
+          details: `Added charge ${newDesc} (Qty: ${newQty}, Amount: ₹${amount})`
+        })
+      });
+    } catch (err) {
+      console.warn('API audit log post error:', err);
+    }
+
     setNewQty(1);
   };
 
-  // Record Payment Handler
-  const handleRecordPayment = (e) => {
+  // Record Payment Handler & Post to API
+  const handleRecordPayment = async (e) => {
     e.preventDefault();
     if (!payAmount || Number(payAmount) <= 0 || payMethod === 'Select Payment Method') {
       alert('Please select a payment method and enter a valid amount.');
@@ -115,6 +147,22 @@ export default function BillingPOS({ onBackToLogin }) {
       receivedBy: user?.name || 'Billing Staff'
     };
     setPayments([...payments, newPay]);
+
+    // API Call to log payment settlement
+    try {
+      await fetch('/api/audit-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'BILLING_PAYMENT_RECORDED',
+          module: 'BILLING',
+          details: `Recorded payment ₹${payAmount} via ${payMethod} (Ref: ${newPay.refNo})`
+        })
+      });
+    } catch (err) {
+      console.warn('API payment log error:', err);
+    }
+
     setPayAmount('');
     setPayRefNo('');
     setPayMethod('Select Payment Method');
@@ -133,21 +181,23 @@ export default function BillingPOS({ onBackToLogin }) {
   return (
     <div className="min-h-screen bg-[#f1f5f9] text-slate-800 font-sans flex flex-col select-none">
       
-      {/* 1. TOP NAVIGATION HEADER BAR (DARK BLUE matching reference image) */}
+      {/* 1. TOP NAVIGATION HEADER BAR (NO 3-LINE ICON, INVENTORY MANAGEMENT SYSTEM TITLE) */}
       <header className="h-14 bg-[#0a1931] text-white px-5 flex items-center justify-between shrink-0 shadow-md">
         <div className="flex items-center space-x-3">
-          <button className="p-1.5 hover:bg-white/10 rounded-lg text-slate-300 transition cursor-pointer">
-            <div className="w-5 space-y-1">
-              <span className="block h-0.5 w-5 bg-white"></span>
-              <span className="block h-0.5 w-5 bg-white"></span>
-              <span className="block h-0.5 w-5 bg-white"></span>
-            </div>
-          </button>
+          {onBackToLogin && (
+            <button 
+              onClick={onBackToLogin}
+              className="bg-blue-600/60 hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 border border-blue-400/40 transition cursor-pointer shadow-xs"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to System</span>
+            </button>
+          )}
 
           <div className="flex items-center space-x-2">
-            <span className="font-black text-lg tracking-tight font-heading text-white">COMLOGIK HIMS</span>
-            <span className="text-xs text-slate-300 font-medium hidden sm:inline-block border-l border-slate-600 pl-2">
-              Inventory & Procurement System
+            <span className="font-black text-base tracking-wide font-heading text-white">INVENTORY MANAGEMENT SYSTEM</span>
+            <span className="text-xs text-blue-300 font-medium hidden sm:inline-block border-l border-slate-600 pl-2">
+              Billing & Invoicing Portal
             </span>
           </div>
         </div>
@@ -181,26 +231,22 @@ export default function BillingPOS({ onBackToLogin }) {
       {/* BODY LAYOUT: LEFT SIDEBAR + MAIN CONTENT AREA */}
       <div className="flex-1 flex overflow-hidden">
         
-        {/* 2. LEFT SIDEBAR (DARK NAVY `#0a1931` matching reference image) */}
+        {/* 2. LEFT SIDEBAR (NO DASHBOARD, INVENTORY SYSTEM NAVIGATION) */}
         <aside className="w-60 bg-[#0a1931] text-slate-300 flex flex-col justify-between shrink-0 shadow-lg border-r border-slate-800">
           <div className="py-4 space-y-1 overflow-y-auto">
             {[
-              { label: 'Dashboard', icon: Home },
               { label: 'Customer Management', icon: Users },
               { label: 'Item Master & Stock', icon: Activity },
               { label: 'Indents & Requisitions', icon: FileText },
               { label: 'Purchase Orders', icon: CreditCard },
-              { label: 'Goods Receipt (GRN)', icon: TestTube },
-              { label: 'Billing', icon: BarChart3, active: true },
+              { label: 'Goods Receipt (GRN)', icon: Activity },
+              { label: 'Billing Update', icon: BarChart3, active: true },
               { label: 'Reports', icon: BarChart3 },
               { label: 'Messages', icon: Mail, badge: 2 },
               { label: 'Settings', icon: Settings }
             ].map((item, idx) => (
               <button
                 key={idx}
-                onClick={() => {
-                  if (item.label === 'Dashboard' && onBackToLogin) onBackToLogin();
-                }}
                 className={`w-full px-5 py-2.5 flex items-center justify-between text-xs font-semibold transition cursor-pointer ${
                   item.active 
                     ? 'bg-[#1d4ed8] text-white font-bold shadow-md' 
@@ -226,20 +272,18 @@ export default function BillingPOS({ onBackToLogin }) {
               className="w-full flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-white transition cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-              <span>Logout</span>
+              <span>Exit Billing</span>
             </button>
           </div>
         </aside>
 
-        {/* 3. MAIN CONTENT AREA (LIGHT GREY `#f1f5f9` matching reference image) */}
+        {/* 3. MAIN CONTENT AREA (NO DASHBOARD BREADCRUMB) */}
         <main className="flex-1 p-6 overflow-y-auto space-y-5">
           
-          {/* Breadcrumbs & Page Title */}
+          {/* Page Title & Breadcrumb without separate Dashboard */}
           <div>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight font-heading">Billing Update</h1>
             <div className="text-xs text-slate-500 font-medium space-x-1 mt-0.5">
-              <span>Dashboard</span>
-              <span>&gt;</span>
               <span>Billing</span>
               <span>&gt;</span>
               <span className="text-blue-700 font-semibold">Billing Update</span>
@@ -421,7 +465,7 @@ export default function BillingPOS({ onBackToLogin }) {
             {/* RIGHT 1 COL: Billing Overview, Add New Charge Card, Payment Quick Entry Card & 4 Action Buttons */}
             <div className="space-y-4">
               
-              {/* 1. BILLING OVERVIEW CARD (Blue Header matching reference image) */}
+              {/* 1. BILLING OVERVIEW CARD */}
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
                 <div className="bg-[#1d4ed8] text-white px-4 py-2.5 font-bold text-xs tracking-wider uppercase font-heading">
                   BILLING OVERVIEW
@@ -614,7 +658,7 @@ export default function BillingPOS({ onBackToLogin }) {
 
           </div>
 
-          {/* FOOTER NOTICE (Matching reference image) */}
+          {/* FOOTER NOTICE */}
           <div className="text-center pt-4 border-t border-slate-200 text-[11px] text-slate-500 font-medium">
             This system is for authorized users only. All transactions are logged and monitored.
           </div>
@@ -634,7 +678,7 @@ export default function BillingPOS({ onBackToLogin }) {
             <div className="p-8 overflow-y-auto space-y-6 text-xs text-slate-800">
               <div className="flex justify-between items-start border-b border-slate-200 pb-4">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900 font-heading">COMLOGIK HIMS / INVENTORY</h2>
+                  <h2 className="text-xl font-black text-slate-900 font-heading">INVENTORY MANAGEMENT SYSTEM</h2>
                   <p className="text-[11px] text-slate-500">100 Industrial Park, Zone 4, Bangalore, KA - 560001</p>
                   <p className="text-[11px] text-slate-500">GSTIN: <strong>29AAAAA0000A1Z5</strong></p>
                 </div>
