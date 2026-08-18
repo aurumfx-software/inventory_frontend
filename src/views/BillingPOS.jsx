@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, Activity, CreditCard, BarChart3, Mail, Settings, LogOut, Bell, Calendar, User, Search,
-  Plus, Edit2, Trash2, Printer, FileText, Percent, Sliders, CheckCircle2, X, ArrowLeft, RefreshCw, ChevronDown, Check
+  Plus, Edit2, Trash2, Printer, FileText, Percent, Sliders, CheckCircle2, X, ArrowLeft, RefreshCw, ChevronDown, Check, Filter, ShieldCheck, Tag
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,8 +10,19 @@ export default function BillingPOS({ onBackToLogin }) {
 
   // Active Billing Tab State
   const [activeTab, setActiveTab] = useState('Itemized Charges'); // 'Itemized Charges' | 'Payments' | 'Adjustments' | 'Payment History'
+  const [selectedModuleSource, setSelectedModuleSource] = useState('All Modules'); // 'All Modules' | 'Indents Requisition' | 'Purchase Orders' | 'Goods Receipt (GRN)' | 'Stock Issues' | 'Stock Returns' | 'Asset Issuance'
 
-  // Profile / Customer Data (Inventory Software Content)
+  // Master Inventory Items synced with Backend API
+  const [masterItems, setMasterItems] = useState([
+    { id: 'itm-01', name: 'Dell Latitude 5440 Laptop', category: 'IT Equipment', price: 72000, code: 'IT-LAP-0001' },
+    { id: 'itm-02', name: 'Cat6 Ethernet Cable (305m Drum)', category: 'Electrical', price: 4500, code: 'ELE-CBL-0002' },
+    { id: 'itm-03', name: 'A4 Copy Paper 80GSM (Rim)', category: 'Office Supplies', price: 280, code: 'OFF-PPR-0003' },
+    { id: 'itm-04', name: 'Industrial Cleaning Solvent C-40', category: 'Chemicals', price: 1850, code: 'RAW-CHM-0004' },
+    { id: 'itm-05', name: 'Logitech Wireless Ergonomic Mouse', category: 'IT Equipment', price: 1490, code: 'IT-MOU-0005' },
+    { id: 'itm-06', name: 'Ergonomic Mesh Executive Chair', category: 'Office Supplies', price: 8900, code: 'OFF-DES-0006' }
+  ]);
+
+  // Customer / Requester Details Profile
   const [customer, setCustomer] = useState({
     id: 'C-2026-07155',
     name: 'SARAH JENKINS / DELL INDIA PVT LTD',
@@ -21,15 +32,50 @@ export default function BillingPOS({ onBackToLogin }) {
     date: '07/20/2026'
   });
 
-  // Master Inventory Items for Selection (Live API Sync)
-  const [masterItems, setMasterItems] = useState([
-    { id: 'itm-01', name: 'Dell Latitude 5440 Laptop', category: 'IT Equipment', price: 72000, code: 'IT-LAP-0001' },
-    { id: 'itm-02', name: 'Cat6 Ethernet Cable (305m Drum)', category: 'Electrical', price: 4500, code: 'ELE-CBL-0002' },
-    { id: 'itm-03', name: 'A4 Copy Paper 80GSM (Rim)', category: 'Office Supplies', price: 280, code: 'OFF-PPR-0003' },
-    { id: 'itm-04', name: 'Industrial Cleaning Solvent C-40', category: 'Chemicals', price: 1850, code: 'RAW-CHM-0004' },
-    { id: 'itm-05', name: 'Logitech Wireless Ergonomic Mouse', category: 'IT Equipment', price: 1490, code: 'IT-MOU-0005' },
-    { id: 'itm-06', name: 'Ergonomic Mesh Executive Chair', category: 'Office Supplies', price: 8900, code: 'OFF-DES-0006' }
+  // ALL SOFTWARE MODULE CHARGES (Indents, POs, GRNs, Stock Issues, Returns, Assets)
+  const [charges, setCharges] = useState([
+    { id: 'chg-1', date: '07/18/2026', moduleSource: 'Indents Requisition', category: 'IT Equipment', description: 'Dell Latitude 5440 Laptop (Ref: IND-2026-001001)', qty: 1, unitPrice: 72000, amount: 72000 },
+    { id: 'chg-2', date: '07/18/2026', moduleSource: 'Purchase Orders', category: 'Electrical', description: 'Cat6 Ethernet Cable 305m (Ref: PO-2026-008801)', qty: 1, unitPrice: 4500, amount: 4500 },
+    { id: 'chg-3', date: '07/19/2026', moduleSource: 'Goods Receipt (GRN)', category: 'Office Supplies', description: 'A4 Copy Paper 80GSM (Ref: GRN-2026-004001)', qty: 5, unitPrice: 280, amount: 1400 },
+    { id: 'chg-4', date: '07/19/2026', moduleSource: 'Stock Issues', category: 'Chemicals', description: 'Industrial Solvent C-40 (Ref: ISS-2026-000101)', qty: 2, unitPrice: 1850, amount: 3700 },
+    { id: 'chg-5', date: '07/20/2026', moduleSource: 'Asset Issuance', category: 'IT Equipment', description: 'Logitech Wireless Mouse (Ref: AST-2026-0001)', qty: 3, unitPrice: 1490, amount: 4470 }
   ]);
+
+  // Recorded Payments Summary List
+  const [payments, setPayments] = useState([
+    { id: 'pay-1', date: '07/18/2026', refNo: 'OR00011234', method: 'Cash', amount: 30000, receivedBy: 'Billing Staff' },
+    { id: 'pay-2', date: '07/19/2026', refNo: 'OR00011278', method: 'Card', amount: 24500, receivedBy: 'Billing Staff' },
+    { id: 'pay-3', date: '07/20/2026', refNo: 'OR00011321', method: 'UPI', amount: 10000, receivedBy: 'Billing Staff' }
+  ]);
+
+  // Adjustments List
+  const [adjustments, setAdjustments] = useState([
+    { id: 'adj-1', date: '07/19/2026', type: 'Credit Note / Stock Return', refNo: 'RET-2026-000001', amount: 1400, reason: 'Returned 5 Rims A4 Paper' },
+    { id: 'adj-2', date: '07/20/2026', type: 'Waiver / Special Discount', refNo: 'WVR-0091', amount: 500, reason: 'Volume Purchase Rebate' }
+  ]);
+
+  // Form Input States for Adding Charges & Payments
+  const [newSource, setNewSource] = useState('Indents Requisition');
+  const [newCategory, setNewCategory] = useState('IT Equipment');
+  const [newDesc, setNewDesc] = useState('Dell Latitude 5440 Laptop');
+  const [newQty, setNewQty] = useState(1);
+  const [newUnitPrice, setNewUnitPrice] = useState(72000);
+  const [newChargeDate, setNewChargeDate] = useState('2026-07-20');
+
+  const [payMethod, setPayMethod] = useState('Select Payment Method');
+  const [payAmount, setPayAmount] = useState('');
+  const [payRefNo, setPayRefNo] = useState('');
+
+  // Modals & Discount States
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [showAdjustmentModal, setShowAdjustmentModal] = useState(false);
+
+  // New Adjustment Inputs
+  const [newAdjType, setNewAdjType] = useState('Credit Note / Stock Return');
+  const [newAdjAmount, setNewAdjAmount] = useState('');
+  const [newAdjReason, setNewAdjReason] = useState('');
 
   // Fetch Live Backend Items API
   useEffect(() => {
@@ -50,44 +96,13 @@ export default function BillingPOS({ onBackToLogin }) {
       .catch(err => console.warn('API items connection warning:', err));
   }, []);
 
-  // Itemized Charges List (Cart)
-  const [charges, setCharges] = useState([
-    { id: 'chg-1', date: '07/18/2026', category: 'IT Equipment', description: 'Dell Latitude 5440 Laptop', qty: 1, unitPrice: 72000, amount: 72000 },
-    { id: 'chg-2', date: '07/18/2026', category: 'Electrical', description: 'Cat6 Ethernet Cable (305m Drum)', qty: 1, unitPrice: 4500, amount: 4500 },
-    { id: 'chg-3', date: '07/19/2026', category: 'Office Supplies', description: 'A4 Copy Paper 80GSM (Rim)', qty: 5, unitPrice: 280, amount: 1400 },
-    { id: 'chg-4', date: '07/19/2026', category: 'Chemicals', description: 'Industrial Cleaning Solvent C-40', qty: 2, unitPrice: 1850, amount: 3700 },
-    { id: 'chg-5', date: '07/20/2026', category: 'IT Equipment', description: 'Logitech Wireless Ergonomic Mouse', qty: 3, unitPrice: 1490, amount: 4470 }
-  ]);
-
-  // Recorded Payments Summary List
-  const [payments, setPayments] = useState([
-    { id: 'pay-1', date: '07/18/2026', refNo: 'OR00011234', method: 'Cash', amount: 30000, receivedBy: 'Billing Staff' },
-    { id: 'pay-2', date: '07/19/2026', refNo: 'OR00011278', method: 'Card', amount: 24500, receivedBy: 'Billing Staff' },
-    { id: 'pay-3', date: '07/20/2026', refNo: 'OR00011321', method: 'UPI', amount: 10000, receivedBy: 'Billing Staff' }
-  ]);
-
-  // Form Input States
-  const [newCategory, setNewCategory] = useState('IT Equipment');
-  const [newDesc, setNewDesc] = useState('Dell Latitude 5440 Laptop');
-  const [newQty, setNewQty] = useState(1);
-  const [newUnitPrice, setNewUnitPrice] = useState(72000);
-  const [newChargeDate, setNewChargeDate] = useState('2026-07-20');
-
-  const [payMethod, setPayMethod] = useState('Select Payment Method');
-  const [payAmount, setPayAmount] = useState('');
-  const [payRefNo, setPayRefNo] = useState('');
-
-  const [discountAmount, setDiscountAmount] = useState(0);
-  const [showPrintModal, setShowPrintModal] = useState(false);
-  const [showDiscountModal, setShowDiscountModal] = useState(false);
-  const [showAdjustmentModal, setShowAdjustmentModal] = useState(false);
-
   // Financial Calculations
   const totalCharges = charges.reduce((acc, c) => acc + c.amount, 0);
   const totalPayments = payments.reduce((acc, p) => acc + p.amount, 0);
-  const balanceDue = Math.max(0, totalCharges - totalPayments - discountAmount);
+  const totalAdjustments = adjustments.reduce((acc, a) => acc + a.amount, 0) + discountAmount;
+  const balanceDue = Math.max(0, totalCharges - totalPayments - totalAdjustments);
 
-  // Update unit price automatically when selecting a description product
+  // Update Unit Price when Item Description changes
   const handleSelectProduct = (descName) => {
     setNewDesc(descName);
     const found = masterItems.find(i => i.name === descName);
@@ -97,7 +112,7 @@ export default function BillingPOS({ onBackToLogin }) {
     }
   };
 
-  // Add New Charge Handler & Post to Audit Log API
+  // Add New Charge Handler & Post Audit Log to API
   const handleAddCharge = async (e) => {
     e.preventDefault();
     if (!newDesc || newQty <= 0) return;
@@ -105,15 +120,16 @@ export default function BillingPOS({ onBackToLogin }) {
     const newEntry = {
       id: `chg-${Date.now()}`,
       date: newChargeDate.split('-').slice(1).join('/') + '/2026',
+      moduleSource: newSource,
       category: newCategory,
-      description: newDesc,
+      description: `${newDesc} (Ref: ${newSource.slice(0, 3).toUpperCase()}-2026-00${Math.floor(100 + Math.random()*900)})`,
       qty: Number(newQty),
       unitPrice: Number(newUnitPrice),
       amount: amount
     };
     setCharges([...charges, newEntry]);
-    
-    // API Call to post audit log
+
+    // API Post to audit logs
     try {
       await fetch('/api/audit-logs', {
         method: 'POST',
@@ -121,17 +137,17 @@ export default function BillingPOS({ onBackToLogin }) {
         body: JSON.stringify({
           action: 'BILLING_CHARGE_ADDED',
           module: 'BILLING',
-          details: `Added charge ${newDesc} (Qty: ${newQty}, Amount: ₹${amount})`
+          details: `Added ${newSource} charge: ${newDesc} (Qty: ${newQty}, ₹${amount})`
         })
       });
     } catch (err) {
-      console.warn('API audit log post error:', err);
+      console.warn('API audit log error:', err);
     }
 
     setNewQty(1);
   };
 
-  // Record Payment Handler & Post to API
+  // Record Payment Handler & Post Audit Log to API
   const handleRecordPayment = async (e) => {
     e.preventDefault();
     if (!payAmount || Number(payAmount) <= 0 || payMethod === 'Select Payment Method') {
@@ -148,7 +164,7 @@ export default function BillingPOS({ onBackToLogin }) {
     };
     setPayments([...payments, newPay]);
 
-    // API Call to log payment settlement
+    // API Post to audit logs
     try {
       await fetch('/api/audit-logs', {
         method: 'POST',
@@ -168,6 +184,24 @@ export default function BillingPOS({ onBackToLogin }) {
     setPayMethod('Select Payment Method');
   };
 
+  // Save Adjustment Handler
+  const handleSaveAdjustment = (e) => {
+    e.preventDefault();
+    if (!newAdjAmount || Number(newAdjAmount) <= 0) return;
+    const newAdj = {
+      id: `adj-${Date.now()}`,
+      date: '07/20/2026',
+      type: newAdjType,
+      refNo: `ADJ-2026-00${Math.floor(100 + Math.random()*900)}`,
+      amount: Number(newAdjAmount),
+      reason: newAdjReason || 'Credit Adjustment Approved'
+    };
+    setAdjustments([...adjustments, newAdj]);
+    setShowAdjustmentModal(false);
+    setNewAdjAmount('');
+    setNewAdjReason('');
+  };
+
   // Delete Charge Row
   const handleDeleteCharge = (id) => {
     setCharges(charges.filter(c => c.id !== id));
@@ -177,6 +211,16 @@ export default function BillingPOS({ onBackToLogin }) {
   const handleDeletePayment = (id) => {
     setPayments(payments.filter(p => p.id !== id));
   };
+
+  // Delete Adjustment Row
+  const handleDeleteAdjustment = (id) => {
+    setAdjustments(adjustments.filter(a => a.id !== id));
+  };
+
+  // Filter charges by selected module source
+  const filteredCharges = charges.filter(c => 
+    selectedModuleSource === 'All Modules' || c.moduleSource === selectedModuleSource
+  );
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] text-slate-800 font-sans flex flex-col select-none">
@@ -197,7 +241,7 @@ export default function BillingPOS({ onBackToLogin }) {
           <div className="flex items-center space-x-2">
             <span className="font-black text-base tracking-wide font-heading text-white">INVENTORY MANAGEMENT SYSTEM</span>
             <span className="text-xs text-blue-300 font-medium hidden sm:inline-block border-l border-slate-600 pl-2">
-              Billing & Invoicing Portal
+              All-Module Enterprise Billing Portal
             </span>
           </div>
         </div>
@@ -228,16 +272,37 @@ export default function BillingPOS({ onBackToLogin }) {
         </div>
       </header>
 
-      {/* FULL WIDTH MAIN CONTENT AREA (NO LEFT SIDEBAR) */}
+      {/* FULL WIDTH MAIN CONTENT AREA */}
       <main className="flex-1 p-6 overflow-y-auto space-y-5 max-w-7xl mx-auto w-full">
         
-        {/* Page Title & Breadcrumb */}
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight font-heading">Billing Update</h1>
-          <div className="text-xs text-slate-500 font-medium space-x-1 mt-0.5">
-            <span>Billing</span>
-            <span>&gt;</span>
-            <span className="text-blue-700 font-semibold">Billing Update</span>
+        {/* Page Title & Module Source Filter */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight font-heading">Billing Update</h1>
+            <div className="text-xs text-slate-500 font-medium space-x-1 mt-0.5">
+              <span>Billing</span>
+              <span>&gt;</span>
+              <span className="text-blue-700 font-semibold">Billing Update</span>
+            </div>
+          </div>
+
+          {/* Module Filter Dropdown */}
+          <div className="flex items-center space-x-2 text-xs">
+            <Filter className="w-4 h-4 text-slate-500" />
+            <span className="font-bold text-slate-700">Filter Source Module:</span>
+            <select 
+              value={selectedModuleSource}
+              onChange={e => setSelectedModuleSource(e.target.value)}
+              className="bg-white border border-slate-300 font-bold text-blue-900 rounded-xl px-3 py-1.5 shadow-2xs text-xs"
+            >
+              <option value="All Modules">All Inventory & Procurement Modules</option>
+              <option value="Indents Requisition">Indents & Requisitions (IND)</option>
+              <option value="Purchase Orders">Purchase Orders (PO)</option>
+              <option value="Goods Receipt (GRN)">Goods Receipts (GRN)</option>
+              <option value="Stock Issues">Stock Issues (ISS)</option>
+              <option value="Stock Returns">Stock & Supplier Returns (RET)</option>
+              <option value="Asset Issuance">Asset Tracking (AST)</option>
+            </select>
           </div>
         </div>
 
@@ -307,66 +372,107 @@ export default function BillingPOS({ onBackToLogin }) {
               ))}
             </div>
 
-            {/* ITEMIZED CHARGES TABLE CONTAINER */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-4">
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left">
-                  <thead>
-                    <tr className="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
-                      <th className="p-2.5">Date</th>
-                      <th className="p-2.5">Category</th>
-                      <th className="p-2.5">Description</th>
-                      <th className="p-2.5 text-center">Qty</th>
-                      <th className="p-2.5 text-right">Unit Price</th>
-                      <th className="p-2.5 text-right">Amount</th>
-                      <th className="p-2.5 text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium">
-                    {charges.map(row => (
-                      <tr key={row.id} className="hover:bg-slate-50 transition">
-                        <td className="p-2.5 text-slate-500 font-mono">{row.date}</td>
-                        <td className="p-2.5 font-semibold text-slate-800">{row.category}</td>
-                        <td className="p-2.5 text-slate-900 font-bold">{row.description}</td>
-                        <td className="p-2.5 text-center font-mono font-bold">{row.qty}</td>
-                        <td className="p-2.5 text-right font-mono">₹ {row.unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                        <td className="p-2.5 text-right font-mono font-bold text-slate-900">₹ {row.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                        <td className="p-2.5 text-center">
-                          <div className="flex items-center justify-center space-x-1.5">
-                            <button className="text-blue-600 hover:text-blue-800 p-1 cursor-pointer">
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button onClick={() => handleDeleteCharge(row.id)} className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
+            {/* CONDITIONAL TAB RENDERINGS */}
+            {activeTab === 'Itemized Charges' && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
+                        <th className="p-2.5">Date</th>
+                        <th className="p-2.5">Source Module</th>
+                        <th className="p-2.5">Category</th>
+                        <th className="p-2.5">Description</th>
+                        <th className="p-2.5 text-center">Qty</th>
+                        <th className="p-2.5 text-right">Unit Price</th>
+                        <th className="p-2.5 text-right">Amount</th>
+                        <th className="p-2.5 text-center">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 font-medium">
+                      {filteredCharges.map(row => (
+                        <tr key={row.id} className="hover:bg-slate-50 transition">
+                          <td className="p-2.5 text-slate-500 font-mono">{row.date}</td>
+                          <td className="p-2.5">
+                            <span className="bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                              {row.moduleSource}
+                            </span>
+                          </td>
+                          <td className="p-2.5 font-semibold text-slate-800">{row.category}</td>
+                          <td className="p-2.5 text-slate-900 font-bold">{row.description}</td>
+                          <td className="p-2.5 text-center font-mono font-bold">{row.qty}</td>
+                          <td className="p-2.5 text-right font-mono">₹ {row.unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                          <td className="p-2.5 text-right font-mono font-bold text-slate-900">₹ {row.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                          <td className="p-2.5 text-center">
+                            <div className="flex items-center justify-center space-x-1.5">
+                              <button onClick={() => handleDeleteCharge(row.id)} className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-              {/* Table Footer Action & Total Charges */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <button 
-                  onClick={() => {
-                    document.getElementById('add-charge-section')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs rounded-xl hover:bg-blue-100 transition cursor-pointer flex items-center space-x-1"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>+ Add New Charge</span>
-                </button>
+                {/* Table Footer Action & Total Charges */}
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <button 
+                    onClick={() => {
+                      document.getElementById('add-charge-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs rounded-xl hover:bg-blue-100 transition cursor-pointer flex items-center space-x-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add New Charge</span>
+                  </button>
 
-                <div className="text-right">
-                  <span className="text-xs font-bold text-blue-900 mr-3">TOTAL CHARGES</span>
-                  <span className="text-lg font-black text-blue-900 font-mono">
-                    ₹ {totalCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-xs font-bold text-blue-900 mr-3">TOTAL CHARGES</span>
+                    <span className="text-lg font-black text-blue-900 font-mono">
+                      ₹ {totalCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {activeTab === 'Adjustments' && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-purple-900">CREDIT ADJUSTMENTS & RETURNS</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
+                        <th className="p-2.5">Date</th>
+                        <th className="p-2.5">Adjustment Type</th>
+                        <th className="p-2.5">Ref No.</th>
+                        <th className="p-2.5">Reason / Details</th>
+                        <th className="p-2.5 text-right">Amount (₹)</th>
+                        <th className="p-2.5 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 font-medium">
+                      {adjustments.map(a => (
+                        <tr key={a.id} className="hover:bg-slate-50">
+                          <td className="p-2.5 text-slate-500 font-mono">{a.date}</td>
+                          <td className="p-2.5 font-bold text-purple-800">{a.type}</td>
+                          <td className="p-2.5 font-mono">{a.refNo}</td>
+                          <td className="p-2.5 text-slate-700">{a.reason}</td>
+                          <td className="p-2.5 text-right font-mono font-bold text-purple-700">₹ {a.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                          <td className="p-2.5 text-center">
+                            <button onClick={() => handleDeleteAdjustment(a.id)} className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {/* PAYMENTS SUMMARY TABLE CONTAINER */}
             <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
@@ -435,7 +541,7 @@ export default function BillingPOS({ onBackToLogin }) {
                 
                 <div className="flex justify-between text-slate-600">
                   <span>Discount / Adjustment</span>
-                  <span className="font-mono font-bold">₹ {discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono font-bold">₹ {totalAdjustments.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-sm font-bold text-purple-800 pt-2 border-t border-slate-200">
@@ -450,6 +556,21 @@ export default function BillingPOS({ onBackToLogin }) {
               <h3 className="text-xs font-bold uppercase tracking-wider text-blue-900">ADD NEW CHARGE</h3>
               
               <form onSubmit={handleAddCharge} className="space-y-2.5 text-xs">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Software Module Source</label>
+                  <select 
+                    value={newSource}
+                    onChange={e => setNewSource(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 text-xs font-bold"
+                  >
+                    <option value="Indents Requisition">Indents & Requisitions (IND)</option>
+                    <option value="Purchase Orders">Purchase Orders (PO)</option>
+                    <option value="Goods Receipt (GRN)">Goods Receipt Note (GRN)</option>
+                    <option value="Stock Issues">Stock Issue Requisition (ISS)</option>
+                    <option value="Asset Issuance">Asset Tracking (AST)</option>
+                  </select>
+                </div>
+
                 <div>
                   <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Category</label>
                   <select 
@@ -650,6 +771,7 @@ export default function BillingPOS({ onBackToLogin }) {
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">Statement Summary:</span>
                   <p>Total Charges: ₹ {totalCharges.toLocaleString()}</p>
                   <p>Total Payments: ₹ {totalPayments.toLocaleString()}</p>
+                  <p>Total Adjustments: ₹ {totalAdjustments.toLocaleString()}</p>
                   <p className="font-bold text-purple-700 text-sm">Balance Due: ₹ {balanceDue.toLocaleString()}</p>
                 </div>
               </div>
@@ -658,7 +780,7 @@ export default function BillingPOS({ onBackToLogin }) {
                 <thead>
                   <tr className="bg-slate-100 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
                     <th className="py-2 px-3">Date</th>
-                    <th className="py-2 px-3">Category</th>
+                    <th className="py-2 px-3">Module</th>
                     <th className="py-2 px-3">Description</th>
                     <th className="py-2 px-3 text-center">Qty</th>
                     <th className="py-2 px-3 text-right">Amount (₹)</th>
@@ -668,7 +790,7 @@ export default function BillingPOS({ onBackToLogin }) {
                   {charges.map(row => (
                     <tr key={row.id}>
                       <td className="py-2 px-3 text-slate-500">{row.date}</td>
-                      <td className="py-2 px-3">{row.category}</td>
+                      <td className="py-2 px-3 font-bold text-blue-700">{row.moduleSource}</td>
                       <td className="py-2 px-3 font-sans font-bold text-slate-900">{row.description}</td>
                       <td className="py-2 px-3 text-center font-bold">{row.qty}</td>
                       <td className="py-2 px-3 text-right font-bold text-slate-900">₹ {row.amount.toLocaleString()}</td>
@@ -718,26 +840,54 @@ export default function BillingPOS({ onBackToLogin }) {
       {/* ADD ADJUSTMENT MODAL */}
       {showAdjustmentModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <h3 className="font-bold text-sm text-slate-900 uppercase font-heading">Add Credit Adjustment</h3>
+              <h3 className="font-bold text-sm text-slate-900 uppercase font-heading">Add Credit Adjustment / Return</h3>
               <button onClick={() => setShowAdjustmentModal(false)} className="text-slate-400 hover:text-slate-700"><X className="w-4 h-4" /></button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <form onSubmit={handleSaveAdjustment} className="space-y-3 text-xs">
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Adjustment Type</label>
-                <select className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-medium">
-                  <option>Credit Note / Return</option>
-                  <option>Waiver</option>
-                  <option>Special Promotion</option>
+                <select 
+                  value={newAdjType}
+                  onChange={e => setNewAdjType(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-medium"
+                >
+                  <option value="Credit Note / Stock Return">Credit Note / Stock Return (RET)</option>
+                  <option value="Waiver / Discount">Waiver / Special Discount</option>
+                  <option value="Supplier Refund">Supplier Refund / Rebate (SRN)</option>
                 </select>
               </div>
-              <div className="flex justify-end space-x-2 pt-2">
-                <button onClick={() => setShowAdjustmentModal(false)} className="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl">Cancel</button>
-                <button onClick={() => setShowAdjustmentModal(false)} className="px-5 py-2 bg-purple-700 text-white font-bold rounded-xl shadow-xs">Save Adjustment</button>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Adjustment Amount (₹) *</label>
+                <input 
+                  type="number" 
+                  required
+                  value={newAdjAmount}
+                  onChange={e => setNewAdjAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-mono font-bold text-sm"
+                />
               </div>
-            </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Reason / Notes</label>
+                <input 
+                  type="text" 
+                  value={newAdjReason}
+                  onChange={e => setNewAdjReason(e.target.value)}
+                  placeholder="Enter reason for adjustment..."
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button type="button" onClick={() => setShowAdjustmentModal(false)} className="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl">Cancel</button>
+                <button type="submit" className="px-5 py-2 bg-purple-700 text-white font-bold rounded-xl shadow-xs">Save Adjustment</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
