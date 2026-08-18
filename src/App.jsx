@@ -40,7 +40,7 @@ import BillingPOS from './views/BillingPOS';
 function MainLayout() {
   const { user } = useAuth();
   const [activeTab, setActiveTabState] = useState(() => {
-    return localStorage.getItem('app-active-tab') || 'sec-6';
+    return localStorage.getItem('app-active-tab') || 'sec-pos';
   });
 
   const setActiveTab = (tabId) => {

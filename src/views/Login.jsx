@@ -61,6 +61,7 @@ export default function Login() {
     // Show 2-second Authenticating loading state per user request
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    localStorage.setItem('app-active-tab', 'sec-pos');
     const res = await login(email, password);
     setLoading(false);
     if (!res.success) {
@@ -76,6 +77,7 @@ export default function Login() {
     // Show 2-second Authenticating loading state per user request
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    localStorage.setItem('app-active-tab', 'sec-pos');
     const res = await login(billingEmail, billingPassword);
     setBillingLoading(false);
 
@@ -107,6 +109,7 @@ export default function Login() {
     // Show 2-second Authenticating loading state per user request
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    localStorage.setItem('app-active-tab', 'sec-pos');
     await login(personaEmail, 'password123');
     setLoading(false);
   };
