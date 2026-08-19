@@ -11,6 +11,10 @@ dist/
 dist-ssr/
 .vercel/
 *.local
+.env
+.env.*
+*.env
+
 
 # Zip archives & temporary packages
 *.zip
