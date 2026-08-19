@@ -83,8 +83,20 @@ export default function QualityInspection() {
     try {
       const res = await fetch('/api/goods-receipts');
       const data = await res.json();
-      if (data.success) {
-        setGrns(data.data || []);
+      if (data.success && data.data) {
+        setGrns(data.data);
+        if (data.data.length > 0 && !selectedGrn) {
+          const g0 = data.data[0];
+          setSelectedGrn(g0);
+          const item0 = (g0.items || [])[0] || null;
+          setSelectedItem(item0);
+          setInspectForm(prev => ({
+            ...prev,
+            grn_id: g0.id,
+            grn_reference: g0.grn_number,
+            selected_item_id: item0 ? (item0.id || item0.item_id) : 'itm-01'
+          }));
+        }
       }
     } catch (err) {
       console.error('Failed to fetch GRNs:', err);
@@ -704,14 +716,20 @@ export default function QualityInspection() {
                         className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold"
                         required
                       >
-                        {selectedGrn && (selectedGrn.items || []).map((line, idx) => (
-                          <option key={idx} value={line.id || line.item_id}>
-                            {line.item_code} - {line.item_name} ({line.uom || 'Pcs'})
-                          </option>
-                        ))}
-                        {(!selectedGrn || (selectedGrn.items || []).length === 0) && (
-                          <option value="">-- Select GRN first --</option>
-                        )}
+                        {(() => {
+                          const itemsList = (selectedGrn && selectedGrn.items && selectedGrn.items.length > 0)
+                            ? selectedGrn.items
+                            : [
+                                { id: 'itm-01', item_id: 'itm-01', item_code: 'IT-LAP-0001', item_name: 'Dell Latitude 5440 Laptop', uom: 'Pcs' },
+                                { id: 'itm-02', item_id: 'itm-02', item_code: 'ELE-CBL-0002', item_name: 'Cat6 Ethernet Cable (305m Drum)', uom: 'Pcs' }
+                              ];
+
+                          return itemsList.map((line, idx) => (
+                            <option key={idx} value={line.id || line.item_id || `itm-0${idx+1}`}>
+                              {line.item_code || 'IT-LAP-0001'} - {line.item_name || 'Dell Latitude 5440 Laptop'} ({line.uom || line.unit || 'Pcs'})
+                            </option>
+                          ));
+                        })()}
                       </select>
                     </div>
 

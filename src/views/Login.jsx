@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Boxes, Eye, EyeOff, Mail, KeyRound, ChevronLeft, ChevronRight, CheckCircle2, X, RefreshCw, Zap, ShoppingCart } from 'lucide-react';
-import BillingPOS from './BillingPOS';
+import { Boxes, Eye, EyeOff, Mail, KeyRound, ChevronLeft, ChevronRight, CheckCircle2, X, RefreshCw, ShoppingCart } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
@@ -10,15 +9,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [showForgotModal, setShowForgotModal] = useState(false);
-  
-  // Dedicated Billing Login States
-  const [showBillingLoginModal, setShowBillingLoginModal] = useState(false);
-  const [showBillingPortal, setShowBillingPortal] = useState(false);
-  const [billingEmail, setBillingEmail] = useState('billing@company.com');
-  const [billingPassword, setBillingPassword] = useState('password123');
-  const [billingLoading, setBillingLoading] = useState(false);
-  const [billingError, setBillingError] = useState('');
-
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetSuccess, setResetSuccess] = useState('');
   const [error, setError] = useState('');
@@ -61,31 +51,10 @@ export default function Login() {
     // Show 2-second Authenticating loading state per user request
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    localStorage.setItem('app-active-tab', 'sec-pos');
     const res = await login(email, password);
     setLoading(false);
     if (!res.success) {
       setError(res.message || 'Invalid email or password credentials.');
-    }
-  };
-
-  const handleBillingLoginSubmit = async (e) => {
-    e.preventDefault();
-    setBillingError('');
-    setBillingLoading(true);
-
-    // Show 2-second Authenticating loading state per user request
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    localStorage.setItem('app-active-tab', 'sec-pos');
-    const res = await login(billingEmail, billingPassword);
-    setBillingLoading(false);
-
-    if (res.success) {
-      setShowBillingLoginModal(false);
-      setShowBillingPortal(true);
-    } else {
-      setBillingError(res.message || 'Invalid username or password credentials.');
     }
   };
 
@@ -109,7 +78,6 @@ export default function Login() {
     // Show 2-second Authenticating loading state per user request
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    localStorage.setItem('app-active-tab', 'sec-pos');
     await login(personaEmail, 'password123');
     setLoading(false);
   };
@@ -125,10 +93,6 @@ export default function Login() {
     setActivePersonaIdx(nextIdx);
     setEmail(roles[nextIdx].email);
   };
-
-  if (showBillingPortal) {
-    return <BillingPOS onBackToLogin={() => setShowBillingPortal(false)} />;
-  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 select-none font-sans relative overflow-hidden">
@@ -215,14 +179,6 @@ export default function Login() {
             </div>
 
             <div className="flex items-center space-x-2">
-              <button 
-                type="button"
-                onClick={() => setShowBillingLoginModal(true)}
-                className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-white px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center space-x-1.5 shadow-md shadow-rose-500/20 transition cursor-pointer"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                <span>POS Billing Portal</span>
-              </button>
               <div className="bg-slate-50 border border-slate-200/80 px-3 py-1 rounded-full text-slate-600 text-[11px] font-bold flex items-center space-x-1">
                 <span>🇬🇧 EN</span>
                 <span className="text-slate-400">v</span>
@@ -252,58 +208,46 @@ export default function Login() {
               <div className="relative">
                 <input 
                   type="text" 
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email Address or Username" 
-                  className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-10 pr-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                  required
+                  placeholder="Email"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 focus:bg-white transition shadow-2xs font-medium"
                 />
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               </div>
             </div>
 
             <div>
               <div className="relative">
                 <input 
-                  type={showPassword ? "text" : "password"} 
-                  required
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Account Password" 
-                  className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-10 pr-10 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                  required
+                  placeholder="Password"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-10 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-rose-500 focus:bg-white transition shadow-2xs font-medium"
                 />
-                <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <button 
-                  type="button" 
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              <div className="flex justify-end mt-1.5">
+                <button 
+                  type="button" 
+                  onClick={() => setShowForgotModal(true)}
+                  className="text-[11px] text-rose-500 font-bold hover:underline"
+                >
+                  Forgot password ?
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between pt-1">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded text-rose-500 focus:ring-rose-500 w-4 h-4 border-slate-300" 
-                />
-                <span className="text-slate-600 font-medium">Keep me signed in</span>
-              </label>
-
-              <button 
-                type="button" 
-                onClick={() => setShowForgotModal(true)}
-                className="text-rose-500 hover:text-rose-600 font-bold cursor-pointer"
-              >
-                Forgot Password?
-              </button>
-            </div>
-
-            <div className="relative flex py-1 items-center">
+            {/* Divider */}
+            <div className="flex items-center my-2">
               <div className="flex-1 border-t border-slate-200"></div>
               <span className="px-3 text-[11px] text-slate-400 font-medium">or</span>
               <div className="flex-1 border-t border-slate-200"></div>
@@ -344,92 +288,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-
-      {/* DEDICATED BILLING PORTAL LOGIN MODAL */}
-      {showBillingLoginModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center space-x-2">
-                <div className="w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center">
-                  <Zap className="w-4 h-4" />
-                </div>
-                <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider font-heading">
-                  Billing Portal Cashier Sign-In
-                </h3>
-              </div>
-              <button onClick={() => setShowBillingLoginModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-500 font-medium">
-              Enter your Cashier / Billing Staff credentials to unlock the Billing Portal:
-            </p>
-
-            {billingError && (
-              <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-2xl font-medium">
-                {billingError}
-              </div>
-            )}
-
-            <form onSubmit={handleBillingLoginSubmit} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">Billing Username / Email *</label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    required 
-                    value={billingEmail}
-                    onChange={e => setBillingEmail(e.target.value)}
-                    placeholder="billing@company.com" 
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 font-medium focus:ring-2 focus:ring-rose-500" 
-                  />
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-bold mb-1">Password *</label>
-                <div className="relative">
-                  <input 
-                    type="password" 
-                    required 
-                    value={billingPassword}
-                    onChange={e => setBillingPassword(e.target.value)}
-                    placeholder="••••••••" 
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-2.5 text-slate-900 font-medium focus:ring-2 focus:ring-rose-500" 
-                  />
-                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                <span>Role: Cashier / Store Billing Staff</span>
-                <span className="font-mono text-emerald-600 font-bold">API Verified</span>
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100">
-                <button 
-                  type="button" 
-                  onClick={() => setShowBillingLoginModal(false)} 
-                  className="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={billingLoading}
-                  className="px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-md shadow-rose-500/20 flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  {billingLoading && <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />}
-                  <span>{billingLoading ? 'Authenticating Cashier...' : 'Unlock Billing Portal'}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Forgot Password Modal */}
       {showForgotModal && (

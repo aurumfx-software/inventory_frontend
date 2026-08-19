@@ -179,11 +179,17 @@ export default function PurchaseOrder() {
     const q = quotations.find(qt => qt.id === quoteId || qt.quotation_number === quoteId);
     if (!q) return;
 
+    const sup = suppliers.find(s => s.id === q.supplier_id);
+    const supAddress = sup ? (sup.address_billing || sup.address_registered || '') : (q.supplier_address || '');
+
     setFormData(prev => ({
       ...prev,
       quotation_id: q.id,
+      quotation_number: q.quotation_number || '',
       rfq_id: q.rfq_id || prev.rfq_id,
       supplier_id: q.supplier_id || prev.supplier_id,
+      supplier_name: q.supplier_name || (sup ? sup.supplier_name : prev.supplier_name),
+      supplier_address: supAddress || prev.supplier_address,
       payment_terms: q.payment_terms || prev.payment_terms,
       delivery_terms: q.delivery_terms || prev.delivery_terms,
       freight_terms: q.freight_terms || prev.freight_terms,
@@ -1216,17 +1222,28 @@ export default function PurchaseOrder() {
 
             {/* Drawer Footer */}
             <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-between items-center">
-              <button 
-                onClick={() => setPrintDoc(selectedPo)} 
-                className="bg-purple-900 hover:bg-purple-950 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center space-x-1.5"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print Document</span>
-              </button>
+              <div className="flex items-center space-x-2">
+                {selectedPo.status !== 'Closed' && selectedPo.status !== 'Cancelled' && (
+                  <button 
+                    onClick={() => { const poToEdit = selectedPo; setSelectedPo(null); openEditModal(poToEdit); }} 
+                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center space-x-1.5 transition cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit / Revise PO</span>
+                  </button>
+                )}
+                <button 
+                  onClick={() => setPrintDoc(selectedPo)} 
+                  className="bg-purple-900 hover:bg-purple-950 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print Document</span>
+                </button>
+              </div>
 
               <button 
                 onClick={() => setSelectedPo(null)} 
-                className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl"
+                className="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl cursor-pointer"
               >
                 Close Drawer
               </button>

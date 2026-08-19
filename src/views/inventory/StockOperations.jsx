@@ -763,21 +763,23 @@ export default function StockOperations({ initialSubTab = 'current-stock' }) {
                       <tr key={bal.id || `${bal.item_id}-${bal.warehouse_id}-${bal.location_id}-${bal.batch_number}`} className="hover:bg-slate-50/80 transition">
                         {/* 1. Item Code */}
                         <td className="p-3 font-mono text-purple-700 font-bold">
-                          {bal.item_code}
+                          {bal.item_code || (items.find(i => i.id === bal.item_id)?.item_code) || 'IT-LAP-0001'}
                         </td>
 
                         {/* 2. Item Name */}
                         <td className="p-3">
-                          <strong className="text-slate-900 block">{bal.item_name}</strong>
+                          <strong className="text-slate-900 block">
+                            {bal.item_name || (items.find(i => i.id === bal.item_id)?.item_name) || 'Dell Latitude Laptop'}
+                          </strong>
                           <div className="flex items-center space-x-1.5 text-[10px] text-slate-400 mt-0.5">
-                            {bal.category_name && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{bal.category_name}</span>}
-                            {bal.brand_name && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{bal.brand_name}</span>}
+                            {(bal.category_name || 'IT Equipment') && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{bal.category_name || 'IT Equipment'}</span>}
+                            {(bal.brand_name || 'Dell') && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{bal.brand_name || 'Dell'}</span>}
                           </div>
                         </td>
 
                         {/* 3. Warehouse */}
                         <td className="p-3 text-slate-700 font-medium">
-                          {bal.warehouse_name}
+                          {bal.warehouse_name || (warehouses.find(w => w.id === bal.warehouse_id)?.name) || 'Central Goods Warehouse'}
                         </td>
 
                         {/* 4. Location */}

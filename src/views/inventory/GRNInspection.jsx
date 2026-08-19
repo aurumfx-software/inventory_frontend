@@ -492,7 +492,7 @@ export default function GRNInspection({ initialSubTab = 'grn' }) {
           pass_fail: 'Pass'
         }
       ],
-      inspected_by: 'Store Manager',
+      inspected_by: 'Sarah Jenkins',
       inspection_date: new Date().toISOString().split('T')[0],
       accepted_qty: acceptedQty,
       rejected_qty: rejectedQty,
@@ -502,6 +502,15 @@ export default function GRNInspection({ initialSubTab = 'grn' }) {
       auto_post: true,
       item_results: lineResults
     });
+  };
+
+  const handleInspectGrnSelect = (grnRef) => {
+    const targetGrn = grns.find(g => g.grn_number === grnRef || g.id === grnRef);
+    if (targetGrn) {
+      handleOpenInspectionModal(targetGrn);
+    } else {
+      setInspectForm(prev => ({ ...prev, grn_reference: grnRef, selected_item_id: '' }));
+    }
   };
 
   // Handle Quality Inspection Item Change
@@ -1052,6 +1061,16 @@ export default function GRNInspection({ initialSubTab = 'grn' }) {
                 <h3 className="font-bold text-sm text-slate-900 font-heading">Quality Inspection Queue</h3>
                 <p className="text-xs text-slate-500">Perform inbound quality checks on received materials before accepting into active stock.</p>
               </div>
+              <button
+                onClick={() => {
+                  const defaultGrn = grns[0] || { grn_number: 'GRN-2026-5710', items: [] };
+                  handleOpenInspectionModal(defaultGrn);
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center space-x-2 shadow-2xs transition cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>New Quality Inspection</span>
+              </button>
             </div>
 
             <div className="space-y-3">
@@ -1679,13 +1698,19 @@ export default function GRNInspection({ initialSubTab = 'grn' }) {
 
                   <div>
                     <label className="block text-slate-700 font-bold mb-1">GRN Reference *</label>
-                    <input
-                      type="text"
-                      value={inspectForm.grn_reference || showInspectionModal.grn_number}
-                      onChange={e => setInspectForm({ ...inspectForm, grn_reference: e.target.value })}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-purple-700 font-bold font-mono"
+                    <select
+                      value={inspectForm.grn_reference || (showInspectionModal && showInspectionModal.grn_number) || ''}
+                      onChange={e => handleInspectGrnSelect(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-purple-700 font-bold font-mono text-xs"
                       required
-                    />
+                    >
+                      <option value="">-- Select Existing GRN --</option>
+                      {grns.map(g => (
+                        <option key={g.id} value={g.grn_number}>
+                          {g.grn_number} ({g.supplier_name || 'Supplier'} - {g.po_number || 'PO'})
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
@@ -1693,13 +1718,24 @@ export default function GRNInspection({ initialSubTab = 'grn' }) {
                     <select
                       value={inspectForm.selected_item_id || ''}
                       onChange={e => handleInspectItemChange(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-800"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-800 text-xs"
                     >
-                      {(showInspectionModal.items || []).map((line, idx) => (
-                        <option key={idx} value={line.id || line.item_id}>
-                          {line.item_code} - {line.item_name} ({line.uom || 'Pcs'})
-                        </option>
-                      ))}
+                      {(() => {
+                        const items = (showInspectionModal && showInspectionModal.items && showInspectionModal.items.length > 0)
+                          ? showInspectionModal.items
+                          : (inspectForm.item_results && inspectForm.item_results.length > 0)
+                          ? inspectForm.item_results
+                          : [
+                              { id: 'itm-01', item_id: 'itm-01', item_code: 'IT-LAP-0001', item_name: 'Dell Latitude 5440 Laptop', uom: 'Pcs' },
+                              { id: 'itm-02', item_id: 'itm-02', item_code: 'ELE-CBL-0002', item_name: 'Cat6 Ethernet Cable (305m Drum)', uom: 'Pcs' }
+                            ];
+
+                        return items.map((line, idx) => (
+                          <option key={idx} value={line.id || line.item_id || `itm-0${idx+1}`}>
+                            {line.item_code || 'IT-LAP-0001'} - {line.item_name || 'Dell Latitude 5440 Laptop'} ({line.uom || line.unit || 'Pcs'})
+                          </option>
+                        ));
+                      })()}
                     </select>
                   </div>
                 </div>

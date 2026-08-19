@@ -125,8 +125,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         { id: 'sec-25', label: 'Stock Adjustments', icon: Sliders },
         { id: 'sec-26', label: 'Physical Verification', icon: ClipboardList },
         { id: 'sec-27', label: 'Reservation Management', icon: BookmarkCheck },
-        { id: 'sec-28', label: 'Asset Tracking', icon: Laptop },
-        { id: 'sec-pos', label: 'POS Billing & Invoicing', icon: Zap }
+        { id: 'sec-28', label: 'Asset Tracking', icon: Laptop }
       ]
     },
     {

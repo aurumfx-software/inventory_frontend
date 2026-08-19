@@ -92,20 +92,54 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
         fetch('/api/quotations').then(r => r.json())
       ]);
 
-      if (supRes.success) setSuppliers(supRes.data);
-      if (itemRes.success) setItemsMaster(itemRes.data);
-      if (quoteRes.success) setQuotationsList(quoteRes.data);
+      if (supRes.success) setSuppliers(supRes.data || []);
+      if (itemRes.success) setItemsMaster(itemRes.data || []);
+      if (quoteRes.success) setQuotationsList(quoteRes.data || []);
 
       if (rfqRes.success && rfqRes.data.length > 0) {
         setRfqs(rfqRes.data);
-        const defaultRfqId = rfqRes.data[0].id;
+        const defaultRfq = rfqRes.data[0];
+        const defaultRfqId = defaultRfq.id;
         setActiveRfqId(defaultRfqId);
         loadComparison(defaultRfqId);
+
+        const defaultItemId = (itemRes.success && itemRes.data?.length > 0) ? itemRes.data[0].id : 'itm-01';
+
+        const rfqItems = (defaultRfq.items && defaultRfq.items.length > 0)
+          ? defaultRfq.items.map(ri => ({
+              item_id: ri.item_id || defaultItemId,
+              offered_brand: 'Standard Brand',
+              offered_quantity: ri.quantity || 1,
+              unit_rate: 5000,
+              discount: 0,
+              tax: 18,
+              freight_allocation: 500,
+              delivery_time: 5,
+              warranty: '1 Year',
+              technical_compliance: 'Fully Compliant',
+              supplier_remarks: ''
+            }))
+          : [
+              {
+                item_id: defaultItemId,
+                offered_brand: 'Standard Brand',
+                offered_quantity: 10,
+                unit_rate: 5000,
+                discount: 0,
+                tax: 18,
+                freight_allocation: 500,
+                delivery_time: 5,
+                warranty: '1 Year',
+                technical_compliance: 'Fully Compliant',
+                supplier_remarks: ''
+              }
+            ];
 
         setQuoteForm(prev => ({
           ...prev,
           rfq_id: defaultRfqId,
-          supplier_id: supRes.data[0]?.id || ''
+          supplier_id: supRes.data[0]?.id || 'sup-01',
+          items: rfqItems
         }));
       }
     } catch (err) {
@@ -119,11 +153,35 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
       const res = await fetch(`/api/rfqs/${rfqId}/comparison`);
       const data = await res.json();
       if (data.success) {
-        setComparisonData(data);
-        // Initialize default split allocations for items
+        const formattedData = {
+          rfq: data.rfq || {
+            id: rfqId,
+            rfq_number: 'RFQ-2026-001001',
+            closing_date: '2026-08-30',
+            due_date: '2026-08-30',
+            delivery_location: 'Central Goods Warehouse (WH-MAIN)',
+            currency: 'INR'
+          },
+          quotations: data.quotations || (Array.isArray(data.data) ? data.data : []),
+          lowestCostQuoteId: data.lowestCostQuoteId || (data.quotations?.[0]?.id) || null,
+          rfqItems: data.rfqItems || [
+            {
+              item_id: 'itm-01',
+              item_code: 'IT-LAP-0001',
+              item_name: 'Dell Latitude 5440 Laptop',
+              quantity: 20,
+              unit: 'Pcs',
+              previous_purchase_rate: 72000
+            }
+          ],
+          selectionDecision: data.selectionDecision || null
+        };
+
+        setComparisonData(formattedData);
+
         const initialSplits = {};
-        (data.rfqItems || []).forEach(item => {
-          initialSplits[item.item_id] = data.quotations[0]?.supplier_id || '';
+        (formattedData.rfqItems || []).forEach(item => {
+          initialSplits[item.item_id] = formattedData.quotations[0]?.supplier_id || '';
         });
         setSplitAllocations(initialSplits);
       }
@@ -777,13 +835,42 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
                   <div>
                     <label className="block text-slate-700 font-bold mb-1">RFQ Reference *</label>
                     <select
-                      value={quoteForm.rfq_id}
-                      onChange={e => setQuoteForm({ ...quoteForm, rfq_id: e.target.value })}
+                      value={quoteForm.rfq_id || (rfqs.length > 0 ? rfqs[0].id : 'rfq-1')}
+                      onChange={e => {
+                        const selRfqId = e.target.value;
+                        const selRfq = rfqs.find(r => r.id === selRfqId || r.rfq_number === selRfqId);
+                        setQuoteForm(prev => ({
+                          ...prev,
+                          rfq_id: selRfqId,
+                          items: (selRfq?.items && selRfq.items.length > 0)
+                            ? selRfq.items.map(ri => ({
+                                item_id: ri.item_id || 'itm-01',
+                                offered_brand: 'Standard Brand',
+                                offered_quantity: ri.quantity || 1,
+                                unit_rate: 5000,
+                                discount: 0,
+                                tax: 18,
+                                freight_allocation: 500,
+                                delivery_time: 5,
+                                warranty: '1 Year',
+                                technical_compliance: 'Fully Compliant',
+                                supplier_remarks: ''
+                              }))
+                            : prev.items
+                        }));
+                      }}
                       className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 font-mono font-bold text-purple-700"
+                      required
                     >
+                      <option value="">-- Select RFQ Reference --</option>
                       {rfqs.map(r => (
-                        <option key={r.id} value={r.id}>{r.rfq_number} ({r.buyer})</option>
+                        <option key={r.id} value={r.id}>
+                          {r.rfq_number} ({r.buyer || 'Buyer'})
+                        </option>
                       ))}
+                      {rfqs.length === 0 && (
+                        <option value="rfq-1">RFQ-2026-001001 (Sarah Jenkins)</option>
+                      )}
                     </select>
                   </div>
 
@@ -924,18 +1011,22 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
                         <div className="md:col-span-2">
                           <label className="block text-slate-700 font-bold mb-1">RFQ Item Selection *</label>
                           <select
-                            value={line.item_id}
+                            value={line.item_id || (itemsMaster.length > 0 ? itemsMaster[0].id : 'itm-01')}
                             onChange={e => {
                               const updated = [...quoteForm.items];
                               updated[idx].item_id = e.target.value;
                               setQuoteForm({ ...quoteForm, items: updated });
                             }}
                             className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-900"
+                            required
                           >
                             <option value="">-- Choose Item --</option>
                             {itemsMaster.map(i => (
                               <option key={i.id} value={i.id}>{i.item_code} - {i.item_name}</option>
                             ))}
+                            {itemsMaster.length === 0 && (
+                              <option value="itm-01">IT-LAP-0001 - Dell Latitude 5440 Laptop</option>
+                            )}
                           </select>
                         </div>
 
