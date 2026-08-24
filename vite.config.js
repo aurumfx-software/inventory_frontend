@@ -20,6 +20,21 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        '/docs': {
+          target: apiTarget,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/redoc': {
+          target: apiTarget,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/openapi.json': {
+          target: apiTarget,
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
   };

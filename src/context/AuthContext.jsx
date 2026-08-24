@@ -30,19 +30,9 @@ const rolePermissionsMap = {
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // Default logged in admin user for seamless desktop startup
-  const [user, setUser] = useState({
-    id: 'usr-01',
-    name: 'Sarah Jenkins',
-    email: 'admin@company.com',
-    emp_code: 'EMP-001',
-    role: 'Super Administrator',
-    role_id: 'role-admin',
-    department_id: 'dept-01',
-    department_name: 'Information Technology'
-  });
-
-  const [token, setToken] = useState('active-session-token');
+  // Initial state is unauthenticated (null) so software opens on Login Page first
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [activeWarehouse, setActiveWarehouse] = useState('wh-01');
   const [themeMode, setThemeMode] = useState(() => {
     return localStorage.getItem('app-theme') || 'light';
@@ -101,51 +91,59 @@ export function AuthProvider({ children }) {
   };
 
   const login = async (email, password) => {
+    // Reset any existing session state
+    setUser(null);
+    setToken(null);
+
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = (password || '').trim();
+
+    if (!cleanEmail) {
+      return {
+        success: false,
+        message: 'Authentication Failed: Email address is required.'
+      };
+    }
+
+    if (!cleanPassword) {
+      return {
+        success: false,
+        message: 'Authentication Failed: Password is required.'
+      };
+    }
+
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email || 'admin@company.com', password: password || 'password123' })
+        body: JSON.stringify({ email: cleanEmail, password: cleanPassword })
       });
       const data = await res.json();
-      if (data.success && data.user) {
+
+      if (res.ok && data.success && data.user) {
         setUser({
           ...data.user,
           permissions: rolePermissionsMap[data.user.role_id] || ['*']
         });
         setToken(data.token || 'active-session-token');
         return { success: true };
+      } else {
+        setUser(null);
+        setToken(null);
+        return { 
+          success: false, 
+          message: data.detail || data.message || 'Authentication Failed: Incorrect password or invalid email address.' 
+        };
       }
     } catch (err) {
-      console.warn('Backend login endpoint unavailable, using offline fallback:', err);
+      console.error('Backend login request error:', err);
+      setUser(null);
+      setToken(null);
+      return {
+        success: false,
+        message: 'Authentication Failed: Server connection error. Please ensure the backend server is running.'
+      };
     }
-
-    // Fallback role map if backend offline
-    const roleMap = [
-      { email: 'admin@company.com', name: 'Super Administrator', user: 'Sarah Jenkins', id: 'usr-01', role_id: 'role-admin' },
-      { email: 'purchase@company.com', name: 'Purchase Manager', user: 'Rajesh Kumar', id: 'usr-02', role_id: 'role-purchase' },
-      { email: 'store@company.com', name: 'Store Manager', user: 'Michael Chang', id: 'usr-03', role_id: 'role-store' },
-      { email: 'deptmgr@company.com', name: 'Department Manager', user: 'Dr. Ananya Roy', id: 'usr-04', role_id: 'role-dept-mgr' },
-      { email: 'requester@company.com', name: 'Employee / Requester', user: 'David Miller', id: 'usr-05', role_id: 'role-requester' },
-      { email: 'finance@company.com', name: 'Finance User', user: 'Priya Sharma', id: 'usr-06', role_id: 'role-finance' },
-      { email: 'auditor@company.com', name: 'Auditor', user: 'Robert Wilson', id: 'usr-07', role_id: 'role-auditor' }
-    ];
-
-    const found = roleMap.find(r => r.email.toLowerCase() === (email || '').toLowerCase()) || roleMap[0];
-    
-    setUser({
-      id: found.id,
-      name: found.user,
-      email: email || found.email,
-      emp_code: 'EMP-001',
-      role: found.name,
-      role_id: found.role_id,
-      department_id: 'dept-01',
-      department_name: 'Information Technology',
-      permissions: rolePermissionsMap[found.role_id] || ['*']
-    });
-    setToken('active-session-token');
-    return { success: true };
   };
 
   const logout = () => {

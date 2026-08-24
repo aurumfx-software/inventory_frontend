@@ -4,8 +4,8 @@ import { Boxes, Eye, EyeOff, Mail, KeyRound, ChevronLeft, ChevronRight, CheckCir
 
 export default function Login() {
   const { login } = useAuth();
-  const [email, setEmail] = useState('admin@company.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -46,15 +46,21 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    if (!password) {
+      setError('Please enter your password to log in.');
+      return;
+    }
+
     setLoading(true);
 
-    // Show 2-second Authenticating loading state per user request
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Show 1-second Authenticating loading state
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     const res = await login(email, password);
     setLoading(false);
     if (!res.success) {
-      setError(res.message || 'Invalid email or password credentials.');
+      setError(res.message || 'Authentication Failed: Incorrect password. Access denied.');
     }
   };
 
@@ -69,17 +75,11 @@ export default function Login() {
     }, 2500);
   };
 
-  const handlePersonaClick = async (personaEmail, idx) => {
+  const handlePersonaClick = (personaEmail, idx) => {
     setActivePersonaIdx(idx);
     setEmail(personaEmail);
-    setPassword('password123');
-    setLoading(true);
-
-    // Show 2-second Authenticating loading state per user request
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    await login(personaEmail, 'password123');
-    setLoading(false);
+    setPassword('');
+    setError('');
   };
 
   const handlePrevPersona = () => {

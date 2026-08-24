@@ -58,7 +58,7 @@ endpoints = [
     '/api/attachments'
 ]
 
-base_url = 'http://127.0.0.1:8000'
+base_url = 'http://161.35.101.65'
 passed = 0
 failed = 0
 
