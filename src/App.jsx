@@ -75,15 +75,12 @@ function MainLayout() {
     ]
   };
 
-  // Ensure active tab is allowed for current user role
+  // Ensure user always lands on Executive Dashboard (sec-5) upon login
   useEffect(() => {
     if (user) {
-      const allowed = rolePermissions[user.role_id] || rolePermissions['role-admin'];
-      if (!allowed.includes(activeTab)) {
-        setActiveTab('sec-5');
-      }
+      setActiveTab('sec-5');
     }
-  }, [user]);
+  }, [user?.id]);
 
   // Standalone Separate Login Page Gate (Section 4 PDF Specification)
   if (!user) {
