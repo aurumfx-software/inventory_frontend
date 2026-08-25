@@ -126,6 +126,7 @@ export function AuthProvider({ children }) {
           permissions: rolePermissionsMap[data.user.role_id] || ['*']
         });
         setToken(data.token || 'active-session-token');
+        localStorage.setItem('app-active-tab', 'sec-5');
         return { success: true };
       } else {
         setUser(null);
@@ -149,6 +150,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null);
     setToken(null);
+    localStorage.setItem('app-active-tab', 'sec-5');
   };
 
   return (

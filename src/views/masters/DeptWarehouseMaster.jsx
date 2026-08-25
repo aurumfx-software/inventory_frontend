@@ -259,32 +259,12 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
       const res = await fetch('/api/departments');
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        const savedLocal = localStorage.getItem('app_departments_master');
-        if (data.data.length > 0) {
-          setDepartments(data.data);
-          localStorage.setItem('app_departments_master', JSON.stringify(data.data));
-        } else if (savedLocal !== null) {
-          try { setDepartments(JSON.parse(savedLocal)); } catch(e) { setDepartments([]); }
-        } else {
-          setDepartments(sampleDepartmentsFallback);
-          localStorage.setItem('app_departments_master', JSON.stringify(sampleDepartmentsFallback));
-        }
+        setDepartments(data.data);
       } else {
-        const saved = localStorage.getItem('app_departments_master');
-        if (saved !== null) {
-          try { setDepartments(JSON.parse(saved)); } catch(e) { setDepartments(sampleDepartmentsFallback); }
-        } else {
-          setDepartments(sampleDepartmentsFallback);
-          localStorage.setItem('app_departments_master', JSON.stringify(sampleDepartmentsFallback));
-        }
+        setDepartments([]);
       }
     } catch {
-      const saved = localStorage.getItem('app_departments_master');
-      if (saved !== null) {
-        try { setDepartments(JSON.parse(saved)); } catch(e) { setDepartments(sampleDepartmentsFallback); }
-      } else {
-        setDepartments(sampleDepartmentsFallback);
-      }
+      setDepartments([]);
     }
   };
 
@@ -293,32 +273,12 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
       const res = await fetch('/api/warehouses');
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        const savedLocal = localStorage.getItem('app_warehouses_master');
-        if (data.data.length > 0) {
-          setWarehouses(data.data);
-          localStorage.setItem('app_warehouses_master', JSON.stringify(data.data));
-        } else if (savedLocal !== null) {
-          try { setWarehouses(JSON.parse(savedLocal)); } catch(e) { setWarehouses([]); }
-        } else {
-          setWarehouses(sampleWarehousesFallback);
-          localStorage.setItem('app_warehouses_master', JSON.stringify(sampleWarehousesFallback));
-        }
+        setWarehouses(data.data);
       } else {
-        const saved = localStorage.getItem('app_warehouses_master');
-        if (saved !== null) {
-          try { setWarehouses(JSON.parse(saved)); } catch(e) { setWarehouses(sampleWarehousesFallback); }
-        } else {
-          setWarehouses(sampleWarehousesFallback);
-          localStorage.setItem('app_warehouses_master', JSON.stringify(sampleWarehousesFallback));
-        }
+        setWarehouses([]);
       }
     } catch {
-      const saved = localStorage.getItem('app_warehouses_master');
-      if (saved !== null) {
-        try { setWarehouses(JSON.parse(saved)); } catch(e) { setWarehouses(sampleWarehousesFallback); }
-      } else {
-        setWarehouses(sampleWarehousesFallback);
-      }
+      setWarehouses([]);
     }
   };
 
@@ -327,32 +287,12 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
       const res = await fetch('/api/warehouse-locations');
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        const savedLocal = localStorage.getItem('app_locations_master');
-        if (data.data.length > 0) {
-          setLocations(data.data);
-          localStorage.setItem('app_locations_master', JSON.stringify(data.data));
-        } else if (savedLocal !== null) {
-          try { setLocations(JSON.parse(savedLocal)); } catch(e) { setLocations([]); }
-        } else {
-          setLocations(sampleLocationsFallback);
-          localStorage.setItem('app_locations_master', JSON.stringify(sampleLocationsFallback));
-        }
+        setLocations(data.data);
       } else {
-        const saved = localStorage.getItem('app_locations_master');
-        if (saved !== null) {
-          try { setLocations(JSON.parse(saved)); } catch(e) { setLocations(sampleLocationsFallback); }
-        } else {
-          setLocations(sampleLocationsFallback);
-          localStorage.setItem('app_locations_master', JSON.stringify(sampleLocationsFallback));
-        }
+        setLocations([]);
       }
     } catch {
-      const saved = localStorage.getItem('app_locations_master');
-      if (saved !== null) {
-        try { setLocations(JSON.parse(saved)); } catch(e) { setLocations(sampleLocationsFallback); }
-      } else {
-        setLocations(sampleLocationsFallback);
-      }
+      setLocations([]);
     }
   };
 

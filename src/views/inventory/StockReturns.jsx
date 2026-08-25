@@ -126,15 +126,10 @@ export default function StockReturns() {
         fetch('/api/warehouses').then(r => r.json()).catch(() => ({}))
       ]);
 
-      if (retRes.success && Array.isArray(retRes.data) && retRes.data.length > 0) {
+      if (retRes.success && Array.isArray(retRes.data)) {
         setReturns(retRes.data);
       } else {
-        const saved = localStorage.getItem('app_stock_returns');
-        if (saved) setReturns(JSON.parse(saved));
-        else {
-          setReturns(sampleReturnsFallback);
-          localStorage.setItem('app_stock_returns', JSON.stringify(sampleReturnsFallback));
-        }
+        setReturns([]);
       }
 
       if (itemRes.success && Array.isArray(itemRes.data)) setItems(itemRes.data);

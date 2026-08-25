@@ -272,33 +272,13 @@ export default function SupplierMaster() {
       const res = await fetch('/api/suppliers');
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        const savedLocal = localStorage.getItem('app_suppliers_master');
-        if (data.data.length > 0) {
-          setSuppliers(data.data);
-          localStorage.setItem('app_suppliers_master', JSON.stringify(data.data));
-        } else if (savedLocal !== null) {
-          try { setSuppliers(JSON.parse(savedLocal)); } catch(e) { setSuppliers([]); }
-        } else {
-          setSuppliers(sampleSuppliersFallback);
-          localStorage.setItem('app_suppliers_master', JSON.stringify(sampleSuppliersFallback));
-        }
+        setSuppliers(data.data);
       } else {
-        const saved = localStorage.getItem('app_suppliers_master');
-        if (saved !== null) {
-          try { setSuppliers(JSON.parse(saved)); } catch(e) { setSuppliers(sampleSuppliersFallback); }
-        } else {
-          setSuppliers(sampleSuppliersFallback);
-          localStorage.setItem('app_suppliers_master', JSON.stringify(sampleSuppliersFallback));
-        }
+        setSuppliers([]);
       }
     } catch (err) {
       console.error(err);
-      const saved = localStorage.getItem('app_suppliers_master');
-      if (saved !== null) {
-        try { setSuppliers(JSON.parse(saved)); } catch(e) { setSuppliers(sampleSuppliersFallback); }
-      } else {
-        setSuppliers(sampleSuppliersFallback);
-      }
+      setSuppliers([]);
     }
   };
 

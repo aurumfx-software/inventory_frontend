@@ -24,20 +24,17 @@ export default function Dashboard({ setActiveTab }) {
 
   // Live Dynamic KPI State computed from Database
   const [kpiData, setKpiData] = useState({
-    stockValue: 1845000,
-    ongoingIndents: 43,
-    pendingPOs: 10,
-    pendingGRNs: 8,
-    expiringItems: 5,
-    lowStockAlerts: 10
+    stockValue: 0,
+    ongoingIndents: 0,
+    pendingPOs: 0,
+    pendingGRNs: 0,
+    expiringItems: 0,
+    lowStockAlerts: 0
   });
 
-  
   useEffect(() => {
     fetchLiveMetrics();
   }, []);
-
-
 
   const fetchLiveMetrics = async () => {
     try {
@@ -57,29 +54,28 @@ export default function Dashboard({ setActiveTab }) {
         expiringCount = resItems.data.filter(i => i.is_expiring || (i.expiry_days && i.expiry_days <= 30)).length;
       }
 
-      let ongoingIndentsCount = 43;
+      let ongoingIndentsCount = 0;
       if (resIndents.success && Array.isArray(resIndents.data)) {
-        ongoingIndentsCount = resIndents.data.filter(ind => ind.status !== 'Completed' && ind.status !== 'Closed' && ind.status !== 'Cancelled').length || resIndents.data.length;
+        ongoingIndentsCount = resIndents.data.filter(ind => ind.status !== 'Completed' && ind.status !== 'Closed' && ind.status !== 'Cancelled').length;
       }
 
-      let pendingPOsCount = 10;
+      let pendingPOsCount = 0;
       if (resPOs.success && Array.isArray(resPOs.data)) {
-        pendingPOsCount = resPOs.data.filter(p => p.status !== 'Fully received' && p.status !== 'Closed' && p.status !== 'Cancelled').length || resPOs.data.length;
+        pendingPOsCount = resPOs.data.filter(p => p.status !== 'Fully received' && p.status !== 'Closed' && p.status !== 'Cancelled').length;
       }
 
-      let pendingGRNsCount = 8;
+      let pendingGRNsCount = 0;
       if (resGRNs.success && Array.isArray(resGRNs.data)) {
-        const pending = resGRNs.data.filter(g => g.status !== 'Posted' && g.status !== 'Completed');
-        pendingGRNsCount = pending.length > 0 ? pending.length : resGRNs.data.length;
+        pendingGRNsCount = resGRNs.data.filter(g => g.status !== 'Posted' && g.status !== 'Completed').length;
       }
 
       setKpiData({
-        stockValue: calculatedValue > 0 ? calculatedValue : 1845000,
+        stockValue: calculatedValue,
         ongoingIndents: ongoingIndentsCount,
         pendingPOs: pendingPOsCount,
         pendingGRNs: pendingGRNsCount,
-        expiringItems: expiringCount > 0 ? expiringCount : 5,
-        lowStockAlerts: lowStockCount > 0 ? lowStockCount : 10
+        expiringItems: expiringCount,
+        lowStockAlerts: lowStockCount
       });
     } catch (err) {
       console.error('Metrics calculation error:', err);
@@ -95,12 +91,7 @@ export default function Dashboard({ setActiveTab }) {
     { week: 'Week 5', completed: 95, pending: 12, cancelled: 4 }
   ];
 
-  const [recentTransactions] = useState([
-    { id: '1', date: '2026-08-10', type: 'PURCHASE_RECEIPT', ref: 'GRN-2026-004001', item: 'Dell Latitude 5440 Laptop', qty: '+10 Pcs', warehouse: 'WH-SUB1', status: 'Posted' },
-    { id: '2', date: '2026-08-09', type: 'STOCK_ISSUE', ref: 'ISS-2026-005001', item: 'Cat6 Ethernet Cable (305m)', qty: '-50 Mtr', warehouse: 'WH-MAIN', status: 'Posted' },
-    { id: '3', date: '2026-08-08', type: 'INDENT_CREATED', ref: 'IND-2026-001001', item: 'Dell Latitude 5440 Laptop', qty: '20 Pcs', warehouse: 'IT-DEPT', status: 'Under Review' },
-    { id: '4', date: '2026-08-07', type: 'STOCK_TRANSFER', ref: 'TRN-2026-006001', item: 'Industrial Cleaning Solvent', qty: '30 Ltr', warehouse: 'WH-MAIN → WH-SUB1', status: 'In Transit' }
-  ]);
+  const [recentTransactions, setRecentTransactions] = useState([]);
 
   // Helper to compute SVG coordinates for trend lines
   const chartHeight = 160;
@@ -429,16 +420,24 @@ export default function Dashboard({ setActiveTab }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {recentTransactions.map(tx => (
-                <tr key={tx.id} className="hover:bg-slate-50/80 transition">
-                  <td className="py-3 text-slate-500 font-medium">{tx.date}</td>
-                  <td className="py-3 font-bold text-slate-800">{tx.type}</td>
-                  <td className="py-3 font-mono text-purple-700 font-bold">{tx.ref}</td>
-                  <td className="py-3 font-semibold text-slate-700">{tx.item}</td>
-                  <td className={`py-3 font-mono font-bold ${tx.qty.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>{tx.qty}</td>
-                  <td className="py-3"><StatusBadge status={tx.status} /></td>
+              {recentTransactions.length > 0 ? (
+                recentTransactions.map(tx => (
+                  <tr key={tx.id} className="hover:bg-slate-50/80 transition">
+                    <td className="py-3 text-slate-500 font-medium">{tx.date}</td>
+                    <td className="py-3 font-bold text-slate-800">{tx.type}</td>
+                    <td className="py-3 font-mono text-purple-700 font-bold">{tx.ref}</td>
+                    <td className="py-3 font-semibold text-slate-700">{tx.item}</td>
+                    <td className={`py-3 font-mono font-bold ${tx.qty.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>{tx.qty}</td>
+                    <td className="py-3"><StatusBadge status={tx.status} /></td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="py-8 text-center text-slate-400 font-medium text-xs">
+                    No recent inventory transactions recorded yet. System is clean and ready.
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

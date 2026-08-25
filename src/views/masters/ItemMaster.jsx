@@ -396,32 +396,9 @@ export default function ItemMaster() {
           brand_name: i.brand_name || i.brand || 'Generic',
           status: i.status || (i.is_active === false ? 'Inactive' : 'Active')
         }));
-        const savedLocal = localStorage.getItem('app_items_master');
-        if (formatted.length > 0) {
-          setItems(formatted);
-          localStorage.setItem('app_items_master', JSON.stringify(formatted));
-        } else if (savedLocal !== null) {
-          try {
-            setItems(JSON.parse(savedLocal));
-          } catch(e) {
-            setItems([]);
-          }
-        } else {
-          setItems(sampleItemsFallback);
-          localStorage.setItem('app_items_master', JSON.stringify(sampleItemsFallback));
-        }
+        setItems(formatted);
       } else {
-        const saved = localStorage.getItem('app_items_master');
-        if (saved !== null) {
-          try {
-            setItems(JSON.parse(saved));
-          } catch(e) {
-            setItems(sampleItemsFallback);
-          }
-        } else {
-          setItems(sampleItemsFallback);
-          localStorage.setItem('app_items_master', JSON.stringify(sampleItemsFallback));
-        }
+        setItems([]);
       }
 
       if (resCats.success && Array.isArray(resCats.data)) setCategories(resCats.data);

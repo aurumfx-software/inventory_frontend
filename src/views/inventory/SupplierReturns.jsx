@@ -111,15 +111,10 @@ export default function SupplierReturns() {
         fetch('/api/items').then(r => r.json()).catch(() => ({}))
       ]);
 
-      if (supRetRes.success && Array.isArray(supRetRes.data) && supRetRes.data.length > 0) {
+      if (supRetRes.success && Array.isArray(supRetRes.data)) {
         setReturns(supRetRes.data);
       } else {
-        const saved = localStorage.getItem('app_supplier_returns');
-        if (saved) setReturns(JSON.parse(saved));
-        else {
-          setReturns(sampleSupplierReturnsFallback);
-          localStorage.setItem('app_supplier_returns', JSON.stringify(sampleSupplierReturnsFallback));
-        }
+        setReturns([]);
       }
 
       if (supRes.success && Array.isArray(supRes.data)) setSuppliers(supRes.data);

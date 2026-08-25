@@ -39,7 +39,7 @@ import DocumentAttachments from './views/system/DocumentAttachments';
 function MainLayout() {
   const { user } = useAuth();
   const [activeTab, setActiveTabState] = useState(() => {
-    return localStorage.getItem('app-active-tab') || 'sec-6';
+    return localStorage.getItem('app-active-tab') || 'sec-5';
   });
 
   const setActiveTab = (tabId) => {
@@ -80,7 +80,7 @@ function MainLayout() {
     if (user) {
       const allowed = rolePermissions[user.role_id] || rolePermissions['role-admin'];
       if (!allowed.includes(activeTab)) {
-        setActiveTab('sec-6');
+        setActiveTab('sec-5');
       }
     }
   }, [user]);
@@ -174,6 +174,16 @@ function MainLayout() {
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(false);
+
+  useEffect(() => {
+    localStorage.removeItem('app_items_master');
+    localStorage.removeItem('app_suppliers_master');
+    localStorage.removeItem('app_departments_master');
+    localStorage.removeItem('app_warehouses_master');
+    localStorage.removeItem('app_locations_master');
+    localStorage.removeItem('app_supplier_returns');
+    localStorage.removeItem('app_stock_returns');
+  }, []);
 
   return (
     <>
