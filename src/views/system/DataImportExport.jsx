@@ -79,8 +79,25 @@ export default function DataImportExport() {
   };
 
   // Confirm & Save Valid Records (Step 6 & 7 & 8)
-  const handleConfirmImport = () => {
+  const handleConfirmImport = async () => {
     if (!validationResults) return;
+
+    try {
+      if (selectedCategory === 'Items' && validationResults.valid.length > 0) {
+        const rowsToImport = validationResults.valid.map(r => ({
+          item_code: r.code,
+          item_name: r.name,
+          valuation_rate: r.rate
+        }));
+        await fetch('/api/items/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rows: rowsToImport })
+        });
+      }
+    } catch (err) {
+      console.error('Import API error:', err);
+    }
 
     const newLog = {
       id: `imp-${Date.now()}`,

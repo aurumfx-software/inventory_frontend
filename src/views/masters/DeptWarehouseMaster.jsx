@@ -409,14 +409,38 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
       active_status: deptForm.active_status
     };
 
-    if (editingDept) {
-      setDepartments(prev => {
-        const updated = prev.map(d => (d.id === editingDept.id ? { ...d, ...payload } : d));
-        localStorage.setItem('app_departments_master', JSON.stringify(updated));
-        return updated;
-      });
-      showToastNotification('info', 'Department Updated', `Department "${payload.name}" updated.`);
-    } else {
+    try {
+      if (editingDept) {
+        const res = await fetch(`/api/departments/${encodeURIComponent(editingDept.id)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const updatedObj = data.success && data.data ? data.data : { ...editingDept, ...payload };
+        setDepartments(prev => {
+          const updated = prev.map(d => (d.id === editingDept.id ? updatedObj : d));
+          localStorage.setItem('app_departments_master', JSON.stringify(updated));
+          return updated;
+        });
+        showToastNotification('info', 'Department Updated', `Department "${payload.name}" updated.`);
+      } else {
+        const res = await fetch('/api/departments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const newDept = data.success && data.data ? data.data : { id: `dept-${Date.now()}`, ...payload, ytd_consumption: 0, recent_issues_count: 0 };
+        setDepartments(prev => {
+          const updated = [newDept, ...prev];
+          localStorage.setItem('app_departments_master', JSON.stringify(updated));
+          return updated;
+        });
+        showToastNotification('success', 'Department Registered', `Department "${payload.name}" registered.`);
+      }
+    } catch (err) {
+      console.error(err);
       const newDept = { id: `dept-${Date.now()}`, ...payload, ytd_consumption: 0, recent_issues_count: 0 };
       setDepartments(prev => {
         const updated = [newDept, ...prev];
@@ -428,8 +452,13 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     setShowCreateDeptModal(false);
   };
 
-  const handleDeleteDeptConfirm = () => {
+  const handleDeleteDeptConfirm = async () => {
     if (!deleteConfirmDept) return;
+    try {
+      await fetch(`/api/departments/${encodeURIComponent(deleteConfirmDept.id)}`, { method: 'DELETE' });
+    } catch (e) {
+      console.error(e);
+    }
     setDepartments(prev => {
       const filtered = prev.filter(d => d.id !== deleteConfirmDept.id);
       localStorage.setItem('app_departments_master', JSON.stringify(filtered));
@@ -459,27 +488,51 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     setShowCreateWhModal(true);
   };
 
-  const handleSaveWh = (e) => {
+  const handleSaveWh = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!whForm.name.trim()) return;
 
     const payload = {
       code: whForm.code || `WH-${Math.floor(100 + Math.random() * 900)}`,
       name: whForm.name.trim(),
-      address: whForm.address,
-      manager_name: whForm.manager_name,
-      capacity_sqft: Number(whForm.capacity_sqft),
-      active_status: whForm.active_status
+      address: whForm.address || 'Site Location',
+      manager_name: whForm.manager_name || 'Michael Chang',
+      capacity_sqft: Number(whForm.capacity_sqft || 5000),
+      active_status: whForm.active_status !== false
     };
 
-    if (editingWh) {
-      setWarehouses(prev => {
-        const updated = prev.map(w => (w.id === editingWh.id ? { ...w, ...payload } : w));
-        localStorage.setItem('app_warehouses_master', JSON.stringify(updated));
-        return updated;
-      });
-      showToastNotification('info', 'Warehouse Updated', `Warehouse "${payload.name}" updated.`);
-    } else {
+    try {
+      if (editingWh) {
+        const res = await fetch(`/api/warehouses/${encodeURIComponent(editingWh.id)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const updatedObj = data.success && data.data ? data.data : { ...editingWh, ...payload };
+        setWarehouses(prev => {
+          const updated = prev.map(w => (w.id === editingWh.id ? updatedObj : w));
+          localStorage.setItem('app_warehouses_master', JSON.stringify(updated));
+          return updated;
+        });
+        showToastNotification('info', 'Warehouse Updated', `Warehouse "${payload.name}" updated.`);
+      } else {
+        const res = await fetch('/api/warehouses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const newWh = data.success && data.data ? data.data : { id: `wh-${Date.now()}`, ...payload, total_bins: 10, occupied_bins: 2 };
+        setWarehouses(prev => {
+          const updated = [newWh, ...prev];
+          localStorage.setItem('app_warehouses_master', JSON.stringify(updated));
+          return updated;
+        });
+        showToastNotification('success', 'Warehouse Created', `Warehouse "${payload.name}" created successfully.`);
+      }
+    } catch (err) {
+      console.error(err);
       const newWh = { id: `wh-${Date.now()}`, ...payload, total_bins: 10, occupied_bins: 2 };
       setWarehouses(prev => {
         const updated = [newWh, ...prev];
@@ -491,8 +544,13 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     setShowCreateWhModal(false);
   };
 
-  const handleDeleteWhConfirm = () => {
+  const handleDeleteWhConfirm = async () => {
     if (!deleteConfirmWh) return;
+    try {
+      await fetch(`/api/warehouses/${encodeURIComponent(deleteConfirmWh.id)}`, { method: 'DELETE' });
+    } catch (e) {
+      console.error(e);
+    }
     setWarehouses(prev => {
       const filtered = prev.filter(w => w.id !== deleteConfirmWh.id);
       localStorage.setItem('app_warehouses_master', JSON.stringify(filtered));
@@ -522,7 +580,7 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     setShowCreateLocModal(true);
   };
 
-  const handleSaveLoc = (e) => {
+  const handleSaveLoc = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     const targetWh = warehouses.find(w => w.id === locForm.warehouse_id) || warehouses[0];
     const generatedCode = locForm.code || `${locForm.zone.replace(/\s+/g, '')}-${locForm.rack.replace(/\s+/g, '')}-${locForm.shelf.replace(/\s+/g, '')}-${locForm.bin.replace(/\s+/g, '')}`;
@@ -538,14 +596,38 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
       active_status: true
     };
 
-    if (editingLoc) {
-      setLocations(prev => {
-        const updated = prev.map(l => (l.id === editingLoc.id ? { ...l, ...payload } : l));
-        localStorage.setItem('app_locations_master', JSON.stringify(updated));
-        return updated;
-      });
-      showToastNotification('info', 'Location Updated', `Location "${payload.code}" updated.`);
-    } else {
+    try {
+      if (editingLoc) {
+        const res = await fetch(`/api/locations/${encodeURIComponent(editingLoc.id)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const updatedObj = data.success && data.data ? data.data : { ...editingLoc, ...payload };
+        setLocations(prev => {
+          const updated = prev.map(l => (l.id === editingLoc.id ? updatedObj : l));
+          localStorage.setItem('app_locations_master', JSON.stringify(updated));
+          return updated;
+        });
+        showToastNotification('info', 'Location Updated', `Location "${payload.code}" updated.`);
+      } else {
+        const res = await fetch('/api/locations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const newLoc = data.success && data.data ? data.data : { id: `loc-${Date.now()}`, ...payload, item_count: 0 };
+        setLocations(prev => {
+          const updated = [newLoc, ...prev];
+          localStorage.setItem('app_locations_master', JSON.stringify(updated));
+          return updated;
+        });
+        showToastNotification('success', 'Location Created', `Location "${payload.code}" registered.`);
+      }
+    } catch (err) {
+      console.error(err);
       const newLoc = { id: `loc-${Date.now()}`, ...payload, item_count: 0 };
       setLocations(prev => {
         const updated = [newLoc, ...prev];
@@ -557,8 +639,13 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     setShowCreateLocModal(false);
   };
 
-  const handleDeleteLocConfirm = () => {
+  const handleDeleteLocConfirm = async () => {
     if (!deleteConfirmLoc) return;
+    try {
+      await fetch(`/api/locations/${encodeURIComponent(deleteConfirmLoc.id)}`, { method: 'DELETE' });
+    } catch (e) {
+      console.error(e);
+    }
     setLocations(prev => {
       const filtered = prev.filter(l => l.id !== deleteConfirmLoc.id);
       localStorage.setItem('app_locations_master', JSON.stringify(filtered));
