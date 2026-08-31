@@ -24,7 +24,7 @@ export default function StockReturns() {
     return_number: '',
     return_date: new Date().toISOString().split('T')[0],
     original_issue_ref: 'ISS-2026-000101',
-    returned_by: 'David Miller',
+    returned_by: 'Store Requester',
     department_id: 'dept-01',
     department_name: 'Information Technology',
     warehouse_id: 'wh-01',

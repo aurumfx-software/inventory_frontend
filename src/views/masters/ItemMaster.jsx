@@ -675,7 +675,7 @@ export default function ItemMaster() {
         fetch('/api/items', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(newItem)
         })
           .then(r => r.json())
           .then(resData => {

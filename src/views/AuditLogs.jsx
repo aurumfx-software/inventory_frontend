@@ -18,14 +18,14 @@ export default function AuditLogs() {
       id: 'aud-101',
       timestamp: '2026-08-17T10:15:30Z',
       user_id: 'usr-01',
-      user_name: 'Sarah Jenkins (Super Admin)',
+      user_name: 'System Administrator',
       action: 'LOGIN_SUCCESS',
       category: 'Authentication',
       module: 'Authentication',
       record_id: 'usr-01',
-      ip_address: '192.168.1.105',
-      device_browser: 'Chrome 128 / Windows 11',
-      details: 'User Sarah Jenkins logged in successfully with MFA authorization.',
+      ip_address: '127.0.0.1',
+      device_browser: 'Chrome / Windows',
+      details: 'User System Administrator logged in successfully with MFA authorization.',
       old_value: null,
       new_value: { session_token: 'jwt-masked', login_time: '2026-08-17T10:15:30Z' },
       reason: 'Normal Application Sign-in'
@@ -34,113 +34,49 @@ export default function AuditLogs() {
       id: 'aud-102',
       timestamp: '2026-08-17T10:20:12Z',
       user_id: 'usr-02',
-      user_name: 'Rajesh Kumar (Purchase Mgr)',
+      user_name: 'Purchase Manager',
       action: 'PO_CREATED',
       category: 'Record Changes',
       module: 'Purchase Orders',
       record_id: 'PO-2026-000045',
-      ip_address: '192.168.1.112',
-      device_browser: 'Firefox 129 / macOS Sonoma',
-      details: 'Created formal Purchase Order PO-2026-000045 for Dell India Pvt Ltd worth ₹1,44,000.',
+      ip_address: '127.0.0.1',
+      device_browser: 'Firefox / macOS',
+      details: 'Created formal Purchase Order PO-2026-000045 for Approved Vendor.',
       old_value: null,
-      new_value: { po_number: 'PO-2026-000045', total_amount: 144000, supplier: 'Dell India Pvt Ltd' },
-      reason: 'Procurement against Approved Indent IND-2026-000123'
+      new_value: { po_number: 'PO-2026-000045', total_amount: 144000 },
+      reason: 'Procurement against Approved Indent'
     },
     {
       id: 'aud-103',
       timestamp: '2026-08-17T10:45:00Z',
       user_id: 'usr-03',
-      user_name: 'Michael Chang (Store Mgr)',
+      user_name: 'Store Manager',
       action: 'STOCK_POSTED',
       category: 'Approvals & Stock Posting',
       module: 'Goods Receipts (GRN)',
       record_id: 'GRN-2026-004018',
-      ip_address: '192.168.1.120',
-      device_browser: 'Edge 127 / Windows 11',
-      details: 'Posted Goods Receipt GRN-2026-004018. Increased WH-MAIN available stock by 25 Pcs.',
+      ip_address: '127.0.0.1',
+      device_browser: 'Edge / Windows',
+      details: 'Posted Goods Receipt GRN-2026-004018 into Warehouse stock.',
       old_value: { available_qty: 0, reserved_qty: 0 },
-      new_value: { available_qty: 25, reserved_qty: 0, location: 'WH-MAIN (Rack R-01)' },
+      new_value: { available_qty: 25, reserved_qty: 0 },
       reason: 'Physical delivery verified & quality inspection passed'
     },
     {
       id: 'aud-104',
       timestamp: '2026-08-17T11:05:45Z',
       user_id: 'usr-04',
-      user_name: 'Dr. Ananya Roy (Dept Mgr)',
+      user_name: 'Department Manager',
       action: 'INDENT_APPROVED',
       category: 'Approvals & Stock Posting',
       module: 'Indent Management',
       record_id: 'IND-2026-000124',
-      ip_address: '192.168.1.108',
-      device_browser: 'Safari 17 / macOS',
-      details: 'Approved material indent request for 10 Drums Cat6 Ethernet Cable.',
+      ip_address: '127.0.0.1',
+      device_browser: 'Safari / macOS',
+      details: 'Approved material indent request for required store items.',
       old_value: { status: 'Submitted' },
-      new_value: { status: 'Approved', approved_by: 'Dr. Ananya Roy', approval_limit_checked: true },
-      reason: 'Department IT budget allocation verified & within limits'
-    },
-    {
-      id: 'aud-105',
-      timestamp: '2026-08-17T11:30:20Z',
-      user_id: 'usr-01',
-      user_name: 'Sarah Jenkins (Super Admin)',
-      action: 'RECORD_DELETED',
-      category: 'Deletions & Permissions',
-      module: 'Item Master',
-      record_id: 'itm-099',
-      ip_address: '192.168.1.105',
-      device_browser: 'Chrome 128 / Windows 11',
-      details: 'Permanently deleted Item Master record "Legacy CRT Monitor" (IT-MON-0099).',
-      old_value: { item_code: 'IT-MON-0099', item_name: 'Legacy CRT Monitor', status: 'Active' },
-      new_value: null,
-      reason: 'Obsolete item purge requested by Store Manager'
-    },
-    {
-      id: 'aud-106',
-      timestamp: '2026-08-17T12:00:10Z',
-      user_id: 'usr-07',
-      user_name: 'Robert Wilson (Auditor)',
-      action: 'REPORT_EXPORTED',
-      category: 'Report Exports',
-      module: 'Reports & Analytics',
-      record_id: 'REP-VAL-2026',
-      ip_address: '192.168.1.140',
-      device_browser: 'Chrome 128 / Windows 11',
-      details: 'Exported Financial Valuation & Stock Balance Summary Report to Encrypted PDF.',
-      old_value: null,
-      new_value: { report_name: 'Stock Valuation Report', format: 'PDF', records_exported: 145 },
-      reason: 'Quarterly External Audit Compliance Check'
-    },
-    {
-      id: 'aud-107',
-      timestamp: '2026-08-17T12:15:00Z',
-      user_id: 'usr-01',
-      user_name: 'Sarah Jenkins (Super Admin)',
-      action: 'PERMISSION_CHANGED',
-      category: 'Deletions & Permissions',
-      module: 'User Management',
-      record_id: 'role-store',
-      ip_address: '192.168.1.105',
-      device_browser: 'Chrome 128 / Windows 11',
-      details: 'Updated Role Permissions for Store Manager. Granted stock.adjust & stock.verify.',
-      old_value: { role: 'Store Manager', permissions: ['stock.view', 'stock.issue'] },
-      new_value: { role: 'Store Manager', permissions: ['stock.view', 'stock.issue', 'stock.adjust', 'stock.verify'] },
-      reason: 'Updated Store Operations SOP 2026'
-    },
-    {
-      id: 'aud-108',
-      timestamp: '2026-08-17T12:40:10Z',
-      user_id: 'usr-99',
-      user_name: 'Unknown / External IP',
-      action: 'AUTH_FAILED_LOGIN',
-      category: 'Authentication',
-      module: 'Authentication',
-      record_id: 'N/A',
-      ip_address: '45.122.99.14',
-      device_browser: 'Unknown Bot / Linux',
-      details: 'Failed login attempt for user admin@company.com. Invalid password hash.',
-      old_value: null,
-      new_value: { attempt_count: 3, lockout_triggered: false },
-      reason: 'Authentication failure - Invalid credentials'
+      new_value: { status: 'Approved', approved_by: 'Department Manager' },
+      reason: 'Department budget allocation verified & within limits'
     }
   ];
 
@@ -154,11 +90,14 @@ export default function AuditLogs() {
       const res = await fetch('/api/audit-logs');
       const data = await res.json();
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-        setLogs(data.data);
+        const cleanLogs = data.data.filter(l => l.action !== 'SYSTEM_INIT' && !(l.details || '').includes('seeded successfully'));
+        setLogs(cleanLogs.length > 0 ? cleanLogs : sampleAuditLogsFallback);
       } else {
         const saved = localStorage.getItem('app_audit_logs');
-        if (saved) setLogs(JSON.parse(saved));
-        else {
+        if (saved) {
+          const parsed = JSON.parse(saved).filter(l => l.action !== 'SYSTEM_INIT' && !(l.details || '').includes('seeded successfully'));
+          setLogs(parsed);
+        } else {
           setLogs(sampleAuditLogsFallback);
           localStorage.setItem('app_audit_logs', JSON.stringify(sampleAuditLogsFallback));
         }
@@ -173,6 +112,7 @@ export default function AuditLogs() {
 
   // Filtered Logs
   const filteredLogs = logs.filter(l => {
+    if (l.action === 'SYSTEM_INIT' || (l.details || '').includes('seeded successfully')) return false;
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q || (
       (l.action || '').toLowerCase().includes(q) ||

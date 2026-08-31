@@ -869,7 +869,7 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
                         </option>
                       ))}
                       {rfqs.length === 0 && (
-                        <option value="rfq-1">RFQ-2026-001001 (Sarah Jenkins)</option>
+                        <option value="rfq-1">RFQ-2026-001001 (Purchase Officer)</option>
                       )}
                     </select>
                   </div>

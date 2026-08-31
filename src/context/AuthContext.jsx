@@ -30,9 +30,22 @@ const rolePermissionsMap = {
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // Initial state is unauthenticated (null) so software opens on Login Page first
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('app_current_user_obj');
+      if (savedUser) {
+        const u = JSON.parse(savedUser);
+        return {
+          ...u,
+          permissions: rolePermissionsMap[u.role_id] || ['*']
+        };
+      }
+    } catch (e) {}
+    return null;
+  });
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem('app_current_token') || null;
+  });
   const [activeWarehouse, setActiveWarehouse] = useState('wh-01');
   const [themeMode, setThemeMode] = useState(() => {
     return localStorage.getItem('app-theme') || 'light';
@@ -44,6 +57,30 @@ export function AuthProvider({ children }) {
     { id: 3, title: 'GRN Received', message: 'GRN-2026-004001 posted by Store Manager', time: '3 hrs ago', type: 'success', unread: false }
   ]);
 
+  const clearDomainCaches = () => {
+    const keysToRemove = [
+      'app_items_master',
+      'app_warehouses_master',
+      'app_departments_master',
+      'app_locations_master',
+      'app_suppliers_master',
+      'app_indents',
+      'app_purchase_orders',
+      'app_rfqs',
+      'app_quotations',
+      'app_current_company',
+      'app_current_user_email',
+      'app_current_user_role',
+      'app_current_token',
+      'app_current_user_obj',
+      'app_import_history',
+      'app_attachments',
+      'app_audit_logs',
+      'app_users_master'
+    ];
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  };
+
   React.useEffect(() => {
     if (themeMode === 'dark') {
       document.documentElement.classList.add('dark');
@@ -53,19 +90,56 @@ export function AuthProvider({ children }) {
     localStorage.setItem('app-theme', themeMode);
   }, [themeMode]);
 
+  React.useEffect(() => {
+    const activeCompany = user?.company_name || localStorage.getItem('app_current_company') || 'Organization';
+    const activeEmail = user?.email || localStorage.getItem('app_current_user_email') || '';
+    const activeRole = user?.role_id || localStorage.getItem('app_current_user_role') || '';
+    const activeToken = token || localStorage.getItem('app_current_token') || '';
+
+    const originalFetch = window.fetch;
+    window.fetch = function (resource, config = {}) {
+      config = config || {};
+      config.headers = config.headers || {};
+
+      const headersToSet = {
+        'X-Company-Name': activeCompany,
+        'X-User-Email': activeEmail,
+        'X-User-Role': activeRole,
+      };
+      if (activeToken) {
+        headersToSet['Authorization'] = `Bearer ${activeToken}`;
+      }
+
+      if (config.headers instanceof Headers) {
+        Object.entries(headersToSet).forEach(([k, v]) => {
+          if (v && !config.headers.has(k)) {
+            config.headers.append(k, v);
+          }
+        });
+      } else if (typeof config.headers === 'object') {
+        Object.entries(headersToSet).forEach(([k, v]) => {
+          if (v && !config.headers[k]) {
+            config.headers[k] = v;
+          }
+        });
+      }
+      return originalFetch(resource, config);
+    };
+  }, [user, token]);
+
   const toggleThemeMode = () => {
     setThemeMode(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   const switchRole = (roleId) => {
     const roleMap = {
-      'role-admin': { name: 'Super Administrator', user: 'Sarah Jenkins', email: 'admin@company.com', id: 'usr-01' },
-      'role-purchase': { name: 'Purchase Manager', user: 'Rajesh Kumar', email: 'purchase@company.com', id: 'usr-02' },
-      'role-store': { name: 'Store Manager', user: 'Michael Chang', email: 'store@company.com', id: 'usr-03' },
-      'role-dept-mgr': { name: 'Department Manager', user: 'Dr. Ananya Roy', email: 'deptmgr@company.com', id: 'usr-04' },
-      'role-requester': { name: 'Employee / Requester', user: 'David Miller', email: 'requester@company.com', id: 'usr-05' },
-      'role-finance': { name: 'Finance User', user: 'Priya Sharma', email: 'finance@company.com', id: 'usr-06' },
-      'role-auditor': { name: 'Auditor', user: 'Robert Wilson', email: 'auditor@company.com', id: 'usr-07' }
+      'role-admin': { name: 'Super Administrator', user: 'System Administrator', email: 'admin@company.com', id: 'usr-01' },
+      'role-purchase': { name: 'Purchase Manager', user: 'Purchase Manager', email: 'purchase@company.com', id: 'usr-02' },
+      'role-store': { name: 'Store Manager', user: 'Store Manager', email: 'store@company.com', id: 'usr-03' },
+      'role-dept-mgr': { name: 'Department Manager', user: 'Department Manager', email: 'deptmgr@company.com', id: 'usr-04' },
+      'role-requester': { name: 'Employee / Requester', user: 'Store Requester', email: 'requester@company.com', id: 'usr-05' },
+      'role-finance': { name: 'Finance User', user: 'Finance Manager', email: 'finance@company.com', id: 'usr-06' },
+      'role-auditor': { name: 'Auditor', user: 'System Auditor', email: 'auditor@company.com', id: 'usr-07' }
     };
 
     const target = roleMap[roleId] || roleMap['role-admin'];
@@ -121,6 +195,22 @@ export function AuthProvider({ children }) {
       const data = await res.json();
 
       if (res.ok && data.success && data.user) {
+        const prevUser = localStorage.getItem('app_current_user_email');
+        const newEmail = data.user.email;
+        const newCompany = data.user.company_name || 'Organization';
+
+        if (prevUser && prevUser !== newEmail) {
+          clearDomainCaches();
+        }
+
+        localStorage.setItem('app_current_user_email', newEmail);
+        localStorage.setItem('app_current_company', newCompany);
+        localStorage.setItem('app_current_user_role', data.user.role_id || '');
+        localStorage.setItem('app_current_user_obj', JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem('app_current_token', data.token);
+        }
+
         setUser({
           ...data.user,
           permissions: rolePermissionsMap[data.user.role_id] || ['*']
@@ -148,6 +238,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    clearDomainCaches();
     setUser(null);
     setToken(null);
     localStorage.setItem('app-active-tab', 'sec-5');

@@ -53,10 +53,10 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
   const initialDeptFormState = {
     code: '',
     name: '',
-    head_name: 'Dr. Ananya Roy',
+    head_name: 'Department Manager',
     cost_centre: '',
-    default_approver: 'Sarah Jenkins',
-    branch: 'Main Campus - Bangalore',
+    default_approver: 'System Administrator',
+    branch: 'Headquarters',
     budget_monthly: 200000,
     budget_quarterly: 600000,
     budget_annual: 2400000,
@@ -75,52 +75,18 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
       id: 'dept-01',
       code: 'DEPT-IT-001',
       name: 'Information Technology',
-      head_name: 'Dr. Ananya Roy',
+      head_name: 'IT Department Lead',
       cost_centre: 'IT-001',
-      default_approver: 'Sarah Jenkins',
-      branch: 'Main Campus - Bangalore',
+      default_approver: 'System Administrator',
+      branch: 'Headquarters',
       budget_monthly: 250000,
       budget_quarterly: 750000,
       budget_annual: 3000000,
       category_budgets: { 'cat-01': 1800000, 'cat-02': 600000, 'cat-03': 400000, 'cat-04': 200000 },
       budget_control_rule: 'Warn',
       active_status: true,
-      ytd_consumption: 1850000,
-      recent_issues_count: 32
-    },
-    {
-      id: 'dept-02',
-      code: 'DEPT-MNT-002',
-      name: 'Plant Maintenance & Engineering',
-      head_name: 'Vikram Malhotra',
-      cost_centre: 'MAINT-002',
-      default_approver: 'David Miller',
-      branch: 'Peenya Industrial Facility',
-      budget_monthly: 180000,
-      budget_quarterly: 540000,
-      budget_annual: 2200000,
-      category_budgets: { 'cat-01': 200000, 'cat-02': 1200000, 'cat-03': 200000, 'cat-04': 600000 },
-      budget_control_rule: 'Block',
-      active_status: true,
-      ytd_consumption: 1680000,
-      recent_issues_count: 28
-    },
-    {
-      id: 'dept-03',
-      code: 'DEPT-PROD-003',
-      name: 'Production & Manufacturing',
-      head_name: 'Suresh Menon',
-      cost_centre: 'PROD-003',
-      default_approver: 'Alex Rivera',
-      branch: 'Peenya Industrial Facility',
-      budget_monthly: 400000,
-      budget_quarterly: 1200000,
-      budget_annual: 5000000,
-      category_budgets: { 'cat-01': 500000, 'cat-02': 1000000, 'cat-03': 300000, 'cat-04': 3200000 },
-      budget_control_rule: 'Override Approval',
-      active_status: true,
-      ytd_consumption: 4100000,
-      recent_issues_count: 45
+      ytd_consumption: 0,
+      recent_issues_count: 0
     }
   ];
 
@@ -135,7 +101,7 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
     code: '',
     name: '',
     address: '',
-    manager_name: 'Michael Chang',
+    manager_name: 'Store Manager',
     capacity_sqft: 5000,
     active_status: true
   };
@@ -774,8 +740,8 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
                   </div>
 
                   <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-1.5 text-xs text-slate-600">
-                    <p className="flex justify-between"><span className="text-slate-400">Head:</span><strong>{dept.head_name || 'Dr. Ananya Roy'}</strong></p>
-                    <p className="flex justify-between"><span className="text-slate-400">Approver:</span><strong>{dept.default_approver || 'Sarah Jenkins'}</strong></p>
+                    <p className="flex justify-between"><span className="text-slate-400">Head:</span><strong>{dept.head_name || 'Department Head'}</strong></p>
+                    <p className="flex justify-between"><span className="text-slate-400">Approver:</span><strong>{dept.default_approver || 'Department Manager'}</strong></p>
                     <p className="flex justify-between"><span className="text-slate-400">Annual Budget:</span><strong className="text-purple-700 font-mono">₹{(dept.budget_annual || 2400000).toLocaleString()}</strong></p>
                   </div>
                 </div>
@@ -960,7 +926,7 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
                 </div>
                 <div>
                   <label className="block text-slate-700 font-bold mb-1">Department Head</label>
-                  <input type="text" value={deptForm.head_name} onChange={e => setDeptForm({ ...deptForm, head_name: e.target.value })} placeholder="Dr. Ananya Roy" className="w-full bg-slate-50 border rounded-xl px-3 py-2 text-slate-800" />
+                  <input type="text" value={deptForm.head_name} onChange={e => setDeptForm({ ...deptForm, head_name: e.target.value })} placeholder="Enter Head Name" className="w-full bg-slate-50 border rounded-xl px-3 py-2 text-slate-800" />
                 </div>
               </div>
 
@@ -1008,7 +974,7 @@ export default function DeptWarehouseMaster({ initialSubTab = 'dept' }) {
                 </div>
                 <div>
                   <label className="block text-slate-700 font-bold mb-1">Store Manager</label>
-                  <input type="text" value={whForm.manager_name} onChange={e => setWhForm({ ...whForm, manager_name: e.target.value })} placeholder="Michael Chang" className="w-full bg-slate-50 border rounded-xl px-3 py-2 text-slate-800" />
+                  <input type="text" value={whForm.manager_name} onChange={e => setWhForm({ ...whForm, manager_name: e.target.value })} placeholder="Enter Manager Name" className="w-full bg-slate-50 border rounded-xl px-3 py-2 text-slate-800" />
                 </div>
               </div>
 

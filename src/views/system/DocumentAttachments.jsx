@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { Paperclip, Upload, ShieldCheck, Download, ExternalLink, Lock, Eye, FileText, CheckCircle2 } from 'lucide-react';
 
 export default function DocumentAttachments() {
-  const [attachments, setAttachments] = useState([
-    { id: 'att-01', module: 'Purchase Order', name: 'PO_Vendor_Quote_Approved.pdf', docCategory: 'Vendor Quotation', fileType: 'PDF', size: '1.2 MB', storageUrl: 'local://storage/docs/PO_8801.pdf', uploadedBy: 'Rajesh Kumar', date: '2026-08-09' },
-    { id: 'att-02', module: 'Goods Receipt', name: 'Challan_DC_8810_Scan.pdf', docCategory: 'Delivery Challan', fileType: 'PDF', size: '450 KB', storageUrl: 'local://storage/docs/GRN_4018.pdf', uploadedBy: 'Michael Chang', date: '2026-08-10' },
-    { id: 'att-03', module: 'Quality Inspection', name: 'Lab_Inspection_Report.pdf', docCategory: 'Lab Certificate', fileType: 'PDF', size: '890 KB', storageUrl: 'local://storage/docs/QI_9901.pdf', uploadedBy: 'Dr. Ananya Roy', date: '2026-08-12' },
-    { id: 'att-04', module: 'Stock Adjustment', name: 'Physical_Audit_Sheet_Sign.jpg', docCategory: 'Audit Sign Sheet', fileType: 'JPG', size: '2.1 MB', storageUrl: 'local://storage/docs/ADJ_201.jpg', uploadedBy: 'Michael Chang', date: '2026-08-15' }
-  ]);
+  const { user } = useAuth();
+  const [attachments, setAttachments] = useState(() => {
+    const saved = localStorage.getItem('app_attachments');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const [newAttForm, setNewAttForm] = useState({
     module: 'Indents',
@@ -27,11 +27,13 @@ export default function DocumentAttachments() {
       fileType: newAttForm.name.endsWith('.pdf') ? 'PDF' : newAttForm.name.endsWith('.jpg') ? 'JPG' : 'DOC',
       size: '1.5 MB',
       storageUrl: `local://storage/docs/${newAttForm.name}`,
-      uploadedBy: 'Sarah Jenkins (Admin)',
+      uploadedBy: user?.name || 'Administrator',
       date: new Date().toISOString().split('T')[0]
     };
 
-    setAttachments([newAtt, ...attachments]);
+    const updated = [newAtt, ...attachments];
+    setAttachments(updated);
+    localStorage.setItem('app_attachments', JSON.stringify(updated));
     setNewAttForm({ module: 'Indents', name: '', docCategory: 'Technical Specification' });
     alert('Document attachment uploaded & verified with malware scan.');
   };
@@ -154,25 +156,33 @@ export default function DocumentAttachments() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {attachments.map(att => (
-              <tr key={att.id} className="hover:bg-slate-50">
-                <td className="p-3 font-bold text-purple-700 font-sans">{att.module}</td>
-                <td className="p-3 font-bold text-slate-900 font-sans">{att.name}</td>
-                <td className="p-3 text-slate-700 font-sans">{att.docCategory}</td>
-                <td className="p-3 text-slate-600"><span className="bg-slate-100 px-2 py-0.5 rounded font-bold">{att.fileType}</span> &bull; {att.size}</td>
-                <td className="p-3 text-slate-500 text-[11px] truncate max-w-xs">{att.storageUrl}</td>
-                <td className="p-3 text-slate-700 font-sans">{att.uploadedBy}</td>
-                <td className="p-3 text-slate-500 font-sans">{att.date}</td>
-                <td className="p-3 text-right">
-                  <button 
-                    onClick={() => alert(`Generated temporary secure access link for ${att.name}:\n${att.storageUrl}?token=temp_access_secure_99`)}
-                    className="bg-purple-50 hover:bg-purple-100 text-purple-800 font-bold px-2.5 py-1 rounded-lg border border-purple-200 cursor-pointer"
-                  >
-                    Temp Token Link
-                  </button>
+            {attachments.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="p-8 text-center text-slate-400 font-sans italic">
+                  No document attachments uploaded yet. Upload a document file above to register attachments.
                 </td>
               </tr>
-            ))}
+            ) : (
+              attachments.map(att => (
+                <tr key={att.id} className="hover:bg-slate-50">
+                  <td className="p-3 font-bold text-purple-700 font-sans">{att.module}</td>
+                  <td className="p-3 font-bold text-slate-900 font-sans">{att.name}</td>
+                  <td className="p-3 text-slate-700 font-sans">{att.docCategory}</td>
+                  <td className="p-3 text-slate-600"><span className="bg-slate-100 px-2 py-0.5 rounded font-bold">{att.fileType}</span> &bull; {att.size}</td>
+                  <td className="p-3 text-slate-500 text-[11px] truncate max-w-xs">{att.storageUrl}</td>
+                  <td className="p-3 text-slate-700 font-sans">{att.uploadedBy}</td>
+                  <td className="p-3 text-slate-500 font-sans">{att.date}</td>
+                  <td className="p-3 text-right">
+                    <button 
+                      onClick={() => alert(`Generated temporary secure access link for ${att.name}:\n${att.storageUrl}?token=temp_access_secure_99`)}
+                      className="bg-purple-50 hover:bg-purple-100 text-purple-800 font-bold px-2.5 py-1 rounded-lg border border-purple-200 cursor-pointer"
+                    >
+                      Temp Token Link
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

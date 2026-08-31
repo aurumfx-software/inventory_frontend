@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, SlidersHorizontal, CheckSquare, Eye, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function SearchFiltersEngine() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const [searchParams, setSearchParams] = useState({
-    keyword: 'laptop',
+    keyword: '',
     status: 'Active',
-    dateFrom: '2026-08-01',
-    dateTo: '2026-08-17',
-    department: 'dept-01',
-    warehouse: 'wh-01',
-    createdBy: 'Sarah Jenkins',
+    dateFrom: '',
+    dateTo: '',
+    department: 'All',
+    warehouse: 'All',
+    createdBy: 'All',
     sortBy: 'created_at_desc',
     page: 1,
     pageSize: 25
@@ -27,20 +30,43 @@ export default function SearchFiltersEngine() {
     createdBy: true
   });
 
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const fetchItems = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/items');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setItems(data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching items for search engine:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Saved Filters Presets
   const [savedFilterPresets] = useState([
-    { id: 'flt-01', name: 'High Value Active IT Items', params: { keyword: 'laptop', status: 'Active', department: 'dept-01' } },
-    { id: 'flt-02', name: 'Pending Department Indents', params: { keyword: '', status: 'Submitted', department: 'dept-01' } },
-    { id: 'flt-03', name: 'Central Warehouse Stock', params: { warehouse: 'wh-01', status: 'Active' } }
+    { id: 'flt-01', name: 'High Value Active Items', params: { keyword: '', status: 'Active', department: 'All' } },
+    { id: 'flt-02', name: 'Pending Department Indents', params: { keyword: '', status: 'Submitted', department: 'All' } },
+    { id: 'flt-03', name: 'Central Warehouse Stock', params: { warehouse: 'All', status: 'Active' } }
   ]);
 
-  // Demo Record Dataset
-  const sampleRecords = [
-    { id: 'rec-01', code: 'IT-LAP-0001', name: 'Dell Latitude 5440 Laptop', category: 'IT Equipment', department: 'Information Technology', warehouse: 'Central Goods Warehouse (WH-MAIN)', stock: '0 Pcs', status: 'Active', createdBy: 'Sarah Jenkins' },
-    { id: 'rec-02', code: 'ELE-CBL-0002', name: 'Cat6 Ethernet Cable (305m Drum)', category: 'Stationeries', department: 'Electrical & Hardware', warehouse: 'Central Goods Warehouse (WH-MAIN)', stock: '10 Drums', status: 'Active', createdBy: 'Rajesh Kumar' },
-    { id: 'rec-03', code: 'OFF-PPR-0003', name: 'A4 Copy Paper 80GSM (Rim)', category: 'Metals', department: 'Consumables & Office', warehouse: 'Central Goods Warehouse (WH-MAIN)', stock: '50 Rims', status: 'Active', createdBy: 'Michael Chang' },
-    { id: 'rec-04', code: 'RAW-CHM-0004', name: 'Industrial Cleaning Solvent C-40', category: 'Electrical', department: 'Maintenance & Repairs', warehouse: 'Quarantine & Transit Store (WH-TRANS)', stock: '15 Cans', status: 'Active', createdBy: 'Dr. Ananya Roy' }
-  ];
+  // Filter live items based on search params
+  const filteredRecords = items.filter(i => {
+    const q = searchParams.keyword.toLowerCase().strip ? searchParams.keyword.toLowerCase().strip() : searchParams.keyword.toLowerCase();
+    const matchesKeyword = !q || (
+      (i.item_code || '').toLowerCase().includes(q) ||
+      (i.item_name || '').toLowerCase().includes(q) ||
+      (i.description || '').toLowerCase().includes(q)
+    );
+    const matchesStatus = searchParams.status === 'All' || (i.is_active ? 'Active' : 'Inactive') === searchParams.status;
+    return matchesKeyword && matchesStatus;
+  });
 
   const toggleColumn = (colKey) => {
     setVisibleColumns(prev => ({ ...prev, [colKey]: !prev[colKey] }));
@@ -219,7 +245,7 @@ export default function SearchFiltersEngine() {
       <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
         <div className="p-4 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-700 flex justify-between items-center">
           <span>Filtered Results Preview</span>
-          <span className="font-mono text-purple-700">Page {searchParams.page} of 1 ({sampleRecords.length} Items)</span>
+          <span className="font-mono text-purple-700">Page {searchParams.page} of 1 ({filteredRecords.length} Items Found)</span>
         </div>
 
         <div className="overflow-x-auto">
@@ -237,18 +263,26 @@ export default function SearchFiltersEngine() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-sans">
-              {sampleRecords.map(r => (
-                <tr key={r.id} className="hover:bg-slate-50">
-                  {visibleColumns.code && <td className="p-3 font-mono font-bold text-purple-700">{r.code}</td>}
-                  {visibleColumns.name && <td className="p-3 font-bold text-slate-900">{r.name}</td>}
-                  {visibleColumns.category && <td className="p-3 text-slate-600">{r.category}</td>}
-                  {visibleColumns.department && <td className="p-3 text-slate-700">{r.department}</td>}
-                  {visibleColumns.warehouse && <td className="p-3 text-slate-700">{r.warehouse}</td>}
-                  {visibleColumns.stock && <td className="p-3 font-mono font-bold text-slate-900">{r.stock}</td>}
-                  {visibleColumns.status && <td className="p-3 font-bold text-emerald-700">{r.status}</td>}
-                  {visibleColumns.createdBy && <td className="p-3 text-slate-500">{r.createdBy}</td>}
+              {filteredRecords.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-slate-400 font-sans italic">
+                    No matching inventory items found in database. Create items in Item Master or refine search criteria.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                filteredRecords.map(r => (
+                  <tr key={r.id} className="hover:bg-slate-50">
+                    {visibleColumns.code && <td className="p-3 font-mono font-bold text-purple-700">{r.item_code || r.code || r.id}</td>}
+                    {visibleColumns.name && <td className="p-3 font-bold text-slate-900">{r.item_name || r.name}</td>}
+                    {visibleColumns.category && <td className="p-3 text-slate-600">{r.category_id || r.category || 'General'}</td>}
+                    {visibleColumns.department && <td className="p-3 text-slate-700">{r.department || 'Central Store'}</td>}
+                    {visibleColumns.warehouse && <td className="p-3 text-slate-700">{r.warehouse || 'WH-MAIN'}</td>}
+                    {visibleColumns.stock && <td className="p-3 font-mono font-bold text-slate-900">{r.on_hand_qty || 0} Pcs</td>}
+                    {visibleColumns.status && <td className="p-3 font-bold text-emerald-700">{r.is_active !== false ? 'Active' : 'Inactive'}</td>}
+                    {visibleColumns.createdBy && <td className="p-3 text-slate-500">{r.created_by || 'System Admin'}</td>}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -68,7 +68,7 @@ export default function PrintModal({ isOpen, onClose, docType, docData }) {
             <div className="grid grid-cols-4 gap-2 text-[11px] bg-purple-50/60 p-3 rounded-xl border border-purple-100 mb-6 font-mono">
               <div>
                 <span className="text-purple-900 block text-[9px] uppercase font-bold font-sans">Buyer:</span>
-                <span className="font-semibold text-slate-800">{docData.buyer || 'Sarah Jenkins'}</span>
+                <span className="font-semibold text-slate-800">{docData.buyer || 'Purchase Officer'}</span>
               </div>
               <div>
                 <span className="text-purple-900 block text-[9px] uppercase font-bold font-sans">Quotation Ref:</span>
@@ -218,7 +218,7 @@ export default function PrintModal({ isOpen, onClose, docType, docData }) {
             <div className="text-right">
               <div className="border border-dashed border-slate-400 bg-slate-50 rounded-xl p-3 w-56 text-center inline-block">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
-                <p className="font-bold text-xs text-slate-900">{docData.buyer || 'Sarah Jenkins'}</p>
+                <p className="font-bold text-xs text-slate-900">{docData.buyer || 'Authorized Signatory'}</p>
                 <p className="text-[10px] text-slate-500">Authorized Purchasing Officer</p>
                 <p className="text-[9px] font-mono text-purple-800 font-semibold mt-1">[ Digitally Approved ]</p>
               </div>

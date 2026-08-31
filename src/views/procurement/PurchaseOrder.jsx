@@ -36,7 +36,7 @@ export default function PurchaseOrder() {
     payment_terms: 'Net 30 days',
     delivery_terms: 'FOB Destination',
     freight_terms: 'Freight Prepaid',
-    buyer: 'Sarah Jenkins (Buyer)',
+    buyer: 'Purchase Officer',
     quotation_id: '',
     rfq_id: '',
     indent_id: '',
@@ -260,7 +260,7 @@ export default function PurchaseOrder() {
         return;
       }
 
-      alert(data.message);
+      alert(data.message || 'Purchase Order saved successfully!');
       setIsCreateModalOpen(false);
       resetForm();
       fetchAllData();
@@ -289,13 +289,13 @@ export default function PurchaseOrder() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message);
+        alert(data.message || 'Action executed successfully.');
         fetchAllData();
         if (selectedPo && selectedPo.id === poId) {
           setSelectedPo(data.data);
         }
       } else {
-        alert(data.message);
+        alert(data.message || 'Action failed.');
       }
     } catch (err) {
       console.error(err);
@@ -352,7 +352,7 @@ export default function PurchaseOrder() {
       payment_terms: 'Net 30 days',
       delivery_terms: 'FOB Destination',
       freight_terms: 'Freight Prepaid',
-      buyer: 'Sarah Jenkins (Buyer)',
+      buyer: 'Purchase Officer',
       quotation_id: '',
       rfq_id: '',
       indent_id: '',
@@ -622,7 +622,7 @@ export default function PurchaseOrder() {
                 </div>
                 <div>
                   <span className="text-slate-400 block text-[10px] uppercase font-bold">Buyer</span>
-                  <span className="text-slate-800 font-semibold">{po.buyer || 'Sarah Jenkins'}</span>
+                  <span className="text-slate-800 font-semibold">{po.buyer || 'Purchase Officer'}</span>
                 </div>
               </div>
 
@@ -1058,7 +1058,7 @@ export default function PurchaseOrder() {
                   )}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  Created on {selectedPo.po_date} by {selectedPo.buyer || 'Sarah Jenkins'}
+                  Created on {selectedPo.po_date} by {selectedPo.buyer || 'Purchase Officer'}
                 </p>
               </div>
               <button onClick={() => setSelectedPo(null)} className="text-slate-400 hover:text-white">

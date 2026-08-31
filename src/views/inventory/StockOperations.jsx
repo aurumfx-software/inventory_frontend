@@ -1333,10 +1333,10 @@ export default function StockOperations({ initialSubTab = 'current-stock' }) {
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-bold"
                   >
                     <option value="usr-03">System Storekeeper (usr-03)</option>
-                    <option value="usr-01">Sarah Jenkins - Store Manager (usr-01)</option>
-                    <option value="usr-02">Rajesh Kumar - Purchase Manager (usr-02)</option>
-                    <option value="usr-04">Ananya Sharma - Finance Officer (usr-04)</option>
-                    <option value="usr-05">David Miller - Dept Requester (usr-05)</option>
+                    <option value="usr-01">Store Manager (usr-01)</option>
+                    <option value="usr-02">Purchase Manager (usr-02)</option>
+                    <option value="usr-04">Finance Officer (usr-04)</option>
+                    <option value="usr-05">Department Requester (usr-05)</option>
                   </select>
                 </div>
               </div>

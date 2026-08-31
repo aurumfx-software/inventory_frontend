@@ -14,37 +14,35 @@ export default function ImportAttachments({ initialTab = 'import' }) {
   const [validationResults, setValidationResults] = useState(null);
 
   // Import History Log
-  const [importHistory, setImportHistory] = useState([
-    { id: 'imp-01', date: '2026-08-10', category: 'Items Master', total: 50, passed: 48, failed: 2, uploaded_by: 'Sarah Jenkins' },
-    { id: 'imp-02', date: '2026-08-14', category: 'Suppliers Directory', total: 20, passed: 20, failed: 0, uploaded_by: 'Rajesh Kumar' }
-  ]);
+  const [importHistory, setImportHistory] = useState(() => {
+    const saved = localStorage.getItem('app_import_history');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   // SECTION 34: SEARCH & FILTER DEMO STATE
   const [searchParams, setSearchParams] = useState({
-    keyword: 'laptop',
+    keyword: '',
     status: 'Active',
-    dateFrom: '2026-08-01',
-    dateTo: '2026-08-17',
-    department: 'dept-01',
-    warehouse: 'wh-01',
-    createdBy: 'Sarah Jenkins',
+    dateFrom: '',
+    dateTo: '',
+    department: 'All',
+    warehouse: 'All',
+    createdBy: 'All',
     sortBy: 'created_at_desc',
     page: 1,
     pageSize: 25
   });
 
   const [savedFilterPresets, setSavedFilterPresets] = useState([
-    { id: 'flt-01', name: 'High Value Active IT Items', params: { keyword: 'laptop', status: 'Active' } },
+    { id: 'flt-01', name: 'High Value Active Items', params: { keyword: '', status: 'Active' } },
     { id: 'flt-02', name: 'Pending Department Indents', params: { status: 'Submitted', department: 'dept-01' } }
   ]);
 
   // SECTION 35: DOCUMENT ATTACHMENTS REGISTRY STATE
-  const [attachments, setAttachments] = useState([
-    { id: 'att-01', module: 'Purchase Order', name: 'PO_Vendor_Quote_Approved.pdf', fileType: 'PDF', size: '1.2 MB', storageUrl: 'local://storage/docs/PO_8801.pdf', uploadedBy: 'Rajesh Kumar', date: '2026-08-09' },
-    { id: 'att-02', module: 'Goods Receipt', name: 'Challan_DC_8810_Scan.pdf', fileType: 'PDF', size: '450 KB', storageUrl: 'local://storage/docs/GRN_4018.pdf', uploadedBy: 'Michael Chang', date: '2026-08-10' },
-    { id: 'att-03', module: 'Quality Inspection', name: 'Lab_Inspection_Report.pdf', fileType: 'PDF', size: '890 KB', storageUrl: 'local://storage/docs/QI_9901.pdf', uploadedBy: 'Dr. Ananya Roy', date: '2026-08-12' },
-    { id: 'att-04', module: 'Stock Adjustment', name: 'Physical_Audit_Sheet_Sign.jpg', fileType: 'JPG', size: '2.1 MB', storageUrl: 'local://storage/docs/ADJ_201.jpg', uploadedBy: 'Michael Chang', date: '2026-08-15' }
-  ]);
+  const [attachments, setAttachments] = useState(() => {
+    const saved = localStorage.getItem('app_attachments');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const [newAttForm, setNewAttForm] = useState({
     module: 'Indents',

@@ -177,35 +177,43 @@ export default function ReservationManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-mono">
-              {filteredReservations.map(resv => (
-                <tr key={resv.id} className="hover:bg-slate-50/80 transition">
-                  <td className="p-3.5 font-sans font-bold text-slate-800">{resv.transaction_type}</td>
-                  <td className="p-3.5 font-bold text-purple-700">{resv.transaction_id}</td>
-                  <td className="p-3.5 font-sans text-slate-800">
-                    <span className="font-mono text-purple-800 font-bold mr-1 block text-[11px]">{resv.item_code}</span>
-                    <span>{resv.item_name}</span>
-                  </td>
-                  <td className="p-3.5 font-sans text-slate-600">{resv.warehouse_name || 'Central Warehouse'}</td>
-                  <td className="p-3.5 text-right font-bold text-amber-600">{resv.reserved_qty}</td>
-                  <td className="p-3.5 text-right font-bold text-slate-700">{resv.consumed_qty || 0}</td>
-                  <td className="p-3.5 text-right font-bold text-emerald-700">{resv.released_qty || 0}</td>
-                  <td className="p-3.5 text-slate-500">{resv.expiry_date || 'No Expiry'}</td>
-                  <td className="p-3.5 text-center font-sans">
-                    <StatusBadge status={resv.status || 'Active'} />
-                  </td>
-                  <td className="p-3.5 text-center font-sans">
-                    {resv.status === 'Active' && (
-                      <button
-                        onClick={() => handleReleaseReservation(resv.id)}
-                        className="text-xs text-purple-600 hover:text-purple-800 font-bold flex items-center justify-center space-x-1 hover:underline cursor-pointer mx-auto bg-purple-50 hover:bg-purple-100 border border-purple-200 px-2.5 py-1 rounded-xl transition"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Release</span>
-                      </button>
-                    )}
+              {filteredReservations.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="p-8 text-center text-slate-400 font-sans italic">
+                    No active stock reservations recorded yet. Click "+ Create Stock Reservation" above to allocate stock for indents.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredReservations.map(resv => (
+                  <tr key={resv.id} className="hover:bg-slate-50/80 transition">
+                    <td className="p-3.5 font-sans font-bold text-slate-800">{resv.transaction_type}</td>
+                    <td className="p-3.5 font-bold text-purple-700">{resv.transaction_id}</td>
+                    <td className="p-3.5 font-sans text-slate-800">
+                      <span className="font-mono text-purple-800 font-bold mr-1 block text-[11px]">{resv.item_code}</span>
+                      <span>{resv.item_name}</span>
+                    </td>
+                    <td className="p-3.5 font-sans text-slate-600">{resv.warehouse_name || 'Central Warehouse'}</td>
+                    <td className="p-3.5 text-right font-bold text-amber-600">{resv.reserved_qty}</td>
+                    <td className="p-3.5 text-right font-bold text-slate-700">{resv.consumed_qty || 0}</td>
+                    <td className="p-3.5 text-right font-bold text-emerald-700">{resv.released_qty || 0}</td>
+                    <td className="p-3.5 text-slate-500">{resv.expiry_date || 'No Expiry'}</td>
+                    <td className="p-3.5 text-center font-sans">
+                      <StatusBadge status={resv.status || 'Active'} />
+                    </td>
+                    <td className="p-3.5 text-center font-sans">
+                      {resv.status === 'Active' && (
+                        <button
+                          onClick={() => handleReleaseReservation(resv.id)}
+                          className="text-xs text-purple-600 hover:text-purple-800 font-bold flex items-center justify-center space-x-1 hover:underline cursor-pointer mx-auto bg-purple-50 hover:bg-purple-100 border border-purple-200 px-2.5 py-1 rounded-xl transition"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Release</span>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

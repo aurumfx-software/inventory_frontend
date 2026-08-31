@@ -19,7 +19,8 @@ import {
 import StatusBadge from '../components/common/StatusBadge';
 
 export default function Dashboard({ setActiveTab }) {
-  const [selectedPeriod, setSelectedPeriod] = useState('February 2026');
+  const currentMonthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const [selectedPeriod, setSelectedPeriod] = useState(currentMonthYear);
   const [hoveredPoint, setHoveredPoint] = useState(null);
 
   // Live Dynamic KPI State computed from Database
@@ -29,7 +30,10 @@ export default function Dashboard({ setActiveTab }) {
     pendingPOs: 0,
     pendingGRNs: 0,
     expiringItems: 0,
-    lowStockAlerts: 0
+    lowStockAlerts: 0,
+    inStockPct: 100,
+    reservedPct: 0,
+    reorderPct: 0
   });
 
   useEffect(() => {
@@ -48,10 +52,18 @@ export default function Dashboard({ setActiveTab }) {
       let calculatedValue = 0;
       let lowStockCount = 0;
       let expiringCount = 0;
+      let totalItems = 0;
+      let inStockItems = 0;
+      let reservedItems = 0;
+
       if (resItems.success && Array.isArray(resItems.data)) {
+        totalItems = resItems.data.length;
         calculatedValue = resItems.data.reduce((sum, item) => sum + ((item.available_qty || item.on_hand_qty || 0) * (item.valuation_rate || 0)), 0);
         lowStockCount = resItems.data.filter(i => (i.available_qty || 0) <= (i.reorder_level || 10)).length;
         expiringCount = resItems.data.filter(i => i.is_expiring || (i.expiry_days && i.expiry_days <= 30)).length;
+
+        inStockItems = resItems.data.filter(i => (i.available_qty || i.on_hand_qty || 0) > (i.reorder_level || 10)).length;
+        reservedItems = resItems.data.filter(i => (i.reserved_qty || 0) > 0).length;
       }
 
       let ongoingIndentsCount = 0;
@@ -69,13 +81,20 @@ export default function Dashboard({ setActiveTab }) {
         pendingGRNsCount = resGRNs.data.filter(g => g.status !== 'Posted' && g.status !== 'Completed').length;
       }
 
+      const inStockPct = totalItems > 0 ? Math.round((inStockItems / totalItems) * 100) : 100;
+      const reservedPct = totalItems > 0 ? Math.round((reservedItems / totalItems) * 100) : 0;
+      const reorderPct = Math.max(0, 100 - inStockPct - reservedPct);
+
       setKpiData({
         stockValue: calculatedValue,
         ongoingIndents: ongoingIndentsCount,
         pendingPOs: pendingPOsCount,
         pendingGRNs: pendingGRNsCount,
         expiringItems: expiringCount,
-        lowStockAlerts: lowStockCount
+        lowStockAlerts: lowStockCount,
+        inStockPct,
+        reservedPct,
+        reorderPct
       });
     } catch (err) {
       console.error('Metrics calculation error:', err);
@@ -372,21 +391,21 @@ export default function Dashboard({ setActiveTab }) {
               <PieIcon className="w-4 h-4 text-purple-600" />
               <span>Monthly Stock Fulfillment</span>
             </h3>
-            <span className="text-xs text-slate-500 font-mono font-bold">78%</span>
+            <span className="text-xs text-purple-700 font-mono font-bold">{kpiData.inStockPct}%</span>
           </div>
 
           <div className="flex flex-col items-center justify-center py-3 space-y-4">
             <div className="w-36 h-36 rounded-full border-[10px] border-purple-600 border-t-emerald-500 border-r-amber-500 flex items-center justify-center shadow-inner relative transition-transform hover:scale-105">
               <div className="text-center">
-                <span className="text-2xl font-black text-slate-900 font-heading">78%</span>
+                <span className="text-2xl font-black text-slate-900 font-heading">{kpiData.inStockPct}%</span>
                 <span className="text-[10px] text-slate-500 font-bold block uppercase mt-0.5">Fulfilled</span>
               </div>
             </div>
 
-            <div className="flex justify-center space-x-4 text-[11px] font-bold">
-              <span className="flex items-center text-purple-700"><span className="w-2.5 h-2.5 rounded-full bg-purple-600 mr-1"></span> In Stock (78%)</span>
-              <span className="flex items-center text-amber-600"><span className="w-2.5 h-2.5 rounded-full bg-amber-500 mr-1"></span> Reserved (14%)</span>
-              <span className="flex items-center text-rose-600"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1"></span> Reorder (8%)</span>
+            <div className="flex justify-center space-x-3 text-[10px] sm:text-[11px] font-bold">
+              <span className="flex items-center text-purple-700"><span className="w-2.5 h-2.5 rounded-full bg-purple-600 mr-1"></span> In Stock ({kpiData.inStockPct}%)</span>
+              <span className="flex items-center text-amber-600"><span className="w-2.5 h-2.5 rounded-full bg-amber-500 mr-1"></span> Reserved ({kpiData.reservedPct}%)</span>
+              <span className="flex items-center text-rose-600"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1"></span> Reorder ({kpiData.reorderPct}%)</span>
             </div>
           </div>
         </div>

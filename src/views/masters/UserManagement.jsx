@@ -65,7 +65,7 @@ export default function UserManagement() {
     role_name: 'Employee or Requester',
     department_name: 'Information Technology',
     branch: 'Main Campus - Bangalore',
-    reporting_manager: 'Dr. Ananya Roy',
+    reporting_manager: 'Department Manager',
     approval_limit: 100000,
     is_active: true,
     warehouse_access: ['wh-01', 'wh-02'],
@@ -132,99 +132,15 @@ export default function UserManagement() {
     {
       id: 'usr-01',
       emp_code: 'EMP-001',
-      name: 'Sarah Jenkins',
+      name: 'System Administrator',
       email: 'admin@company.com',
-      phone: '+91 98765 43210',
+      phone: '+91 98765 00000',
       role_id: 'role-admin',
       role_name: 'Super Administrator',
-      department_name: 'Information Technology',
-      branch: 'Main Campus - Bangalore',
-      reporting_manager: 'Board of Directors',
+      department_name: 'System Administration',
+      branch: 'Headquarters',
+      reporting_manager: 'Organization Board',
       approval_limit: 5000000,
-      is_active: true
-    },
-    {
-      id: 'usr-02',
-      emp_code: 'EMP-002',
-      name: 'Rajesh Kumar',
-      email: 'purchase@company.com',
-      phone: '+91 98765 43211',
-      role_id: 'role-purchase',
-      role_name: 'Purchase Manager',
-      department_name: 'Procurement & Purchasing',
-      branch: 'Main Campus - Bangalore',
-      reporting_manager: 'Sarah Jenkins',
-      approval_limit: 1500000,
-      is_active: true
-    },
-    {
-      id: 'usr-03',
-      emp_code: 'EMP-003',
-      name: 'Michael Chang',
-      email: 'store@company.com',
-      phone: '+91 98765 43212',
-      role_id: 'role-store',
-      role_name: 'Store Manager',
-      department_name: 'Warehouse Operations',
-      branch: 'Main Campus - Bangalore',
-      reporting_manager: 'Rajesh Kumar',
-      approval_limit: 500000,
-      is_active: true
-    },
-    {
-      id: 'usr-04',
-      emp_code: 'EMP-004',
-      name: 'Dr. Ananya Roy',
-      email: 'deptmgr@company.com',
-      phone: '+91 98765 43213',
-      role_id: 'role-dept-mgr',
-      role_name: 'Department Manager',
-      department_name: 'Information Technology',
-      branch: 'Main Campus - Bangalore',
-      reporting_manager: 'Sarah Jenkins',
-      approval_limit: 1000000,
-      is_active: true
-    },
-    {
-      id: 'usr-05',
-      emp_code: 'EMP-005',
-      name: 'David Miller',
-      email: 'requester@company.com',
-      phone: '+91 98765 43214',
-      role_id: 'role-requester',
-      role_name: 'Employee or Requester',
-      department_name: 'Information Technology',
-      branch: 'Main Campus - Bangalore',
-      reporting_manager: 'Dr. Ananya Roy',
-      approval_limit: 50000,
-      is_active: true
-    },
-    {
-      id: 'usr-06',
-      emp_code: 'EMP-006',
-      name: 'Priya Sharma',
-      email: 'finance@company.com',
-      phone: '+91 98765 43215',
-      role_id: 'role-finance',
-      role_name: 'Finance User',
-      department_name: 'Finance & Accounts',
-      branch: 'Main Campus - Bangalore',
-      reporting_manager: 'Sarah Jenkins',
-      approval_limit: 2500000,
-      is_active: true
-    },
-    {
-      id: 'usr-07',
-      emp_code: 'EMP-007',
-      name: 'Robert Wilson',
-      email: 'auditor@company.com',
-      phone: '+91 98765 43216',
-      role_id: 'role-auditor',
-      role_name: 'Auditor',
-      department_name: 'Finance & Accounts',
-      branch: 'Main Campus - Bangalore',
-      reporting_manager: 'Sarah Jenkins',
-      approval_limit: 0,
       is_active: true
     }
   ];
@@ -234,25 +150,26 @@ export default function UserManagement() {
     setRoles(sampleRolesFallback);
   }, []);
 
+  const demoNamesToFilter = ['Sarah Jenkins', 'Rajesh Kumar', 'Michael Chang', 'Dr. Ananya Roy', 'David Miller', 'Priya Sharma', 'Robert Wilson'];
+
+  const filterDemoUsers = (list) => {
+    if (!Array.isArray(list)) return sampleUsersFallback;
+    const clean = list.filter(u => !demoNamesToFilter.includes(u.name));
+    return clean.length > 0 ? clean : sampleUsersFallback;
+  };
+
   const fetchUsers = async () => {
     try {
       const res = await fetch('/api/users');
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        const savedLocal = localStorage.getItem('app_users_master');
-        if (data.data.length > 0) {
-          setUsers(data.data);
-          localStorage.setItem('app_users_master', JSON.stringify(data.data));
-        } else if (savedLocal !== null) {
-          try { setUsers(JSON.parse(savedLocal)); } catch(e) { setUsers([]); }
-        } else {
-          setUsers(sampleUsersFallback);
-          localStorage.setItem('app_users_master', JSON.stringify(sampleUsersFallback));
-        }
+        const cleanList = filterDemoUsers(data.data);
+        setUsers(cleanList);
+        localStorage.setItem('app_users_master', JSON.stringify(cleanList));
       } else {
         const saved = localStorage.getItem('app_users_master');
         if (saved !== null) {
-          try { setUsers(JSON.parse(saved)); } catch(e) { setUsers(sampleUsersFallback); }
+          try { setUsers(filterDemoUsers(JSON.parse(saved))); } catch(e) { setUsers(sampleUsersFallback); }
         } else {
           setUsers(sampleUsersFallback);
           localStorage.setItem('app_users_master', JSON.stringify(sampleUsersFallback));
@@ -260,12 +177,7 @@ export default function UserManagement() {
       }
     } catch (err) {
       console.error(err);
-      const saved = localStorage.getItem('app_users_master');
-      if (saved !== null) {
-        try { setUsers(JSON.parse(saved)); } catch(e) { setUsers(sampleUsersFallback); }
-      } else {
-        setUsers(sampleUsersFallback);
-      }
+      setUsers(sampleUsersFallback);
     }
   };
 
@@ -304,7 +216,7 @@ export default function UserManagement() {
       role_name: user.role_name || 'Employee or Requester',
       department_name: user.department_name || 'Information Technology',
       branch: user.branch || 'Main Campus - Bangalore',
-      reporting_manager: user.reporting_manager || 'Dr. Ananya Roy',
+      reporting_manager: user.reporting_manager || 'Department Manager',
       approval_limit: user.approval_limit || 100000,
       is_active: user.is_active !== false,
       warehouse_access: user.warehouse_access || ['wh-01', 'wh-02'],
@@ -600,7 +512,7 @@ export default function UserManagement() {
                       </p>
                       <p className="flex justify-between">
                         <span className="text-slate-400 font-semibold">Reporting Manager:</span>
-                        <strong className="text-slate-800">{u.reporting_manager || 'Dr. Ananya Roy'}</strong>
+                        <strong className="text-slate-800">{u.reporting_manager || 'Department Manager'}</strong>
                       </p>
                       <p className="flex justify-between text-[11px]">
                         <span className="text-slate-400 font-semibold">Operating Branch:</span>
@@ -747,7 +659,7 @@ export default function UserManagement() {
                     value={formData.name} 
                     onBlur={() => setTouched({ ...touched, name: true })}
                     onChange={e => setFormData({ ...formData, name: e.target.value })} 
-                    placeholder="Dr. Ananya Roy" 
+                    placeholder="Enter Full Name" 
                     className={`w-full bg-slate-50 border ${touched.name && errors.name ? 'border-rose-400 bg-rose-50/30' : 'border-slate-200'} rounded-xl px-3 py-2 text-slate-800 font-medium focus:bg-white focus:outline-none focus:border-purple-500`} 
                   />
                   {touched.name && errors.name && (
@@ -835,7 +747,7 @@ export default function UserManagement() {
                     type="text" 
                     value={formData.reporting_manager} 
                     onChange={e => setFormData({ ...formData, reporting_manager: e.target.value })} 
-                    placeholder="Sarah Jenkins" 
+                    placeholder="Enter Manager Name" 
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:outline-none focus:border-purple-500" 
                   />
                 </div>

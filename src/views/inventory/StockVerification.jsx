@@ -163,77 +163,85 @@ export default function StockVerification() {
 
       {/* Count Sessions List */}
       <div className="space-y-4">
-        {sessions.map(sess => (
-          <div key={sess.id} className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4 hover:border-purple-200 transition">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-sm font-bold text-purple-900 bg-purple-50 border border-purple-200 px-3 py-1 rounded-xl">
-                  {sess.count_session_number || sess.session_number}
-                </span>
-                <StatusBadge status={sess.status} />
-                {sess.is_blind_count && (
-                  <span className="bg-purple-100 text-purple-800 border border-purple-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center space-x-1">
-                    <EyeOff className="w-3 h-3 text-purple-700" />
-                    <span>BLIND COUNT MODE (System Qty Hidden)</span>
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center space-x-3 text-xs text-slate-500 font-mono">
-                <span>Warehouse: <strong>{sess.warehouse_name || 'Central Warehouse'}</strong></span>
-                <span>Date: <strong>{sess.count_date}</strong></span>
-                {sess.status === 'In Progress' && (
-                  <button
-                    onClick={() => handleReconcile(sess.id)}
-                    disabled={reconcilingId === sess.id}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl flex items-center space-x-1 transition shadow-xs cursor-pointer disabled:opacity-50"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>{reconcilingId === sess.id ? 'Reconciling...' : 'Approve & Post Reconciliation'}</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Entries Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left font-mono">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 uppercase text-[10px] border-b border-slate-200 font-bold font-sans">
-                    <th className="py-2.5 px-3">Item Code & Name</th>
-                    <th className="py-2.5 px-3 text-right">System Frozen Qty</th>
-                    <th className="py-2.5 px-3 text-right">Physical Count Qty</th>
-                    <th className="py-2.5 px-3 text-right">Variance Qty</th>
-                    <th className="py-2.5 px-3 text-right">Variance Value (₹)</th>
-                    <th className="py-2.5 px-3 font-sans">Reason / Remarks</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {(sess.entries || []).map((e, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/50">
-                      <td className="py-3 px-3 font-sans font-bold text-slate-900">
-                        <span className="text-purple-700 font-mono text-[11px] block">{e.item_code}</span>
-                        <span>{e.item_name}</span>
-                      </td>
-                      <td className="py-3 px-3 text-right text-slate-500 font-bold">
-                        {sess.is_blind_count && sess.status === 'In Progress' ? (
-                          <span className="text-slate-400 bg-slate-100 px-2 py-0.5 rounded text-[10px]">*** (Hidden in Blind Count)</span>
-                        ) : (
-                          e.system_quantity
-                        )}
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-purple-900">{e.physical_quantity}</td>
-                      <td className={`py-3 px-3 text-right font-bold ${e.variance_quantity < 0 ? 'text-rose-600' : e.variance_quantity > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
-                        {e.variance_quantity > 0 ? `+${e.variance_quantity}` : e.variance_quantity}
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-slate-900">₹{(e.variance_value || 0).toLocaleString()}</td>
-                      <td className="py-3 px-3 text-slate-500 font-sans text-[11px]">{e.reason}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {sessions.length === 0 ? (
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center text-slate-400 font-sans shadow-xs">
+            <ClipboardList className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+            <p className="font-bold text-sm text-slate-700">No Stock Verification Sessions Recorded</p>
+            <p className="text-xs text-slate-500 mt-1">Click "Start Stock Verification Session" above to create physical stock audit counts.</p>
           </div>
-        ))}
+        ) : (
+          sessions.map(sess => (
+            <div key={sess.id} className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4 hover:border-purple-200 transition">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-sm font-bold text-purple-900 bg-purple-50 border border-purple-200 px-3 py-1 rounded-xl">
+                    {sess.count_session_number || sess.session_number}
+                  </span>
+                  <StatusBadge status={sess.status} />
+                  {sess.is_blind_count && (
+                    <span className="bg-purple-100 text-purple-800 border border-purple-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center space-x-1">
+                      <EyeOff className="w-3 h-3 text-purple-700" />
+                      <span>BLIND COUNT MODE (System Qty Hidden)</span>
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center space-x-3 text-xs text-slate-500 font-mono">
+                  <span>Warehouse: <strong>{sess.warehouse_name || 'Central Warehouse'}</strong></span>
+                  <span>Date: <strong>{sess.count_date}</strong></span>
+                  {sess.status === 'In Progress' && (
+                    <button
+                      onClick={() => handleReconcile(sess.id)}
+                      disabled={reconcilingId === sess.id}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl flex items-center space-x-1 transition shadow-xs cursor-pointer disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{reconcilingId === sess.id ? 'Reconciling...' : 'Approve & Post Reconciliation'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Entries Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left font-mono">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-500 uppercase text-[10px] border-b border-slate-200 font-bold font-sans">
+                      <th className="py-2.5 px-3">Item Code & Name</th>
+                      <th className="py-2.5 px-3 text-right">System Frozen Qty</th>
+                      <th className="py-2.5 px-3 text-right">Physical Count Qty</th>
+                      <th className="py-2.5 px-3 text-right">Variance Qty</th>
+                      <th className="py-2.5 px-3 text-right">Variance Value (₹)</th>
+                      <th className="py-2.5 px-3 font-sans">Reason / Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(sess.entries || []).map((e, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/50">
+                        <td className="py-3 px-3 font-sans font-bold text-slate-900">
+                          <span className="text-purple-700 font-mono text-[11px] block">{e.item_code}</span>
+                          <span>{e.item_name}</span>
+                        </td>
+                        <td className="py-3 px-3 text-right text-slate-500 font-bold">
+                          {sess.is_blind_count && sess.status === 'In Progress' ? (
+                            <span className="text-slate-400 bg-slate-100 px-2 py-0.5 rounded text-[10px]">*** (Hidden in Blind Count)</span>
+                          ) : (
+                            e.system_quantity
+                          )}
+                        </td>
+                        <td className="py-3 px-3 text-right font-bold text-purple-900">{e.physical_quantity}</td>
+                        <td className={`py-3 px-3 text-right font-bold ${e.variance_quantity < 0 ? 'text-rose-600' : e.variance_quantity > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                          {e.variance_quantity > 0 ? `+${e.variance_quantity}` : e.variance_quantity}
+                        </td>
+                        <td className="py-3 px-3 text-right font-bold text-slate-900">₹{(e.variance_value || 0).toLocaleString()}</td>
+                        <td className="py-3 px-3 text-slate-500 font-sans text-[11px]">{e.reason}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Start Count Modal */}

@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { 
   Upload, FileSpreadsheet, Download, CheckCircle2, AlertTriangle, 
   RefreshCw, FileText, Layers, Eye
 } from 'lucide-react';
 
 export default function DataImportExport() {
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('Items');
   const [csvContent, setCsvContent] = useState('');
   const [importStep, setImportStep] = useState(1); // 1: Select/Paste, 2: Validate, 3: Summary
   const [validationResults, setValidationResults] = useState(null);
 
-  // Import History Log per PDF Spec Section 33
-  const [importHistory, setImportHistory] = useState([
-    { id: 'imp-01', date: '2026-08-10', category: 'Items Master', total: 50, passed: 48, failed: 2, uploaded_by: 'Sarah Jenkins' },
-    { id: 'imp-02', date: '2026-08-14', category: 'Suppliers Directory', total: 20, passed: 20, failed: 0, uploaded_by: 'Rajesh Kumar' },
-    { id: 'imp-03', date: '2026-08-16', category: 'Opening Stock Balances', total: 120, passed: 118, failed: 2, uploaded_by: 'Michael Chang' }
-  ]);
+  // Dynamic Import History Log per PDF Spec Section 33
+  const [importHistory, setImportHistory] = useState(() => {
+    const saved = localStorage.getItem('app_import_history');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   // Download CSV Template
   const downloadCsvTemplate = (category) => {
@@ -106,10 +107,12 @@ export default function DataImportExport() {
       total: validationResults.total,
       passed: validationResults.valid.length,
       failed: validationResults.invalid.length,
-      uploaded_by: 'Sarah Jenkins (Admin)'
+      uploaded_by: user?.name || 'Administrator'
     };
 
-    setImportHistory([newLog, ...importHistory]);
+    const updated = [newLog, ...importHistory];
+    setImportHistory(updated);
+    localStorage.setItem('app_import_history', JSON.stringify(updated));
     setImportStep(3);
   };
 
@@ -303,16 +306,24 @@ export default function DataImportExport() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {importHistory.map(h => (
-              <tr key={h.id}>
-                <td className="p-3 text-slate-500 font-sans">{h.date}</td>
-                <td className="p-3 font-bold text-purple-700 font-sans">{h.category}</td>
-                <td className="p-3 text-slate-900 font-bold">{h.total}</td>
-                <td className="p-3 text-emerald-600 font-bold">{h.passed}</td>
-                <td className="p-3 text-rose-600 font-bold">{h.failed}</td>
-                <td className="p-3 text-slate-700 font-sans">{h.uploaded_by}</td>
+            {importHistory.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-400 font-sans italic">
+                  No bulk import history recorded yet. Upload or paste CSV data above to generate dynamic import logs.
+                </td>
               </tr>
-            ))}
+            ) : (
+              importHistory.map(h => (
+                <tr key={h.id}>
+                  <td className="p-3 text-slate-500 font-sans">{h.date}</td>
+                  <td className="p-3 font-bold text-purple-700 font-sans">{h.category}</td>
+                  <td className="p-3 text-slate-900 font-bold">{h.total}</td>
+                  <td className="p-3 text-emerald-600 font-bold">{h.passed}</td>
+                  <td className="p-3 text-rose-600 font-bold">{h.failed}</td>
+                  <td className="p-3 text-slate-700 font-sans">{h.uploaded_by}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
