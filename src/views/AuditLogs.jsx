@@ -149,7 +149,7 @@ export default function AuditLogs() {
         <div>
           <h2 className="text-xl font-black text-slate-900 font-heading flex items-center space-x-2.5">
             <History className="w-6 h-6 text-purple-600" />
-            <span>Audit Activity Log Trail (PDF Specification Section 31)</span>
+            <span>Audit Activity Log Trail</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             Tamper-resistant, append-only record of logins, CRUD operations, stock postings, approvals, and security events.
@@ -178,7 +178,7 @@ export default function AuditLogs() {
         <div className="flex items-center space-x-3">
           <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
           <span>
-            <strong>Tamper-Resistant Security Rule (PDF Section 31):</strong> Audit logs cannot be edited or deleted through the application. Sensitive information (passwords, tokens) is masked.
+            <strong>Tamper-Resistant Security:</strong> Audit logs cannot be edited or deleted through the application. Sensitive information (passwords, tokens) is masked.
           </span>
         </div>
         <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-emerald-500/30 whitespace-nowrap">

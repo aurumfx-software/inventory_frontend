@@ -123,7 +123,7 @@ export default function DataImportExport() {
         <div>
           <h2 className="text-xl font-black text-slate-900 font-heading flex items-center space-x-2.5">
             <Upload className="w-6 h-6 text-purple-600" />
-            <span>Data Import & Export Page (PDF Specification Section 33)</span>
+            <span>Data Import & Export Page</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             Bulk data migration, CSV template downloading, 8-step validation pipeline, and failed row error logging.

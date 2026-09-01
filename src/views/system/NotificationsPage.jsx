@@ -23,9 +23,9 @@ export default function NotificationsPage() {
       <div className="bg-white p-5 border border-slate-200/80 rounded-2xl shadow-xs">
         <h2 className="text-lg font-bold text-slate-900 font-heading flex items-center space-x-2">
           <Bell className="w-5 h-5 text-purple-600" />
-          <span>29. Notifications & Alert Delivery Center</span>
+          <span>Notifications & Alert Delivery Center</span>
         </h2>
-        <p className="text-xs text-slate-500 mt-0.5">Alerts users about actions requiring attention across In-App, Email, SMS & WhatsApp channels (PDF Page 29-30).</p>
+        <p className="text-xs text-slate-500 mt-0.5">Alerts users about actions requiring attention across In-App, Email, SMS & WhatsApp channels.</p>
       </div>
 
       {/* Delivery Channels */}

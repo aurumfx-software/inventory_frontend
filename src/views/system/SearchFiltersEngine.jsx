@@ -79,10 +79,10 @@ export default function SearchFiltersEngine() {
         <div>
           <h2 className="text-xl font-black text-slate-900 font-heading flex items-center space-x-2.5">
             <Search className="w-6 h-6 text-purple-600" />
-            <span>Search & Filter Parameters Engine (PDF Specification Section 34)</span>
+            <span>Search & Filter Parameters Engine</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Universal listing search engine supporting 10 mandatory PDF filter features: Keyword Search, Status, Date Range, Department, Warehouse, Created By, Sorting, Pagination, Saved Filters, and Column Selection.
+            Universal listing search engine supporting: Keyword Search, Status, Date Range, Department, Warehouse, Created By, Sorting, Pagination, Saved Filters, and Column Selection.
           </p>
         </div>
       </div>

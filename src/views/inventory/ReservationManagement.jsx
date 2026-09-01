@@ -102,7 +102,7 @@ export default function ReservationManagement() {
         <div>
           <div className="flex items-center space-x-2">
             <BookmarkCheck className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-bold text-slate-900 font-heading">Reservation Management Page (PDF Spec Section 27)</h2>
+            <h2 className="text-xl font-bold text-slate-900 font-heading">Reservation Management Page</h2>
           </div>
           <p className="text-xs text-slate-500 mt-1">Prevents double-promising stock for approved indents, sales orders, production jobs, and project allocations.</p>
         </div>

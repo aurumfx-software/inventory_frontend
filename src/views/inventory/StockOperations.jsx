@@ -769,11 +769,11 @@ export default function StockOperations({ initialSubTab = 'current-stock' }) {
                         {/* 2. Item Name */}
                         <td className="p-3">
                           <strong className="text-slate-900 block">
-                            {bal.item_name || (items.find(i => i.id === bal.item_id)?.item_name) || 'Dell Latitude Laptop'}
+                            {bal.item_name || (items.find(i => i.id === bal.item_id)?.item_name) || 'Item'}
                           </strong>
                           <div className="flex items-center space-x-1.5 text-[10px] text-slate-400 mt-0.5">
-                            {(bal.category_name || 'IT Equipment') && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{bal.category_name || 'IT Equipment'}</span>}
-                            {(bal.brand_name || 'Dell') && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{bal.brand_name || 'Dell'}</span>}
+                            {bal.category_name && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{bal.category_name}</span>}
+                            {bal.brand_name && <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{bal.brand_name}</span>}
                           </div>
                         </td>
 

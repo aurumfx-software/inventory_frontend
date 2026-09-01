@@ -41,62 +41,7 @@ export default function SupplierReturns() {
   const [form, setForm] = useState(initialFormState);
 
   // Fallback initial sample data
-  const sampleSupplierReturnsFallback = [
-    {
-      id: 'sup-ret-01',
-      return_number: 'SRN-2026-000101',
-      return_date: '2026-08-10',
-      grn_reference: 'GRN-2026-004001',
-      supplier_name: 'Dell India Pvt Ltd',
-      item_name: 'Dell Latitude 5440 Laptop',
-      item_code: 'IT-LAP-0001',
-      quantity: 2,
-      uom: 'Pcs',
-      batch_or_serial: 'SN-DELL-99201, SN-DELL-99202',
-      reason: 'Quality rejection',
-      replacement_expected: true,
-      credit_note_expected: false,
-      dispatch_details: 'Dispatched via Blue Dart Courier Ref #BD-9901',
-      status: 'Posted',
-      created_at: '2026-08-10T10:00:00Z'
-    },
-    {
-      id: 'sup-ret-02',
-      return_number: 'SRN-2026-000102',
-      return_date: '2026-08-14',
-      grn_reference: 'GRN-2026-004018',
-      supplier_name: 'Cisco Systems India',
-      item_name: 'Cat6 Ethernet Cable (305m Drum)',
-      item_code: 'ELE-CBL-0002',
-      quantity: 5,
-      uom: 'Drum',
-      batch_or_serial: 'BAT-CBL-99',
-      reason: 'Damaged in transit',
-      replacement_expected: false,
-      credit_note_expected: true,
-      dispatch_details: 'Returned to Supplier Logistics Hub via Safexpress Air #SX-40192',
-      status: 'Posted',
-      created_at: '2026-08-14T11:30:00Z'
-    },
-    {
-      id: 'sup-ret-03',
-      return_number: 'SRN-2026-000103',
-      return_date: '2026-08-16',
-      grn_reference: 'GRN-2026-004025',
-      supplier_name: '3M Industrial Supplies',
-      item_name: 'Industrial Cleaning Solvent C-40',
-      item_code: 'RAW-CHM-0004',
-      quantity: 10,
-      uom: 'Can',
-      batch_or_serial: 'BAT-3M-2026',
-      reason: 'Specification mismatch',
-      replacement_expected: true,
-      credit_note_expected: false,
-      dispatch_details: 'Awaiting Transporter pickup',
-      status: 'Pending Dispatch',
-      created_at: '2026-08-16T14:15:00Z'
-    }
-  ];
+  const sampleSupplierReturnsFallback = [];
 
   useEffect(() => {
     fetchData();
@@ -388,7 +333,7 @@ export default function SupplierReturns() {
               <div className="flex items-center space-x-2">
                 <Truck className="w-5 h-5 text-purple-400" />
                 <h3 className="font-bold text-sm uppercase tracking-wider font-heading">
-                  Record Supplier Vendor Return (PDF Spec Section 23)
+                  Record Supplier Vendor Return
                 </h3>
               </div>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
@@ -415,7 +360,7 @@ export default function SupplierReturns() {
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-bold mb-1">Return Reason (PDF Section 23)</label>
+                  <label className="block text-slate-700 font-bold mb-1">Return Reason</label>
                   <select 
                     value={form.reason} 
                     onChange={e => setForm({ ...form, reason: e.target.value })} 

@@ -129,7 +129,7 @@ export default function Settings({ initialSubTab = 'company' }) {
         <div>
           <h2 className="text-xl font-black text-slate-900 font-heading flex items-center space-x-2.5">
             <SettingsIcon className="w-6 h-6 text-purple-600" />
-            <span>System Settings & Configuration (PDF Specification Section 32)</span>
+            <span>System Settings & Configuration</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             Configure system behaviour, company parameters, numbering series, inventory rules, purchasing limits & tax codes.
@@ -154,13 +154,13 @@ export default function Settings({ initialSubTab = 'company' }) {
       {/* Sub Tabs Navigation (32.1 through 32.7) */}
       <div className="flex items-center space-x-1.5 overflow-x-auto border-b border-slate-200 pb-2 scrollbar-none">
         {[
-          { id: 'company', label: '32.1 Company Settings', icon: Building },
-          { id: 'numbering', label: '32.2 Numbering Series', icon: Hash },
-          { id: 'inventory', label: '32.3 Inventory Settings', icon: Box },
-          { id: 'purchase', label: '32.4 Purchase Settings', icon: ShoppingCart },
-          { id: 'approval', label: '32.5 Approval Settings', icon: CheckSquare },
-          { id: 'notification', label: '32.6 Notification Settings', icon: Bell },
-          { id: 'tax', label: '32.7 Tax Settings', icon: Percent }
+          { id: 'company', label: 'Company Settings', icon: Building },
+          { id: 'numbering', label: 'Numbering Series', icon: Hash },
+          { id: 'inventory', label: 'Inventory Settings', icon: Box },
+          { id: 'purchase', label: 'Purchase Settings', icon: ShoppingCart },
+          { id: 'approval', label: 'Approval Settings', icon: CheckSquare },
+          { id: 'notification', label: 'Notification Settings', icon: Bell },
+          { id: 'tax', label: 'Tax Settings', icon: Percent }
         ].map(tab => {
           const IconComp = tab.icon;
           return (
@@ -184,7 +184,7 @@ export default function Settings({ initialSubTab = 'company' }) {
       {activeSubTab === 'company' && (
         <form onSubmit={handleSaveSettings} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4 text-xs max-w-3xl">
           <h3 className="font-bold text-sm text-slate-900 font-heading uppercase tracking-wider border-b border-slate-100 pb-2">
-            32.1 Company Profile & Financial Year
+            Company Profile & Financial Year
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -260,7 +260,7 @@ export default function Settings({ initialSubTab = 'company' }) {
       {activeSubTab === 'numbering' && (
         <form onSubmit={handleSaveSettings} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4 text-xs max-w-3xl">
           <h3 className="font-bold text-sm text-slate-900 font-heading uppercase tracking-wider border-b border-slate-100 pb-2">
-            32.2 Document Numbering Series (Concurrency-Safe Engine)
+            Document Numbering Series (Concurrency-Safe Engine)
           </h3>
           <p className="text-slate-500 text-xs">Configure auto-generated sequence prefixes and current counters for all transaction documents:</p>
 
@@ -326,12 +326,12 @@ export default function Settings({ initialSubTab = 'company' }) {
       {activeSubTab === 'inventory' && (
         <form onSubmit={handleSaveSettings} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4 text-xs max-w-3xl">
           <h3 className="font-bold text-sm text-slate-900 font-heading uppercase tracking-wider border-b border-slate-100 pb-2">
-            32.3 Inventory Rules & Valuation Methods
+            Inventory Rules & Valuation Methods
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-slate-700 font-bold mb-1">Inventory Valuation Method (PDF Spec)</label>
+              <label className="block text-slate-700 font-bold mb-1">Inventory Valuation Method</label>
               <select 
                 value={settings.valuation_method} 
                 onChange={e => setSettings({ ...settings, valuation_method: e.target.value })} 
@@ -420,7 +420,7 @@ export default function Settings({ initialSubTab = 'company' }) {
       {activeSubTab === 'purchase' && (
         <form onSubmit={handleSaveSettings} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4 text-xs max-w-3xl">
           <h3 className="font-bold text-sm text-slate-900 font-heading uppercase tracking-wider border-b border-slate-100 pb-2">
-            32.4 Procurement Limits & Tolerances
+            Procurement Limits & Tolerances
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -481,7 +481,7 @@ export default function Settings({ initialSubTab = 'company' }) {
       {activeSubTab === 'approval' && (
         <form onSubmit={handleSaveSettings} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4 text-xs max-w-3xl">
           <h3 className="font-bold text-sm text-slate-900 font-heading uppercase tracking-wider border-b border-slate-100 pb-2">
-            32.5 Approval Controls & Escalations
+            Approval Controls & Escalations
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -533,7 +533,7 @@ export default function Settings({ initialSubTab = 'company' }) {
       {activeSubTab === 'notification' && (
         <form onSubmit={handleSaveSettings} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4 text-xs max-w-3xl">
           <h3 className="font-bold text-sm text-slate-900 font-heading uppercase tracking-wider border-b border-slate-100 pb-2">
-            32.6 Notification Delivery Channels & Schedules
+            Notification Delivery Channels & Schedules
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -566,11 +566,11 @@ export default function Settings({ initialSubTab = 'company' }) {
         </form>
       )}
 
-      {/* 32.7 TAX SETTINGS */}
+      {/* TAX SETTINGS */}
       {activeSubTab === 'tax' && (
         <form onSubmit={handleSaveSettings} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4 text-xs max-w-3xl">
           <h3 className="font-bold text-sm text-slate-900 font-heading uppercase tracking-wider border-b border-slate-100 pb-2">
-            32.7 Tax Rates & Calculation Rules
+            Tax Settings
           </h3>
 
           <div>
@@ -585,13 +585,24 @@ export default function Settings({ initialSubTab = 'company' }) {
             </select>
           </div>
 
-          <div className="space-y-2">
-            <span className="font-bold text-slate-800 block">System Tax Rates Master:</span>
-            {settings.tax_rates?.map((t, i) => (
-              <div key={i} className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <span className="font-bold text-purple-700 font-mono">{t.name}</span>
-                <span className="text-slate-600">Rate: <strong className="text-slate-900">{t.percentage}%</strong></span>
-                <span className="text-slate-500 font-mono text-[11px]">Code: {t.tax_type}</span>
+          <div className="space-y-3">
+            <span className="font-bold text-slate-800 block text-xs uppercase tracking-wide">System Tax Rates Master:</span>
+            {(settings.tax_rates && settings.tax_rates.length > 0 ? settings.tax_rates : [
+              { id: 'tax-0', name: 'Exempt (0%)', percentage: 0, tax_type: 'GST_0', effective_date: '2026-04-01' },
+              { id: 'tax-5', name: 'GST 5%', percentage: 5, tax_type: 'GST_5', effective_date: '2026-04-01' },
+              { id: 'tax-12', name: 'GST 12%', percentage: 12, tax_type: 'GST_12', effective_date: '2026-04-01' },
+              { id: 'tax-18', name: 'GST 18%', percentage: 18, tax_type: 'GST_18', effective_date: '2026-04-01' },
+              { id: 'tax-28', name: 'GST 28%', percentage: 28, tax_type: 'GST_28', effective_date: '2026-04-01' }
+            ]).map((t, i) => (
+              <div key={i} className="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-200 hover:border-purple-200 transition">
+                <div>
+                  <span className="font-bold text-purple-700 font-mono block text-sm">{t.name}</span>
+                  <span className="text-slate-500 font-mono text-[11px]">Tax Code: {t.tax_type}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-slate-600 block text-xs">Rate: <strong className="text-slate-900 font-mono text-sm">{t.percentage}%</strong></span>
+                  <span className="text-slate-400 text-[10px]">Effective: {t.effective_date || '2026-04-01'}</span>
+                </div>
               </div>
             ))}
           </div>

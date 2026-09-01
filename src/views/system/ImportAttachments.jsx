@@ -158,10 +158,10 @@ export default function ImportAttachments({ initialTab = 'import' }) {
         <div>
           <h2 className="text-xl font-black text-slate-900 font-heading flex items-center space-x-2.5">
             <Layers className="w-6 h-6 text-purple-600" />
-            <span>33. Import & Export, 34. Search & Filters & 35. Document Attachments</span>
+            <span>Import & Export, Search & Filters & Document Attachments</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Complete implementations for Bulk CSV Data Migration, Universal Search & Filter Engine, and Secure Document Attachments (PDF Pages 33-34).
+            Complete implementations for Bulk CSV Data Migration, Universal Search & Filter Engine, and Secure Document Attachments.
           </p>
         </div>
       </div>
@@ -175,7 +175,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
           }`}
         >
           <Upload className="w-4 h-4" />
-          <span>33. Import & Export Wizard (8 Steps)</span>
+          <span>Import & Export Wizard (8 Steps)</span>
         </button>
         <button 
           onClick={() => setActiveTab('search')} 
@@ -184,7 +184,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
           }`}
         >
           <Search className="w-4 h-4" />
-          <span>34. Search & Filter Parameters Engine</span>
+          <span>Search & Filter Parameters Engine</span>
         </button>
         <button 
           onClick={() => setActiveTab('attachments')} 
@@ -193,7 +193,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
           }`}
         >
           <Paperclip className="w-4 h-4" />
-          <span>35. Document Attachments Registry</span>
+          <span>Document Attachments Registry</span>
         </button>
       </div>
 
@@ -205,7 +205,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
           {/* Importable Data Categories Banner */}
           <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3 text-xs">
             <h3 className="font-bold text-sm text-slate-900 uppercase font-heading tracking-wider">
-              33. Importable Data Categories (PDF Spec)
+              Importable Data Categories
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
               {['Items', 'Suppliers', 'Opening stock', 'Warehouses', 'Users', 'Categories', 'Tax rates'].map((cat) => (
@@ -293,7 +293,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
                   <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 space-y-2">
                     <span className="font-bold text-rose-900 flex items-center space-x-2">
                       <AlertTriangle className="w-4 h-4 text-rose-600" />
-                      <span>Step 5 Error Log: Invalid Rows Found (PDF Rule - Do Not Directly Import Invalid Rows)</span>
+                      <span>Step 5 Error Log: Invalid Rows Found</span>
                     </span>
                     <div className="overflow-x-auto">
                       <table className="w-full text-xs text-left font-mono">
@@ -343,7 +343,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
                   <div>
                     <h4 className="font-bold text-sm uppercase">Step 8: Bulk Import Summary Generated</h4>
                     <p className="text-xs text-emerald-800">
-                      Successfully saved valid records to local database. Import history logged per PDF Specification.
+                      Successfully saved valid records to local database. Import history logged.
                     </p>
                   </div>
                 </div>
@@ -363,7 +363,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
           {/* Import History Table */}
           <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
             <div className="p-4 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-700">
-              Bulk Import History Log (PDF Spec Requirement)
+              Bulk Import History Log
             </div>
             <table className="w-full text-xs text-left font-mono">
               <thead>
@@ -512,7 +512,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
 
             {/* Generated Backend Query Preview (PDF Rule - Search Performed on Backend) */}
             <div className="p-4 bg-purple-900 text-white rounded-2xl font-mono text-xs space-y-1">
-              <span className="text-purple-300 font-bold block text-[10px] uppercase">Generated Backend API Query Request (PDF Spec Requirement)</span>
+              <span className="text-purple-300 font-bold block text-[10px] uppercase">Generated Backend API Query Request</span>
               <p className="text-emerald-300 text-[11px] overflow-x-auto">
                 GET /api/items?search={searchParams.keyword}&status={searchParams.status}&department={searchParams.department}&warehouse={searchParams.warehouse}&page={searchParams.page}&pageSize={searchParams.pageSize}&sortBy={searchParams.sortBy}
               </p>
@@ -520,7 +520,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
 
             {/* Saved Filters Presets */}
             <div>
-              <span className="font-bold text-slate-800 block mb-2">Saved Filter Presets (PDF Feature)</span>
+              <span className="font-bold text-slate-800 block mb-2">Saved Filter Presets</span>
               <div className="flex items-center space-x-2">
                 {savedFilterPresets.map(p => (
                   <button 
@@ -548,7 +548,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
             <div className="flex items-center space-x-3">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <span>
-                <strong>Document Security Enforcements (PDF Section 35):</strong> Restricted allowed file types (.pdf, .png, .jpg, .docx), 10MB size limit, automated malware scan, private storage with temporary access tokens.
+                <strong>Document Security Enforcements:</strong> Restricted allowed file types (.pdf, .png, .jpg, .docx), 10MB size limit, automated malware scan, private storage with temporary access tokens.
               </span>
             </div>
             <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-emerald-500/30 whitespace-nowrap">
@@ -560,7 +560,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
           <form onSubmit={handleUploadAttachment} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4 text-xs">
             <h3 className="font-bold text-sm text-slate-900 uppercase font-heading tracking-wider flex items-center space-x-2">
               <Paperclip className="w-4 h-4 text-purple-600" />
-              <span>Attach Document File (PDF Section 35 Supported Modules)</span>
+              <span>Attach Document File</span>
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -611,7 +611,7 @@ export default function ImportAttachments({ initialTab = 'import' }) {
           {/* Attachments Registry Table */}
           <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
             <div className="p-4 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-700 flex justify-between items-center">
-              <span>Attached Documents Registry (PDF Section 35 Fields)</span>
+              <span>Attached Documents Registry</span>
               <span className="font-mono text-purple-700 font-bold">{attachments.length} Files Attached</span>
             </div>
             <table className="w-full text-xs text-left font-mono">

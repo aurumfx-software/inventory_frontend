@@ -46,71 +46,7 @@ export default function StockReturns() {
   const [form, setForm] = useState(initialFormState);
 
   // Fallback initial sample data
-  const sampleReturnsFallback = [
-    {
-      id: 'ret-01',
-      return_number: 'RET-2026-000101',
-      return_date: '2026-08-12',
-      original_issue_ref: 'ISS-2026-005001',
-      returned_by: 'David Miller',
-      department_name: 'Information Technology',
-      warehouse_name: 'Central Goods Warehouse (WH-MAIN)',
-      item_name: 'Cat6 Ethernet Cable (305m)',
-      item_code: 'ELE-CBL-0002',
-      quantity: 10,
-      uom: 'Mtr',
-      batch_number: 'BAT-CBL-99',
-      serial_number: 'N/A',
-      return_type: 'Unused material',
-      condition: 'Good',
-      return_reason: 'Project completed, unused excess cables returned to store.',
-      inspection_result: 'Passed - Restocked to WH-MAIN',
-      remarks: 'Restocked into available balance.',
-      status: 'Posted'
-    },
-    {
-      id: 'ret-02',
-      return_number: 'RET-2026-000102',
-      return_date: '2026-08-14',
-      original_issue_ref: 'ISS-2026-004882',
-      returned_by: 'Michael Chang',
-      department_name: 'Electrical & Hardware',
-      warehouse_name: 'IT Assets & Electronics Store (WH-SUB1)',
-      item_name: 'Dell Latitude 5440 Laptop',
-      item_code: 'IT-LAP-0001',
-      quantity: 1,
-      uom: 'Pcs',
-      batch_number: 'BAT-2026-0801',
-      serial_number: 'SN-DELL-88301',
-      return_type: 'Damaged return',
-      condition: 'Damaged',
-      return_reason: 'Keyboard liquid spill damage during field operations.',
-      inspection_result: 'Failed - Transferred to Quarantine / Repair Bay',
-      remarks: 'Moved to Quarantine location. Does NOT increase available stock.',
-      status: 'Quarantined'
-    },
-    {
-      id: 'ret-03',
-      return_number: 'RET-2026-000103',
-      return_date: '2026-08-15',
-      original_issue_ref: 'ISS-2026-003920',
-      returned_by: 'Rajesh Kumar',
-      department_name: 'Consumables & Office',
-      warehouse_name: 'Central Goods Warehouse (WH-MAIN)',
-      item_name: 'A4 Copy Paper 80GSM (Rim)',
-      item_code: 'OFF-PPR-0003',
-      quantity: 5,
-      uom: 'Rim',
-      batch_number: 'BAT-PAP-001',
-      serial_number: 'N/A',
-      return_type: 'Excess issue return',
-      condition: 'Used but usable',
-      return_reason: 'Excess paper boxes requested for quarterly audit.',
-      inspection_result: 'Passed - Accepted into Reusable Stock',
-      remarks: 'Outer box opened, rims intact. Restocked to WH-MAIN.',
-      status: 'Posted'
-    }
-  ];
+  const sampleReturnsFallback = [];
 
   useEffect(() => {
     fetchData();
@@ -246,7 +182,7 @@ export default function StockReturns() {
             <span>Stock Return Management Page (Department & Employee Returns)</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Records materials returned to stores by departments or employees per <strong>PDF Specification Section 22</strong>.
+            Records materials returned to stores by departments or employees.
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -431,7 +367,7 @@ export default function StockReturns() {
               <div className="flex items-center space-x-2">
                 <RotateCcw className="w-5 h-5 text-purple-400" />
                 <h3 className="font-bold text-sm uppercase tracking-wider font-heading">
-                  Record Material Stock Return (PDF Spec Section 22)
+                  Record Material Stock Return
                 </h3>
               </div>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
@@ -443,7 +379,7 @@ export default function StockReturns() {
             <form onSubmit={handleCreateReturn} className="p-6 overflow-y-auto space-y-4 text-xs text-slate-800">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-bold mb-1">Return Type (PDF Section 22)</label>
+                  <label className="block text-slate-700 font-bold mb-1">Return Type</label>
                   <select 
                     value={form.return_type} 
                     onChange={e => setForm({ ...form, return_type: e.target.value })} 
@@ -458,7 +394,7 @@ export default function StockReturns() {
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-bold mb-1">Condition Value (PDF Spec)</label>
+                  <label className="block text-slate-700 font-bold mb-1">Condition Value</label>
                   <select 
                     value={form.condition} 
                     onChange={e => setForm({ ...form, condition: e.target.value })} 

@@ -119,7 +119,7 @@ export default function StockVerification() {
         <div>
           <div className="flex items-center space-x-2">
             <ClipboardList className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-bold text-slate-900 font-heading">Physical Stock Verification Page (PDF Spec Section 26)</h2>
+            <h2 className="text-xl font-bold text-slate-900 font-heading">Physical Stock Verification Page</h2>
           </div>
           <p className="text-xs text-slate-500 mt-1">Compares physical stock with system stock, supports blind count mode to prevent bias, and generates reconciliation adjustments.</p>
         </div>
@@ -316,7 +316,7 @@ export default function StockVerification() {
                 <div className="flex items-center space-x-2 text-purple-900">
                   <EyeOff className="w-4 h-4 text-purple-700" />
                   <div>
-                    <span className="font-bold block">Blind Count Option (PDF Spec Section 26)</span>
+                    <span className="font-bold block">Blind Count Option</span>
                     <span className="text-[10px] text-purple-700">Hides system quantity during counting to prevent biased reporting.</span>
                   </div>
                 </div>

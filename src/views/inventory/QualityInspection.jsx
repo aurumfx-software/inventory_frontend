@@ -719,14 +719,11 @@ export default function QualityInspection() {
                         {(() => {
                           const itemsList = (selectedGrn && selectedGrn.items && selectedGrn.items.length > 0)
                             ? selectedGrn.items
-                            : [
-                                { id: 'itm-01', item_id: 'itm-01', item_code: 'IT-LAP-0001', item_name: 'Dell Latitude 5440 Laptop', uom: 'Pcs' },
-                                { id: 'itm-02', item_id: 'itm-02', item_code: 'ELE-CBL-0002', item_name: 'Cat6 Ethernet Cable (305m Drum)', uom: 'Pcs' }
-                              ];
+                            : (items && items.length > 0 ? items : []);
 
                           return itemsList.map((line, idx) => (
-                            <option key={idx} value={line.id || line.item_id || `itm-0${idx+1}`}>
-                              {line.item_code || 'IT-LAP-0001'} - {line.item_name || 'Dell Latitude 5440 Laptop'} ({line.uom || line.unit || 'Pcs'})
+                            <option key={idx} value={line.id || line.item_id || `itm-${idx+1}`}>
+                              {line.item_code ? `${line.item_code} - ` : ''}{line.item_name || 'Select Item'} ({line.uom || line.unit || 'Pcs'})
                             </option>
                           ));
                         })()}

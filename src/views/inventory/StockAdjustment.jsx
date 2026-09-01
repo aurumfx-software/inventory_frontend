@@ -75,7 +75,7 @@ export default function StockAdjustment() {
         <div>
           <h2 className="text-lg font-bold text-slate-900 font-heading flex items-center space-x-2">
             <Sliders className="w-5 h-5 text-purple-600" />
-            <span>Stock Adjustment Page (PDF Spec Section 25)</span>
+            <span>Stock Adjustment Page</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">Corrects inventory differences caused by damage, loss, counting errors, or data migration with reversal tracking.</p>
         </div>

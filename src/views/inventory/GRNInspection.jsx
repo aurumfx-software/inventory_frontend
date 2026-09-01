@@ -1721,18 +1721,15 @@ export default function GRNInspection({ initialSubTab = 'grn' }) {
                       className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-800 text-xs"
                     >
                       {(() => {
-                        const items = (showInspectionModal && showInspectionModal.items && showInspectionModal.items.length > 0)
+                        const itemsList = (showInspectionModal && showInspectionModal.items && showInspectionModal.items.length > 0)
                           ? showInspectionModal.items
                           : (inspectForm.item_results && inspectForm.item_results.length > 0)
                           ? inspectForm.item_results
-                          : [
-                              { id: 'itm-01', item_id: 'itm-01', item_code: 'IT-LAP-0001', item_name: 'Dell Latitude 5440 Laptop', uom: 'Pcs' },
-                              { id: 'itm-02', item_id: 'itm-02', item_code: 'ELE-CBL-0002', item_name: 'Cat6 Ethernet Cable (305m Drum)', uom: 'Pcs' }
-                            ];
+                          : [];
 
-                        return items.map((line, idx) => (
-                          <option key={idx} value={line.id || line.item_id || `itm-0${idx+1}`}>
-                            {line.item_code || 'IT-LAP-0001'} - {line.item_name || 'Dell Latitude 5440 Laptop'} ({line.uom || line.unit || 'Pcs'})
+                        return itemsList.map((line, idx) => (
+                          <option key={idx} value={line.id || line.item_id || `itm-${idx+1}`}>
+                            {line.item_code ? `${line.item_code} - ` : ''}{line.item_name || 'Select Item'} ({line.uom || line.unit || 'Pcs'})
                           </option>
                         ));
                       })()}

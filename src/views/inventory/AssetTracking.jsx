@@ -113,7 +113,7 @@ export default function AssetTracking() {
         <div>
           <div className="flex items-center space-x-2">
             <Laptop className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-bold text-slate-900 font-heading">Asset Tracking Page (PDF Spec Section 28)</h2>
+            <h2 className="text-xl font-bold text-slate-900 font-heading">Asset Tracking Page</h2>
           </div>
           <p className="text-xs text-slate-500 mt-1">Tracks long-term IT equipment, laptops, phones, tools, furniture, and machinery issued to employees with serial and warranty tracking.</p>
         </div>
@@ -245,7 +245,7 @@ export default function AssetTracking() {
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h3 className="font-bold text-base text-slate-900 uppercase tracking-wider font-heading flex items-center space-x-2">
                 <Laptop className="w-5 h-5 text-purple-600" />
-                <span>Register Equipment Asset (PDF Section 28)</span>
+                <span>Register Equipment Asset</span>
               </h3>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer"><X className="w-4 h-4" /></button>
             </div>

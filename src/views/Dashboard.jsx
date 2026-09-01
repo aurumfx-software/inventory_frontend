@@ -20,7 +20,11 @@ import StatusBadge from '../components/common/StatusBadge';
 
 export default function Dashboard({ setActiveTab }) {
   const currentMonthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  const [selectedPeriod, setSelectedPeriod] = useState(currentMonthYear);
+  const [selectedPeriod, setSelectedPeriod] = useState('This Month');
+  const [fromDate, setFromDate] = useState('2026-08-01');
+  const [toDate, setToDate] = useState('2026-08-31');
+  const [selectedState, setSelectedState] = useState('All');
+  const [selectedCity, setSelectedCity] = useState('All');
   const [hoveredPoint, setHoveredPoint] = useState(null);
 
   // Live Dynamic KPI State computed from Database
@@ -148,13 +152,6 @@ export default function Dashboard({ setActiveTab }) {
             <Sliders className="w-3.5 h-3.5 text-slate-500" />
             <span>View Advanced Analytics</span>
           </button>
-          <button 
-            onClick={() => setActiveTab('sec-19')}
-            className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center space-x-1.5 shadow-2xs transition"
-          >
-            <PlayCircle className="w-3.5 h-3.5 text-purple-600" />
-            <span>Watch Tutorial</span>
-          </button>
         </div>
       </div>
 
@@ -167,29 +164,144 @@ export default function Dashboard({ setActiveTab }) {
           </div>
           {/* Filter Dropdowns */}
           <div className="flex flex-wrap items-center gap-2">
-            <select className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:bg-white shadow-2xs">
-              <option>Select State</option>
-              <option>Karnataka</option>
-              <option>Kerala</option>
-              <option>Maharashtra</option>
+            <select 
+              value={selectedState} 
+              onChange={(e) => {
+                setSelectedState(e.target.value);
+                setSelectedCity('All');
+              }}
+              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:bg-white shadow-2xs"
+            >
+              <option value="All">All States</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Telangana">Telangana</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Delhi">Delhi</option>
+              <option value="West Bengal">West Bengal</option>
             </select>
-            <select className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:bg-white shadow-2xs">
-              <option>Select City</option>
-              <option>Bangalore</option>
-              <option>Cochin</option>
-              <option>Mumbai</option>
+
+            <select 
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:bg-white shadow-2xs"
+            >
+              <option value="All">All Cities</option>
+              {selectedState === 'Kerala' && (
+                <>
+                  <option value="Kochi">Kochi / Ernakulam</option>
+                  <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                  <option value="Kozhikode">Kozhikode</option>
+                  <option value="Thrissur">Thrissur</option>
+                  <option value="Kannur">Kannur</option>
+                </>
+              )}
+              {selectedState === 'Karnataka' && (
+                <>
+                  <option value="Bangalore">Bangalore / Bengaluru</option>
+                  <option value="Mysore">Mysore / Mysuru</option>
+                  <option value="Mangalore">Mangalore</option>
+                  <option value="Hubli">Hubli-Dharwad</option>
+                </>
+              )}
+              {selectedState === 'Tamil Nadu' && (
+                <>
+                  <option value="Chennai">Chennai</option>
+                  <option value="Coimbatore">Coimbatore</option>
+                  <option value="Madurai">Madurai</option>
+                </>
+              )}
+              {selectedState === 'Maharashtra' && (
+                <>
+                  <option value="Mumbai">Mumbai</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Nagpur">Nagpur</option>
+                </>
+              )}
+              {selectedState === 'Telangana' && <option value="Hyderabad">Hyderabad</option>}
+              {selectedState === 'Gujarat' && (
+                <>
+                  <option value="Ahmedabad">Ahmedabad</option>
+                  <option value="Surat">Surat</option>
+                </>
+              )}
+              {selectedState === 'Delhi' && <option value="New Delhi">New Delhi</option>}
+              {selectedState === 'West Bengal' && <option value="Kolkata">Kolkata</option>}
+              {selectedState === 'All' && (
+                <>
+                  <option value="Kochi">Kochi</option>
+                  <option value="Bangalore">Bangalore</option>
+                  <option value="Chennai">Chennai</option>
+                  <option value="Mumbai">Mumbai</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="New Delhi">New Delhi</option>
+                </>
+              )}
             </select>
+
             <select className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:bg-white shadow-2xs">
-              <option>Select Administrator</option>
+              <option>All Administrators</option>
               <option>Super Administrator</option>
+              <option>Store Manager</option>
+              <option>Purchase Manager</option>
             </select>
+
+            {/* Calendar Date Range Pickers */}
+            <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs text-slate-700 font-medium shadow-2xs">
+              <Calendar className="w-3.5 h-3.5 text-purple-600 mr-1" />
+              <span className="text-[11px] text-slate-400 font-bold">From:</span>
+              <input 
+                type="date" 
+                value={fromDate}
+                onChange={(e) => {
+                  setFromDate(e.target.value);
+                  setSelectedPeriod('Custom');
+                }}
+                className="bg-transparent text-xs text-slate-800 font-semibold focus:outline-none"
+              />
+              <span className="text-[11px] text-slate-400 font-bold ml-1">To:</span>
+              <input 
+                type="date" 
+                value={toDate}
+                onChange={(e) => {
+                  setToDate(e.target.value);
+                  setSelectedPeriod('Custom');
+                }}
+                className="bg-transparent text-xs text-slate-800 font-semibold focus:outline-none"
+              />
+            </div>
+
             <select 
               value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-purple-700 font-bold focus:outline-none focus:bg-white shadow-2xs"
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedPeriod(val);
+                if (val === 'This Month') {
+                  setFromDate('2026-08-01');
+                  setToDate('2026-08-31');
+                } else if (val === 'Last Month') {
+                  setFromDate('2026-07-01');
+                  setToDate('2026-07-31');
+                } else if (val === 'Year 2026') {
+                  setFromDate('2026-01-01');
+                  setToDate('2026-12-31');
+                } else if (val === 'Year 2025') {
+                  setFromDate('2025-01-01');
+                  setToDate('2025-12-31');
+                } else if (val === 'All Time') {
+                  setFromDate('2020-01-01');
+                  setToDate('2030-12-31');
+                }
+              }}
+              className="bg-purple-50 border border-purple-200 text-purple-800 font-bold rounded-xl px-3 py-1.5 text-xs focus:outline-none shadow-2xs cursor-pointer"
             >
-              <option value="February 2026">February 2026</option>
-              <option value="January 2026">January 2026</option>
+              <option value="This Month">This Month (Aug 2026)</option>
+              <option value="Last Month">Last Month (Jul 2026)</option>
+              <option value="Year 2026">Year 2026</option>
+              <option value="Year 2025">Year 2025</option>
+              <option value="Custom">Custom Date Range</option>
               <option value="All Time">All Time</option>
             </select>
           </div>

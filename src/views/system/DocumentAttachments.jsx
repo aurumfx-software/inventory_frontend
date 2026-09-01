@@ -45,7 +45,7 @@ export default function DocumentAttachments() {
         <div>
           <h2 className="text-xl font-black text-slate-900 font-heading flex items-center space-x-2.5">
             <Paperclip className="w-6 h-6 text-purple-600" />
-            <span>Document Attachments Registry Page (PDF Specification Section 35)</span>
+            <span>Document Attachments Registry Page</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             Central file repository for Indents, RFQs, Quotations, POs, Goods Receipts, Quality Inspections, Stock Adjustments & Supplier Documents.
@@ -58,7 +58,7 @@ export default function DocumentAttachments() {
         <div className="flex items-center space-x-3">
           <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
           <span>
-            <strong>Security Enforcements (PDF Section 35):</strong> Restricted file types (.pdf, .png, .jpg, .docx), 10MB file size limit, malware scanning enabled, private storage with temporary access tokens.
+            <strong>Security Enforcements:</strong> Restricted file types (.pdf, .png, .jpg, .docx), 10MB file size limit, malware scanning enabled, private storage with temporary access tokens.
           </span>
         </div>
         <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-emerald-500/30 whitespace-nowrap">
@@ -69,7 +69,7 @@ export default function DocumentAttachments() {
       {/* Supported Transaction Modules Grid */}
       <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3 text-xs">
         <h3 className="font-bold text-sm text-slate-900 uppercase font-heading tracking-wider">
-          Supported Transaction Modules (PDF Section 35)
+          Supported Transaction Modules
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
@@ -139,7 +139,7 @@ export default function DocumentAttachments() {
       {/* Attachments Registry Table */}
       <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
         <div className="p-4 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-700 flex justify-between items-center">
-          <span>Document Attachments Registry (PDF Section 35 Fields)</span>
+          <span>Document Attachments Registry</span>
           <span className="font-mono text-purple-700 font-bold">{attachments.length} Files Uploaded</span>
         </div>
         <table className="w-full text-xs text-left font-mono">
