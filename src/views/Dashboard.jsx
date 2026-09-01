@@ -135,7 +135,7 @@ export default function Dashboard({ setActiveTab }) {
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
           <button 
-            onClick={() => setActiveTab('sec-11')}
+            onClick={() => setActiveTab('sec-20')}
             className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition"
           >
             <Radio className="w-3.5 h-3.5 text-white animate-pulse" />
