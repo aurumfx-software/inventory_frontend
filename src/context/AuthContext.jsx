@@ -93,42 +93,43 @@ export function AuthProvider({ children }) {
     localStorage.setItem('app-theme', themeMode);
   }, [themeMode]);
 
-  React.useEffect(() => {
-    const activeCompany = user?.company_name || localStorage.getItem('app_current_company') || 'Organization';
-    const activeEmail = user?.email || localStorage.getItem('app_current_user_email') || '';
-    const activeRole = user?.role_id || localStorage.getItem('app_current_user_role') || '';
-    const activeToken = token || localStorage.getItem('app_current_token') || '';
+const _nativeFetch = window.fetch;
+if (typeof window !== 'undefined' && !_nativeFetch.__isIntercepted) {
+  window.fetch = function (resource, config = {}) {
+    config = config || {};
+    config.headers = config.headers || {};
 
-    const originalFetch = window.fetch;
-    window.fetch = function (resource, config = {}) {
-      config = config || {};
-      config.headers = config.headers || {};
+    const activeCompany = localStorage.getItem('app_current_company') || 'Organization';
+    const activeEmail = localStorage.getItem('app_current_user_email') || '';
+    const activeRole = localStorage.getItem('app_current_user_role') || '';
+    const activeToken = localStorage.getItem('app_current_token') || '';
 
-      const headersToSet = {
-        'X-Company-Name': activeCompany,
-        'X-User-Email': activeEmail,
-        'X-User-Role': activeRole,
-      };
-      if (activeToken) {
-        headersToSet['Authorization'] = `Bearer ${activeToken}`;
-      }
-
-      if (config.headers instanceof Headers) {
-        Object.entries(headersToSet).forEach(([k, v]) => {
-          if (v && !config.headers.has(k)) {
-            config.headers.append(k, v);
-          }
-        });
-      } else if (typeof config.headers === 'object') {
-        Object.entries(headersToSet).forEach(([k, v]) => {
-          if (v && !config.headers[k]) {
-            config.headers[k] = v;
-          }
-        });
-      }
-      return originalFetch(resource, config);
+    const headersToSet = {
+      'X-Company-Name': activeCompany,
+      'X-User-Email': activeEmail,
+      'X-User-Role': activeRole,
     };
-  }, [user, token]);
+    if (activeToken) {
+      headersToSet['Authorization'] = `Bearer ${activeToken}`;
+    }
+
+    if (config.headers instanceof Headers) {
+      Object.entries(headersToSet).forEach(([k, v]) => {
+        if (v && !config.headers.has(k)) {
+          config.headers.append(k, v);
+        }
+      });
+    } else if (typeof config.headers === 'object') {
+      Object.entries(headersToSet).forEach(([k, v]) => {
+        if (v && !config.headers[k]) {
+          config.headers[k] = v;
+        }
+      });
+    }
+    return _nativeFetch(resource, config);
+  };
+  window.fetch.__isIntercepted = true;
+}
 
   const toggleThemeMode = () => {
     setThemeMode(prev => (prev === 'dark' ? 'light' : 'dark'));

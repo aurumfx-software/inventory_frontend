@@ -185,11 +185,7 @@ function MainLayout() {
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-6 bg-slate-100/70">
-          {Array.from(visitedTabs).map(tabId => (
-            <div key={tabId} style={{ display: activeTab === tabId ? 'block' : 'none' }}>
-              {renderSingleTab(tabId)}
-            </div>
-          ))}
+          {renderSingleTab(activeTab)}
         </main>
       </div>
     </div>
