@@ -66,7 +66,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }) {
     };
 
     fetchPendingCount();
-    const interval = setInterval(fetchPendingCount, 3000);
+    const interval = setInterval(fetchPendingCount, 30000);
     return () => clearInterval(interval);
   }, []);
 

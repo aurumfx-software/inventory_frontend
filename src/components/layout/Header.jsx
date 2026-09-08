@@ -133,7 +133,7 @@ export default function Header({ setActiveTab, onToggleMobileSidebar }) {
 
   useEffect(() => {
     fetchLiveNotifications();
-    const interval = setInterval(fetchLiveNotifications, 10000);
+    const interval = setInterval(fetchLiveNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
 
