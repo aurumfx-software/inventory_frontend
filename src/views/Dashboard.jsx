@@ -35,7 +35,7 @@ export default function Dashboard({ setActiveTab }) {
       if (cached) return JSON.parse(cached);
     } catch (e) {}
     return {
-      stockValue: 24850000,
+      stockValue: 2550000,
       ongoingIndents: 5,
       pendingPOs: 4,
       pendingGRNs: 3,

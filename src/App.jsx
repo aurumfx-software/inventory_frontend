@@ -84,6 +84,17 @@ function MainLayout() {
     }
   }, [user?.id]);
 
+  const [visitedTabs, setVisitedTabs] = useState(() => new Set([activeTab, 'sec-5']));
+
+  useEffect(() => {
+    setVisitedTabs(prev => {
+      if (prev.has(activeTab)) return prev;
+      const next = new Set(prev);
+      next.add(activeTab);
+      return next;
+    });
+  }, [activeTab]);
+
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Standalone Separate Login Page Gate (Section 4 PDF Specification)
@@ -91,8 +102,8 @@ function MainLayout() {
     return <Login />;
   }
 
-  const renderTabContent = () => {
-    switch (activeTab) {
+  const renderSingleTab = (tabId) => {
+    switch (tabId) {
       case 'sec-5':
         return <Dashboard setActiveTab={setActiveTab} />;
       case 'sec-6':
@@ -174,7 +185,11 @@ function MainLayout() {
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
         />
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-6 bg-slate-100/70">
-          {renderTabContent()}
+          {Array.from(visitedTabs).map(tabId => (
+            <div key={tabId} style={{ display: activeTab === tabId ? 'block' : 'none' }}>
+              {renderSingleTab(tabId)}
+            </div>
+          ))}
         </main>
       </div>
     </div>
