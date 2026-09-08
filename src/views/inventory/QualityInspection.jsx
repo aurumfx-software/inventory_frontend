@@ -72,11 +72,21 @@ export default function QualityInspection() {
   // Currently selected GRN object and Item object for read-only reference
   const [selectedGrn, setSelectedGrn] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
     fetchGrns();
     fetchInspections();
+    fetchItems();
   }, []);
+
+  const fetchItems = async () => {
+    try {
+      const res = await fetch('/api/items');
+      const data = await res.json();
+      if (data.success) setItems(data.data || []);
+    } catch (e) {}
+  };
 
   const fetchGrns = async () => {
     setLoading(true);

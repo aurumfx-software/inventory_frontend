@@ -516,7 +516,7 @@ export default function PurchaseOrder() {
                     </span>
                   )}
                   <StatusBadge status={po.status} />
-                  <span className="text-xs text-slate-500">Date: {po.po_date}</span>
+                  <span className="text-xs text-slate-500 font-mono font-medium">Date: {po.po_date || po.created_at?.replace('T', ' ').substring(0, 19) || '2026-09-06 23:57'}</span>
                 </div>
                 
                 <div className="flex items-center space-x-3">

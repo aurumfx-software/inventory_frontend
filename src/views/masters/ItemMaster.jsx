@@ -716,7 +716,7 @@ export default function ItemMaster() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center bg-white p-5 border border-slate-200/80 rounded-2xl shadow-xs">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 sm:p-5 border border-slate-200/80 rounded-2xl shadow-xs">
         <div>
           <h2 className="text-lg font-bold text-slate-900 font-heading flex items-center space-x-2">
             <Package className="w-5 h-5 text-purple-600" />
@@ -727,7 +727,7 @@ export default function ItemMaster() {
         <button 
           type="button"
           onClick={openCreateModal}
-          className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition flex items-center space-x-1.5"
+          className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition flex items-center space-x-1.5 shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Create New Inventory Item</span>
@@ -735,8 +735,8 @@ export default function ItemMaster() {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white p-3 border border-slate-200/80 rounded-2xl flex items-center justify-between shadow-xs">
-        <div className="relative w-80">
+      <div className="bg-white p-3 border border-slate-200/80 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+        <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input 
             type="text" 

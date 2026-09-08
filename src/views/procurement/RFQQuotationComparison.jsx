@@ -288,6 +288,7 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
         body: JSON.stringify({
           selection_type: 'Lowest Cost (L1)',
           selected_supplier_id: l1Quote.supplier_id,
+          selected_quotation_id: l1Quote.id,
           justification_remarks: 'Auto-awarded to L1 Lowest Landed Cost Bidder.'
         })
       });
@@ -490,12 +491,12 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
                   <p className="text-[11px]">Click "+ Record Supplier Quote" above to record received supplier prices & commercial terms.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left border-collapse">
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-xs text-left border-collapse min-w-[1050px]">
                     <thead>
                       <tr className="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold border-b border-slate-200">
-                        <th className="p-3.5 min-w-[200px]">Comparison Criteria</th>
-                        <th className="p-3.5 text-center bg-slate-200/60 min-w-[140px]">
+                        <th className="p-3.5 min-w-[200px] whitespace-nowrap">Comparison Criteria</th>
+                        <th className="p-3.5 text-center bg-slate-200/60 min-w-[140px] whitespace-nowrap">
                           Previous PO Benchmark
                         </th>
                         {comparisonData.quotations.map(q => {
@@ -602,7 +603,7 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
                         <td className="p-3.5 text-center bg-slate-100/50 text-slate-400 font-sans">Standard</td>
                         {comparisonData.quotations.map(q => (
                           <td key={q.id} className="p-3.5 text-center border-l border-slate-200 text-emerald-700 font-bold font-sans">
-                            {q.items[0]?.delivery_days || 5} Days
+                            {q.items?.[0]?.delivery_days || 5} Days
                           </td>
                         ))}
                       </tr>
@@ -645,7 +646,7 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
                               ₹{(rfqItem.previous_purchase_rate || 0).toLocaleString()} /unit
                             </td>
                             {comparisonData.quotations.map(q => {
-                              const line = (q.items || []).find(qi => qi.item_id === rfqItem.item_id) || q.items[iIdx] || {};
+                              const line = (q.items || []).find(qi => qi.item_id === rfqItem.item_id) || q.items?.[iIdx] || {};
                               const rate = Number(line.unit_rate || 0);
                               const prevRate = Number(rfqItem.previous_purchase_rate || rate);
                               const diffPct = prevRate > 0 ? (((rate - prevRate) / prevRate) * 100).toFixed(1) : 0;
@@ -665,7 +666,7 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
                             <td className="p-2.5 pl-6 font-sans text-slate-600 text-[11px]">Offered Brand & Compliance</td>
                             <td className="p-2.5 text-center bg-slate-100/50 text-slate-400 font-sans text-[11px]">Baseline</td>
                             {comparisonData.quotations.map(q => {
-                              const line = (q.items || []).find(qi => qi.item_id === rfqItem.item_id) || q.items[iIdx] || {};
+                              const line = (q.items || []).find(qi => qi.item_id === rfqItem.item_id) || q.items?.[iIdx] || {};
                               return (
                                 <td key={q.id} className="p-2.5 text-center border-l border-slate-200 font-sans text-[11px]">
                                   <span className="font-bold text-slate-800 block">{line.offered_brand || 'Standard'}</span>

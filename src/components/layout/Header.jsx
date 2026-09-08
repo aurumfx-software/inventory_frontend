@@ -20,10 +20,11 @@ import {
   ArrowRight,
   Sun,
   Moon,
-  X
+  X,
+  Menu
 } from 'lucide-react';
 
-export default function Header({ setActiveTab }) {
+export default function Header({ setActiveTab, onToggleMobileSidebar }) {
   const { 
     user, 
     switchRole, 
@@ -128,10 +129,37 @@ export default function Header({ setActiveTab }) {
     setSearchQuery('');
   };
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const [liveNotifs, setLiveNotifs] = useState([]);
 
-  const markAllRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, unread: false })));
+  useEffect(() => {
+    fetchLiveNotifications();
+    const interval = setInterval(fetchLiveNotifications, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchLiveNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setLiveNotifs(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    }
+  };
+
+  const displayNotifications = liveNotifs.length > 0 ? liveNotifs : notifications;
+  const unreadCount = displayNotifications.filter(n => n.unread || !n.is_read).length;
+
+  const markAllRead = async () => {
+    try {
+      await fetch('/api/notifications/read-all', { method: 'POST' });
+      setLiveNotifs(liveNotifs.map(n => ({ ...n, unread: false, is_read: true })));
+      setNotifications(notifications.map(n => ({ ...n, unread: false, is_read: true })));
+    } catch (e) {
+      setNotifications(notifications.map(n => ({ ...n, unread: false })));
+    }
   };
 
   const rolesList = [
@@ -145,29 +173,41 @@ export default function Header({ setActiveTab }) {
   ];
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-      {/* Welcome Greeting & Live Global Search Input */}
-      <div className="flex items-center space-x-6 w-1/2">
+    <header className="h-16 bg-white border-b border-slate-200/80 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+      {/* Welcome Greeting & Brand Header */}
+      <div className="flex items-center space-x-3">
+        {/* 3-Line Hamburger Menu Button for Mobile */}
+        <button
+          onClick={onToggleMobileSidebar}
+          className="md:hidden p-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl text-slate-700 transition cursor-pointer shadow-2xs shrink-0"
+          title="Open Navigation Menu"
+        >
+          <Menu className="w-5 h-5 text-slate-800" />
+        </button>
+
         <div className="hidden lg:block shrink-0">
           <p className="text-xs text-slate-500 font-medium">Welcome To</p>
           <p className="text-sm font-bold text-purple-700 font-heading leading-tight">{user?.name || 'Sarah Jenkins'}</p>
         </div>
+      </div>
 
-        {/* Global Instant Search Container */}
-        <div className="relative w-full max-w-sm" ref={searchRef}>
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      {/* Header Right Actions */}
+      <div className="flex items-center space-x-2 sm:space-x-3">
+        {/* Global Instant Search Container - Right beside Dark Mode Toggle */}
+        <div className="relative w-36 xs:w-44 sm:w-64 md:w-72 lg:w-80" ref={searchRef}>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
           <input 
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
-            placeholder="Search items, indents, POs, suppliers, pages..." 
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-8 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white transition shadow-2xs font-medium"
+            placeholder="Search items, POs..." 
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 sm:pl-9 pr-7 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white transition shadow-2xs font-medium"
           />
           {searchQuery && (
             <button 
               onClick={() => { setSearchQuery(''); setShowSearchDropdown(false); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -175,7 +215,7 @@ export default function Header({ setActiveTab }) {
 
           {/* Floating Instant Search Results Modal Dropdown */}
           {showSearchDropdown && (
-            <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl py-3 z-50 max-h-[80vh] overflow-y-auto divide-y divide-slate-100 text-xs">
+            <div className="absolute right-0 w-72 sm:w-96 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl py-3 z-50 max-h-[80vh] overflow-y-auto divide-y divide-slate-100 text-xs">
               
               {/* Pages & Navigation Results */}
               {searchResults.pages.length > 0 && (
@@ -265,12 +305,9 @@ export default function Header({ setActiveTab }) {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Header Right Actions */}
-      <div className="flex items-center space-x-3">
         {/* Active Warehouse Picker */}
-        <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs shadow-xs">
+        <div className="hidden md:flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs shadow-xs">
           <Warehouse className="w-3.5 h-3.5 text-emerald-600" />
           <span className="text-slate-500 font-medium">Warehouse:</span>
           <select 
@@ -288,7 +325,7 @@ export default function Header({ setActiveTab }) {
         <button
           onClick={toggleThemeMode}
           title={themeMode === 'dark' ? "Switch to Light Theme" : "Switch to Dark Theme"}
-          className="p-2 bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl text-slate-600 transition shadow-xs cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95 group"
+          className="p-2 bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl text-slate-600 transition shadow-xs cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95 group shrink-0"
         >
           {themeMode === 'dark' ? (
             <Sun className="w-4 h-4 text-amber-400 animate-spin" style={{ animationDuration: '12s' }} />
@@ -298,7 +335,7 @@ export default function Header({ setActiveTab }) {
         </button>
 
         {/* Live Role Switcher */}
-        <div className="relative">
+        <div className="relative hidden md:block">
           <button 
             onClick={() => setShowRoleDropdown(!showRoleDropdown)}
             className="flex items-center space-x-2 bg-purple-50 border border-purple-200 hover:bg-purple-100 px-3 py-1.5 rounded-xl text-xs text-purple-700 font-bold transition shadow-xs"
@@ -331,7 +368,8 @@ export default function Header({ setActiveTab }) {
           )}
         </div>
 
-        {/* Live Action Pill */}
+        {/* Live Action Pill - Commented out temporarily as requested */}
+        {/* 
         <button 
           onClick={() => markAllRead()}
           className="bg-red-600 hover:bg-red-700 text-white font-semibold text-xs px-3 py-1.5 rounded-xl flex items-center space-x-1.5 shadow-xs transition cursor-pointer"
@@ -339,6 +377,7 @@ export default function Header({ setActiveTab }) {
           <Radio className="w-3.5 h-3.5 text-white animate-pulse" />
           <span>Live Tracking</span>
         </button>
+        */}
 
         {/* Notifications Dropdown */}
         <div className="relative">
@@ -360,14 +399,16 @@ export default function Header({ setActiveTab }) {
                 <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">System Notifications ({unreadCount})</span>
                 <button onClick={markAllRead} className="text-[11px] text-purple-600 font-bold hover:underline">Mark all read</button>
               </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
-                {notifications.map(n => (
-                  <div key={n.id} className={`p-3 text-xs flex space-x-3 hover:bg-slate-50 transition ${n.unread ? 'bg-purple-50/40' : ''}`}>
-                    {n.type === 'warning' ? <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" /> : <Info className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />}
-                    <div>
-                      <p className="font-bold text-slate-800">{n.title}</p>
-                      <p className="text-slate-600 text-[11px] mt-0.5">{n.message}</p>
-                      <span className="text-[10px] text-slate-400 mt-1 block font-medium">{n.time}</span>
+              <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                {displayNotifications.map(n => (
+                  <div key={n.id} className={`p-3 text-xs flex space-x-3 hover:bg-slate-50 transition ${n.unread || !n.is_read ? 'bg-purple-50/50 font-medium' : ''}`}>
+                    {n.type === 'warning' ? <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" /> : 
+                     n.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" /> :
+                     <Info className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />}
+                    <div className="flex-1">
+                      <p className="font-bold text-slate-800 text-xs">{n.title}</p>
+                      <p className="text-slate-600 text-[11px] mt-0.5 leading-snug">{n.message}</p>
+                      <span className="text-[10px] text-slate-400 mt-1 block font-mono font-medium">{n.time || n.created_at?.replace('T', ' ').substring(0, 19)}</span>
                     </div>
                   </div>
                 ))}

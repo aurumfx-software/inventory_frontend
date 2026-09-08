@@ -355,7 +355,7 @@ export default function RFQManagement() {
 
   // Filtered RFQs List
   const filteredRfqs = useMemo(() => {
-    return rfqs.filter(r => {
+    const list = rfqs.filter(r => {
       const q = searchQuery.toLowerCase().trim();
       const matchesQuery = !q || (
         r.rfq_number?.toLowerCase().includes(q) ||
@@ -370,6 +370,13 @@ export default function RFQManagement() {
       }
 
       return matchesQuery && matchesStatus;
+    });
+
+    return [...list].sort((a, b) => {
+      const dateA = new Date(a.created_at || a.rfq_date || 0).getTime();
+      const dateB = new Date(b.created_at || b.rfq_date || 0).getTime();
+      if (dateA !== dateB) return dateB - dateA;
+      return String(b.rfq_number || b.id).localeCompare(String(a.rfq_number || a.id));
     });
   }, [rfqs, searchQuery, statusTab]);
 
@@ -452,60 +459,60 @@ export default function RFQManagement() {
             <p className="text-[11px]">Click "Create New RFQ" above to issue a new commercial bid request.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-slate-100 text-slate-600 uppercase text-[10px] font-bold border-b border-slate-200">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-xs text-left min-w-[950px]">
+              <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider font-bold border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-4">RFQ Number & Date</th>
-                  <th className="py-3 px-4">Buyer & Contact</th>
-                  <th className="py-3 px-4">Delivery Location</th>
-                  <th className="py-3 px-4">Items Count</th>
-                  <th className="py-3 px-4">Suppliers Invited</th>
-                  <th className="py-3 px-4">Closing Date</th>
-                  <th className="py-3 px-3">Status</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">RFQ Number & Date</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Buyer & Contact</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Delivery Location</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Items Count</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Suppliers Invited</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Closing Date</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {filteredRfqs.map(rfq => (
-                  <tr key={rfq.id} className="hover:bg-slate-50/70 transition">
-                    <td className="py-3.5 px-4">
+                  <tr key={rfq.id} className="hover:bg-purple-50/30 transition">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
                       <strong className="font-mono text-purple-700 font-bold block">{rfq.rfq_number}</strong>
-                      <span className="text-[11px] text-slate-400 font-mono">Date: {rfq.rfq_date}</span>
+                      <span className="text-[11px] text-slate-500 font-mono font-medium block mt-0.5">Date: {rfq.rfq_date || rfq.created_at?.replace('T', ' ').substring(0, 19) || '2026-09-06 23:57'}</span>
                     </td>
 
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
                       <span className="font-bold text-slate-900 block">{rfq.buyer}</span>
-                      <span className="text-[11px] text-slate-500 font-mono truncate max-w-xs block">{rfq.contact_person}</span>
+                      <span className="text-[11px] text-slate-500 font-mono block">{rfq.contact_person}</span>
                     </td>
 
-                    <td className="py-3.5 px-4 text-slate-700">
+                    <td className="py-3.5 px-4 text-slate-700 whitespace-nowrap">
                       <span className="font-medium">{rfq.delivery_location}</span>
                     </td>
 
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
+                    <td className="py-3.5 px-4 font-mono font-bold text-slate-800 whitespace-nowrap">
                       {rfq.items?.length || 0} Item(s)
                     </td>
 
-                    <td className="py-3.5 px-4">
-                      <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono font-bold px-2 py-0.5 rounded text-[11px]">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <span className="bg-indigo-50 text-indigo-700 border border-indigo-200/80 font-mono font-bold px-2.5 py-0.5 rounded-lg text-[11px] inline-block">
                         {rfq.suppliers?.length || 0} Vendor(s)
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-4 font-mono text-slate-700 font-medium">
+                    <td className="py-3.5 px-4 font-mono text-slate-700 font-medium whitespace-nowrap">
                       {rfq.closing_date}
                     </td>
 
-                    <td className="py-3.5 px-3">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
                       <StatusBadge status={rfq.status} />
                     </td>
 
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end space-x-1.5">
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end space-x-2 shrink-0">
                         <button 
                           onClick={() => handleOpenDetailModal(rfq)}
-                          className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-1.5 rounded-lg transition"
+                          className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-xl transition shadow-2xs"
                           title="View RFQ Header & Item Details"
                         >
                           <Eye className="w-3.5 h-3.5" />
@@ -513,7 +520,7 @@ export default function RFQManagement() {
 
                         <button 
                           onClick={() => handleOpenTrackingModal(rfq)}
-                          className="bg-purple-50 hover:bg-purple-100 text-purple-700 p-1.5 rounded-lg transition"
+                          className="bg-purple-50 hover:bg-purple-100 text-purple-700 p-2 rounded-xl transition shadow-2xs"
                           title="Track Supplier Response Status & Logs"
                         >
                           <UserCheck className="w-3.5 h-3.5" />
@@ -522,7 +529,7 @@ export default function RFQManagement() {
                         {rfq.status !== 'Closed' && rfq.status !== 'Cancelled' && (
                           <button 
                             onClick={() => handleOpenSendModal(rfq)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] px-2.5 py-1.5 rounded-lg flex items-center space-x-1 shadow-2xs"
+                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl flex items-center space-x-1.5 shadow-2xs transition"
                             title="Send RFQ via Email / Portal / API"
                           >
                             <Send className="w-3 h-3" />
@@ -533,7 +540,7 @@ export default function RFQManagement() {
                         {rfq.status !== 'Closed' && (
                           <button 
                             onClick={() => handleCloseRfq(rfq.id)}
-                            className="bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 font-bold text-[11px] px-2 py-1 rounded-lg border border-slate-200"
+                            className="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold text-[11px] px-2.5 py-1.5 rounded-xl border border-slate-200 transition"
                             title="Close RFQ"
                           >
                             Close
@@ -543,7 +550,7 @@ export default function RFQManagement() {
                         {(rfq.status === 'Closed' || rfq.status === 'Cancelled' || rfq.status === 'Draft') && (
                           <button 
                             onClick={() => handleDeleteRfq(rfq.id, rfq.rfq_number)}
-                            className="bg-rose-50 hover:bg-rose-100 text-rose-700 p-1.5 rounded-lg border border-rose-200 transition flex items-center space-x-1 font-bold text-[11px]"
+                            className="bg-rose-50 hover:bg-rose-100 text-rose-700 p-2 rounded-xl border border-rose-200 transition flex items-center space-x-1 font-bold text-[11px] shadow-2xs"
                             title="Delete Closed RFQ"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

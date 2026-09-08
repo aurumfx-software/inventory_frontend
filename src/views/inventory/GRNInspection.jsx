@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ClipboardCheck, 
   Plus, 
@@ -680,24 +680,33 @@ export default function GRNInspection({ initialSubTab = 'grn' }) {
     window.print();
   };
 
-  // Filtered GRNs list
-  const filteredGrns = grns.filter(g => {
-    if (statusFilter !== 'All' && g.status !== statusFilter && g.inspection_status !== statusFilter) return false;
-    if (supplierFilter && g.supplier_id !== supplierFilter) return false;
-    if (warehouseFilter && g.warehouse_id !== warehouseFilter) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      return (
-        g.grn_number?.toLowerCase().includes(q) ||
-        g.po_number?.toLowerCase().includes(q) ||
-        g.supplier_name?.toLowerCase().includes(q) ||
-        g.supplier_invoice_number?.toLowerCase().includes(q) ||
-        g.delivery_challan_number?.toLowerCase().includes(q) ||
-        g.vehicle_number?.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
+  // Filtered GRNs list (Sorted Newest First)
+  const filteredGrns = useMemo(() => {
+    const list = grns.filter(g => {
+      if (statusFilter !== 'All' && g.status !== statusFilter && g.inspection_status !== statusFilter) return false;
+      if (supplierFilter && g.supplier_id !== supplierFilter) return false;
+      if (warehouseFilter && g.warehouse_id !== warehouseFilter) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return (
+          g.grn_number?.toLowerCase().includes(q) ||
+          g.po_number?.toLowerCase().includes(q) ||
+          g.supplier_name?.toLowerCase().includes(q) ||
+          g.supplier_invoice_number?.toLowerCase().includes(q) ||
+          g.delivery_challan_number?.toLowerCase().includes(q) ||
+          g.vehicle_number?.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+
+    return [...list].sort((a, b) => {
+      const dateA = new Date(a.created_at || a.receipt_date || a.created_date || 0).getTime();
+      const dateB = new Date(b.created_at || b.receipt_date || b.created_date || 0).getTime();
+      if (dateA !== dateB) return dateB - dateA;
+      return String(b.grn_number || b.id).localeCompare(String(a.grn_number || a.id));
+    });
+  }, [grns, statusFilter, supplierFilter, warehouseFilter, searchQuery]);
 
   const pendingInspectionCount = grns.filter(g => g.inspection_status === 'Pending inspection' || g.status === 'Pending inspection').length;
 

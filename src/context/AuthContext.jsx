@@ -24,6 +24,9 @@ const rolePermissionsMap = {
   ],
   'role-auditor': [
     'sec-5', 'sec-19', 'sec-20', 'sec-26', 'sec-29', 'sec-30', 'sec-31'
+  ],
+  'role-director': [
+    'sec-5', 'sec-11', 'sec-12', 'sec-13', 'sec-16', 'sec-29', 'sec-30'
   ]
 };
 
@@ -244,12 +247,78 @@ export function AuthProvider({ children }) {
     localStorage.setItem('app-active-tab', 'sec-5');
   };
 
+  const sendOTP = async (phone) => {
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return { success: true, message: data.message, otp: data.otp };
+      } else {
+        return { success: false, message: data.detail || data.message || 'Failed to send OTP.' };
+      }
+    } catch (err) {
+      return { success: false, message: 'Server connection error while sending OTP.' };
+    }
+  };
+
+  const loginWithOTP = async (phone, otp) => {
+    setUser(null);
+    setToken(null);
+    try {
+      const res = await fetch('/api/auth/login-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.user) {
+        const prevUser = localStorage.getItem('app_current_user_email');
+        const newEmail = data.user.email;
+        const newCompany = data.user.company_name || 'Organization';
+
+        if (prevUser && prevUser !== newEmail) {
+          clearDomainCaches();
+        }
+
+        localStorage.setItem('app_current_user_email', newEmail);
+        localStorage.setItem('app_current_company', newCompany);
+        localStorage.setItem('app_current_user_role', data.user.role_id || '');
+        localStorage.setItem('app_current_user_obj', JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem('app_current_token', data.token);
+        }
+
+        setUser({
+          ...data.user,
+          permissions: rolePermissionsMap[data.user.role_id] || ['*']
+        });
+        setToken(data.token || 'active-session-token');
+        localStorage.setItem('app-active-tab', 'sec-5');
+        return { success: true };
+      } else {
+        setUser(null);
+        setToken(null);
+        return { success: false, message: data.detail || data.message || 'Invalid OTP.' };
+      }
+    } catch (err) {
+      setUser(null);
+      setToken(null);
+      return { success: false, message: 'Server error while verifying OTP.' };
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
       token,
       login,
       logout,
+      sendOTP,
+      loginWithOTP,
       switchRole,
       hasPermission,
       activeWarehouse,

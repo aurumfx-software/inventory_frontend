@@ -39,7 +39,8 @@ import DocumentAttachments from './views/system/DocumentAttachments';
 function MainLayout() {
   const { user } = useAuth();
   const [activeTab, setActiveTabState] = useState(() => {
-    return localStorage.getItem('app-active-tab') || 'sec-5';
+    const saved = localStorage.getItem('app-active-tab');
+    return saved && saved.startsWith('sec-') ? saved : 'sec-5';
   });
 
   const setActiveTab = (tabId) => {
@@ -78,9 +79,12 @@ function MainLayout() {
   // Ensure user always lands on Executive Dashboard (sec-5) upon login
   useEffect(() => {
     if (user) {
-      setActiveTab('sec-5');
+      setActiveTabState('sec-5');
+      localStorage.setItem('app-active-tab', 'sec-5');
     }
   }, [user?.id]);
+
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Standalone Separate Login Page Gate (Section 4 PDF Specification)
   if (!user) {
@@ -128,7 +132,7 @@ function MainLayout() {
       case 'sec-23':
         return <SupplierReturns />;
       case 'sec-24':
-        return <StockOperations initialSubTab="transfer" />;
+        return <StockOperations initialSubTab="current-stock" />;
       case 'sec-25':
         return <StockAdjustment />;
       case 'sec-26':
@@ -157,16 +161,70 @@ function MainLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-100/70 overflow-hidden text-slate-900 font-sans">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="flex h-screen bg-slate-100/70 overflow-hidden text-slate-900 font-sans relative">
+      <Sidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
+      />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header setActiveTab={setActiveTab} />
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-100/70">
+        <Header 
+          setActiveTab={setActiveTab} 
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+        />
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-6 bg-slate-100/70">
           {renderTabContent()}
         </main>
       </div>
     </div>
   );
+}
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Uncaught UI Error:", error, errorInfo);
+  }
+
+  handleReset = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-900 text-white text-center font-sans">
+          <div className="w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-500 flex items-center justify-center mb-4 border border-rose-500/30">
+            <span className="text-2xl font-bold">!</span>
+          </div>
+          <h1 className="text-xl font-bold text-white font-heading mb-2">Application Render Error</h1>
+          <p className="text-xs text-slate-400 max-w-md mb-6 leading-relaxed">
+            A component encountered an error during render. Cleared cached local storage state to restore smooth operation.
+          </p>
+          <div className="bg-slate-800 border border-slate-700 p-3 rounded-xl max-w-lg w-full text-left text-rose-400 font-mono text-xs mb-6 overflow-x-auto">
+            {this.state.error?.toString()}
+          </div>
+          <button 
+            onClick={this.handleReset}
+            className="bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-lg shadow-rose-500/20 transition cursor-pointer"
+          >
+            Reset Session & Reload
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 export default function App() {
@@ -183,11 +241,11 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
       <AuthProvider>
         <MainLayout />
       </AuthProvider>
-    </>
+    </ErrorBoundary>
   );
 }

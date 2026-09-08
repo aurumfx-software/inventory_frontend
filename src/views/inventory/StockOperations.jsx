@@ -7,7 +7,15 @@ import StatusBadge from '../../components/common/StatusBadge';
 import StockIssue from './StockIssue';
 
 export default function StockOperations({ initialSubTab = 'current-stock' }) {
-  const [activeSubTab, setActiveSubTab] = useState(initialSubTab);
+  const normalizeSubTab = (tab) => {
+    if (!tab) return 'current-stock';
+    if (tab === 'transfer' || tab === 'transfers') return 'transfers';
+    if (tab === 'issue' || tab === 'issues') return 'issues';
+    if (tab === 'ledger') return 'ledger';
+    return 'current-stock';
+  };
+
+  const [activeSubTab, setActiveSubTab] = useState(() => normalizeSubTab(initialSubTab));
   const [items, setItems] = useState([]);
   const [balances, setBalances] = useState([]);
   const [ledger, setLedger] = useState([]);
@@ -48,7 +56,7 @@ export default function StockOperations({ initialSubTab = 'current-stock' }) {
   const [postError, setPostError] = useState('');
 
   useEffect(() => {
-    if (initialSubTab) setActiveSubTab(initialSubTab);
+    if (initialSubTab) setActiveSubTab(normalizeSubTab(initialSubTab));
   }, [initialSubTab]);
 
   const [issueForm, setIssueForm] = useState({

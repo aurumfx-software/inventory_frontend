@@ -137,7 +137,15 @@ export default function IndentManagement() {
     try {
       const res = await fetch('/api/indents');
       const data = await res.json();
-      if (data.success) setIndents(data.data || []);
+      if (data.success) {
+        const sorted = (data.data || []).sort((a, b) => {
+          const dateA = new Date(a.created_at || a.request_date || 0).getTime();
+          const dateB = new Date(b.created_at || b.request_date || 0).getTime();
+          if (dateA !== dateB) return dateB - dateA;
+          return String(b.indent_number || b.id).localeCompare(String(a.indent_number || a.id));
+        });
+        setIndents(sorted);
+      }
     } catch (err) {
       console.error('Error refreshing indents:', err);
     }
@@ -594,9 +602,9 @@ export default function IndentManagement() {
         </div>
       </div>
 
-      {/* Control Header & Filters */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
+      {/* Top Header & Actions Bar */}
+      <div className="bg-white p-4 sm:p-5 border border-slate-200/80 rounded-2xl shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <h2 className="text-lg font-bold text-slate-900 font-heading flex items-center space-x-2">
               <FileText className="w-5 h-5 text-purple-600" />
@@ -608,7 +616,7 @@ export default function IndentManagement() {
           </div>
           <button 
             onClick={handleOpenCreateModal}
-            className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center space-x-2 shadow-xs transition"
+            className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center space-x-2 shadow-xs transition shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span> Create Material Indent</span>
@@ -747,7 +755,7 @@ export default function IndentManagement() {
                       {indent.priority} Priority
                     </span>
 
-                    <span className="text-xs text-slate-500 font-medium">Req Date: {indent.request_date}</span>
+                    <span className="text-xs text-slate-500 font-mono font-medium">Req Date: {indent.request_date || indent.created_at?.replace('T', ' ').substring(0, 19) || '2026-09-06 23:57'}</span>
                     <span className="text-xs text-slate-600 font-semibold">&bull; Dept: {indent.department_name}</span>
                   </div>
 
