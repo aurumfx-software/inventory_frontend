@@ -3,7 +3,7 @@ import {
   FileText, Plus, Send, Copy, X, Ban, Edit3, Eye, Printer, Clock, 
   AlertTriangle, CheckCircle2, MessageSquare, Paperclip, Search, Filter, 
   ArrowRight, Trash2, Layers, Building2, AlertCircle, Calendar, DollarSign, User,
-  Check, RefreshCw, ChevronDown, PackageCheck, AlertOctagon, ShieldAlert, Upload, Sliders
+  Check, RefreshCw, ChevronDown, PackageCheck, AlertOctagon, ShieldAlert, Upload, Sliders, Loader2
 } from 'lucide-react';
 import StatusBadge from '../../components/common/StatusBadge';
 import PrintModal from '../../components/common/PrintModal';
@@ -20,6 +20,7 @@ export default function IndentManagement() {
   const [brandsMaster, setBrandsMaster] = useState([]);
   const [uomsMaster, setUomsMaster] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmittingForm, setIsSubmittingForm] = useState(false);
 
   // Search & Filtering
   const [searchQuery, setSearchQuery] = useState('');
@@ -334,8 +335,10 @@ export default function IndentManagement() {
 
   // Submit / Save / Delete / Status Transition Handlers
   const handleSaveForm = async (targetStatus = 'Draft') => {
+    if (isSubmittingForm) return;
     if (!validateFormClient()) return;
 
+    setIsSubmittingForm(true);
     try {
       const payload = {
         ...form,
@@ -369,10 +372,14 @@ export default function IndentManagement() {
       console.error('Error saving indent:', err);
       setFormErrors(['Network error occurred while saving indent.']);
       showToast('danger', 'Network Error', 'Failed to communicate with server.');
+    } finally {
+      setIsSubmittingForm(false);
     }
   };
 
   const handleSubmitIndent = async (indentId) => {
+    if (isSubmittingForm) return;
+    setIsSubmittingForm(true);
     try {
       const res = await fetch(`/api/indents/${indentId}/submit`, { 
         method: 'POST',
@@ -392,6 +399,8 @@ export default function IndentManagement() {
     } catch (err) {
       console.error('Submit indent error:', err);
       showToast('danger', 'Server Error', 'Failed to submit indent.');
+    } finally {
+      setIsSubmittingForm(false);
     }
   };
 
@@ -1416,24 +1425,28 @@ export default function IndentManagement() {
                 <button 
                   type="button" 
                   onClick={() => setShowFormModal(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition"
+                  disabled={isSubmittingForm}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button 
                   type="button" 
                   onClick={() => handleSaveForm('Draft')}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs shadow-2xs transition"
+                  disabled={isSubmittingForm}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs shadow-2xs transition disabled:opacity-50 flex items-center space-x-1"
                 >
-                  Save Draft
+                  {isSubmittingForm ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                  <span>{isSubmittingForm ? 'Saving...' : 'Save Draft'}</span>
                 </button>
                 <button 
                   type="button" 
                   onClick={() => handleSaveForm('Under review')}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-xs flex items-center space-x-1 transition"
+                  disabled={isSubmittingForm}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-xs flex items-center space-x-1 transition disabled:opacity-50"
                 >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Submit for Review</span>
+                  {isSubmittingForm ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  <span>{isSubmittingForm ? 'Submitting...' : 'Submit for Review'}</span>
                 </button>
               </div>
             </div>
