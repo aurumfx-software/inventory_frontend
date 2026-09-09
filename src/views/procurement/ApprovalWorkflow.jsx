@@ -77,31 +77,55 @@ export default function ApprovalWorkflow() {
     }, 4000);
   };
 
-  // Initial Fetch
+  // Initial Fetch with instant local cache for 0ms page transitions
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem('app_approval_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.approvals) setApprovals(parsed.approvals);
+        if (parsed.historyLogs) setHistoryLogs(parsed.historyLogs);
+        if (parsed.workflows) setWorkflows(parsed.workflows);
+        if (parsed.delegations) setDelegations(parsed.delegations);
+        if (parsed.usersMaster) setUsersMaster(parsed.usersMaster);
+        if (parsed.departmentsMaster) setDepartmentsMaster(parsed.departmentsMaster);
+        if (parsed.categoriesMaster) setCategoriesMaster(parsed.categoriesMaster);
+        setIsLoading(false);
+      }
+    } catch (e) {
+      console.warn('Cache error:', e);
+    }
+
     fetchAllData();
   }, []);
 
   const fetchAllData = async () => {
-    setIsLoading(true);
+    if (!localStorage.getItem('app_approval_cache')) {
+      setIsLoading(true);
+    }
     try {
       const [appRes, histRes, wfRes, delRes, usersRes, deptsRes, catRes] = await Promise.all([
-        fetch('/api/approvals').then(r => r.json()),
-        fetch('/api/approvals/history').then(r => r.json()).catch(() => ({ success: true, data: [] })),
-        fetch('/api/approvals/workflows').then(r => r.json()).catch(() => ({ success: true, data: [] })),
-        fetch('/api/approvals/delegations').then(r => r.json()).catch(() => ({ success: true, data: [] })),
-        fetch('/api/users').then(r => r.json()).catch(() => ({ success: true, data: [] })),
-        fetch('/api/departments').then(r => r.json()).catch(() => ({ success: true, data: [] })),
-        fetch('/api/masters/item-categories').then(r => r.json()).catch(() => ({ success: true, data: [] }))
+        fetch('/api/approvals').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/approvals/history').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/approvals/workflows').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/approvals/delegations').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/users').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/departments').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/masters/item-categories').then(r => r.json()).catch(() => ({ success: false }))
       ]);
 
-      if (appRes.success) setApprovals(appRes.data || []);
-      if (histRes.success) setHistoryLogs(histRes.data || []);
-      if (wfRes.success) setWorkflows(wfRes.data || []);
-      if (delRes.success) setDelegations(delRes.data || []);
-      if (usersRes.success) setUsersMaster(usersRes.data || []);
-      if (deptsRes.success) setDepartmentsMaster(deptsRes.data || []);
-      if (catRes.success) setCategoriesMaster(catRes.data || []);
+      const cacheObj = {};
+      if (appRes && appRes.success) { setApprovals(appRes.data || []); cacheObj.approvals = appRes.data || []; }
+      if (histRes && histRes.success) { setHistoryLogs(histRes.data || []); cacheObj.historyLogs = histRes.data || []; }
+      if (wfRes && wfRes.success) { setWorkflows(wfRes.data || []); cacheObj.workflows = wfRes.data || []; }
+      if (delRes && delRes.success) { setDelegations(delRes.data || []); cacheObj.delegations = delRes.data || []; }
+      if (usersRes && usersRes.success) { setUsersMaster(usersRes.data || []); cacheObj.usersMaster = usersRes.data || []; }
+      if (deptsRes && deptsRes.success) { setDepartmentsMaster(deptsRes.data || []); cacheObj.departmentsMaster = deptsRes.data || []; }
+      if (catRes && catRes.success) { setCategoriesMaster(catRes.data || []); cacheObj.categoriesMaster = catRes.data || []; }
+
+      if (Object.keys(cacheObj).length > 0) {
+        localStorage.setItem('app_approval_cache', JSON.stringify(cacheObj));
+      }
     } catch (err) {
       console.error('Failed to load approval workflow data:', err);
     } finally {

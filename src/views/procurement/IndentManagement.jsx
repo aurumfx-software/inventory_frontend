@@ -92,27 +92,60 @@ export default function IndentManagement() {
   const [formErrors, setFormErrors] = useState([]);
   const [formWarnings, setFormWarnings] = useState([]);
 
-  // Fetch initial data
+  // Fetch initial data with instant local storage cache
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem('app_indents_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.indents) setIndents(parsed.indents);
+        if (parsed.itemsMaster) {
+          setItemsMaster(parsed.itemsMaster);
+          if (parsed.itemsMaster.length > 0 && form.items.length === 0) {
+            setForm(prev => ({
+              ...prev,
+              items: [createEmptyLineItem(parsed.itemsMaster[0], prev.required_date)]
+            }));
+          }
+        }
+        if (parsed.suppliersMaster) setSuppliersMaster(parsed.suppliersMaster);
+        if (parsed.departmentsMaster) setDepartmentsMaster(parsed.departmentsMaster);
+        if (parsed.brandsMaster) setBrandsMaster(parsed.brandsMaster);
+        if (parsed.uomsMaster) setUomsMaster(parsed.uomsMaster);
+        setIsLoading(false);
+      }
+    } catch (e) {
+      console.warn('Indent cache parse error:', e);
+    }
+
     fetchAllData();
   }, []);
 
   const fetchAllData = async () => {
-    setIsLoading(true);
+    if (!localStorage.getItem('app_indents_cache')) {
+      setIsLoading(true);
+    }
     try {
       const [indentsRes, itemsRes, suppliersRes, deptsRes, brandsRes, uomsRes] = await Promise.all([
-        fetch('/api/indents').then(r => r.json()),
-        fetch('/api/items').then(r => r.json()),
-        fetch('/api/suppliers').then(r => r.json()).catch(() => ({ success: true, data: [] })),
-        fetch('/api/departments').then(r => r.json()).catch(() => ({ success: true, data: [] })),
-        fetch('/api/brands').then(r => r.json()).catch(() => ({ success: true, data: [] })),
-        fetch('/api/units-of-measure').then(r => r.json()).catch(() => ({ success: true, data: [] }))
+        fetch('/api/indents').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/items').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/suppliers').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/departments').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/brands').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/units-of-measure').then(r => r.json()).catch(() => ({ success: false }))
       ]);
 
-      if (indentsRes.success) setIndents(indentsRes.data || []);
-      if (itemsRes.success) {
+      const cacheObj = {};
+
+      if (indentsRes && indentsRes.success) {
+        setIndents(indentsRes.data || []);
+        cacheObj.indents = indentsRes.data || [];
+      }
+
+      if (itemsRes && itemsRes.success) {
         const activeItems = (itemsRes.data || []).filter(i => i.is_active !== false);
         setItemsMaster(activeItems);
+        cacheObj.itemsMaster = activeItems;
 
         if (activeItems.length > 0 && form.items.length === 0) {
           setForm(prev => ({
@@ -122,10 +155,14 @@ export default function IndentManagement() {
         }
       }
 
-      if (suppliersRes.success) setSuppliersMaster(suppliersRes.data || []);
-      if (deptsRes.success) setDepartmentsMaster(deptsRes.data || []);
-      if (brandsRes.success) setBrandsMaster(brandsRes.data || []);
-      if (uomsRes.success) setUomsMaster(uomsRes.data || []);
+      if (suppliersRes && suppliersRes.success) { setSuppliersMaster(suppliersRes.data || []); cacheObj.suppliersMaster = suppliersRes.data || []; }
+      if (deptsRes && deptsRes.success) { setDepartmentsMaster(deptsRes.data || []); cacheObj.departmentsMaster = deptsRes.data || []; }
+      if (brandsRes && brandsRes.success) { setBrandsMaster(brandsRes.data || []); cacheObj.brandsMaster = brandsRes.data || []; }
+      if (uomsRes && uomsRes.success) { setUomsMaster(uomsRes.data || []); cacheObj.uomsMaster = uomsRes.data || []; }
+
+      if (Object.keys(cacheObj).length > 0) {
+        localStorage.setItem('app_indents_cache', JSON.stringify(cacheObj));
+      }
 
     } catch (err) {
       console.error('Failed to load indent management data:', err);
