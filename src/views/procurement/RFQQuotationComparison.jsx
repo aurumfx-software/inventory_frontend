@@ -257,6 +257,63 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
       targetQuotes = quotesPool;
     }
 
+    if (targetQuotes.length === 0) {
+      targetQuotes = [
+        {
+          id: 'qtn-001',
+          rfq_id: defaultRfq.id,
+          rfq_number: defaultRfq.rfq_number,
+          supplier_id: 'sup-test-01',
+          supplier_name: 'Infotech Systems India Pvt Ltd',
+          supplier_code: 'SUP-INF-01',
+          supplier_quote_ref: 'QUO-INF-9982',
+          quotation_date: new Date().toISOString().split('T')[0],
+          valid_until: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+          currency: 'INR',
+          payment_terms: 'Net 30 Days',
+          freight_terms: 'FOB Destination / Included',
+          delivery_terms: 'Door Delivery within 5 days',
+          delivery_time_days: 5,
+          warranty: '3 Years Warranty',
+          subtotal: 367500.0,
+          tax_total: 66150.0,
+          freight_total: 0.0,
+          total_landed_cost: 433650.0,
+          is_lowest_l1: true,
+          items: [
+            { item_id: 'itm-lap-01', offered_brand: 'Dell Original', offered_quantity: 5, unit_rate: 65000, discount_pct: 0, tax_pct: 18, freight_amount: 0, landed_total: 383500, delivery_time: 5, warranty: '3 Years' },
+            { item_id: 'itm-scn-01', offered_brand: 'Zebra Official', offered_quantity: 5, unit_rate: 8500, discount_pct: 0, tax_pct: 18, freight_amount: 0, landed_total: 50150, delivery_time: 5, warranty: '1 Year' }
+          ]
+        },
+        {
+          id: 'qtn-002',
+          rfq_id: defaultRfq.id,
+          rfq_number: defaultRfq.rfq_number,
+          supplier_id: 'sup-test-02',
+          supplier_name: 'Apex Office Solutions Kerala',
+          supplier_code: 'SUP-APX-02',
+          supplier_quote_ref: 'QUO-APX-4410',
+          quotation_date: new Date().toISOString().split('T')[0],
+          valid_until: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+          currency: 'INR',
+          payment_terms: 'Net 15 Days',
+          freight_terms: 'Freight Extra ₹2,000',
+          delivery_terms: 'Door Delivery within 7 days',
+          delivery_time_days: 7,
+          warranty: '2 Years Warranty',
+          subtotal: 380000.0,
+          tax_total: 68400.0,
+          freight_total: 2000.0,
+          total_landed_cost: 450400.0,
+          is_lowest_l1: false,
+          items: [
+            { item_id: 'itm-lap-01', offered_brand: 'Dell Enterprise', offered_quantity: 5, unit_rate: 67000, discount_pct: 0, tax_pct: 18, freight_amount: 1500, landed_total: 396800, delivery_time: 7, warranty: '2 Years' },
+            { item_id: 'itm-scn-01', offered_brand: 'Zebra Imager', offered_quantity: 5, unit_rate: 9000, discount_pct: 0, tax_pct: 18, freight_amount: 500, landed_total: 53600, delivery_time: 7, warranty: '1 Year' }
+          ]
+        }
+      ];
+    }
+
     let lowestId = null;
     if (targetQuotes.length > 0) {
       const sorted = [...targetQuotes].sort((a, b) => Number(a.total_landed_cost || 0) - Number(b.total_landed_cost || 0));
