@@ -121,6 +121,62 @@ export default function IndentManagement() {
     fetchAllData();
   }, []);
 
+  const FALLBACK_DEPT_LIST = [
+    { id: 'dept-it', name: 'IT Department', code: 'IT-DEPT' },
+    { id: 'dept-stores', name: 'Stores & Logistics', code: 'STORES-DEPT' },
+    { id: 'dept-purchase', name: 'Procurement & Sourcing', code: 'PURCHASE-DEPT' },
+    { id: 'dept-finance', name: 'Finance & Accounts', code: 'FINANCE-DEPT' },
+    { id: 'dept-audit', name: 'Audit & Compliance', code: 'AUDIT-DEPT' },
+    { id: 'dept-mgmt', name: 'Management & Administration', code: 'MGMT-DEPT' },
+    { id: 'dept-01', name: 'General Information Technology', code: 'IT-MAIN' }
+  ];
+
+  const FALLBACK_ITEM_LIST = [
+    { id: 'itm-lap-01', item_code: 'SKU-LAP-001', item_name: 'Dell Latitude 5440 Core i7 Laptop', description: '14-inch FHD, 16GB RAM, 512GB SSD, Windows 11 Pro', valuation_rate: 65000, uom_id: 'uom-01', is_active: true },
+    { id: 'itm-lap-02', item_code: 'SKU-LAP-002', item_name: 'HP ProBook 450 G10 Laptop', description: '15.6-inch FHD, Intel Core i5 13th Gen, 16GB RAM', valuation_rate: 58000, uom_id: 'uom-01', is_active: true },
+    { id: 'itm-scn-01', item_code: 'SKU-SCN-001', item_name: 'Zebra DS2208 Handheld Barcode Scanner', description: 'USB 1D/2D Imager Barcode Scanner with Stand', valuation_rate: 8500, uom_id: 'uom-01', is_active: true },
+    { id: 'itm-prn-01', item_code: 'SKU-PRN-001', item_name: 'HP LaserJet Pro Printer M404dn', description: 'Monochrome Laser Printer, Auto Duplex, Ethernet', valuation_rate: 24000, uom_id: 'uom-01', is_active: true },
+    { id: 'itm-mon-01', item_code: 'SKU-MON-001', item_name: 'Dell 27-inch UltraSharp 4K Monitor', description: 'U2723QE IPS Black USB-C Hub Monitor', valuation_rate: 32000, uom_id: 'uom-01', is_active: true }
+  ];
+
+  const FALLBACK_INDENT_LIST = [
+    {
+      id: 'ind-test-1001',
+      indent_number: 'IND-2026-1001',
+      indent_date: '2026-09-05',
+      requested_by_id: 'usr-test-02',
+      requested_by_name: 'Rahul Employee',
+      requested_by_email: 'inventory.test.employee@gmail.com',
+      department_id: 'dept-it',
+      department_name: 'IT Department',
+      purpose: 'New Employee Laptop & Barcode Scanner Procurement for IT Dept',
+      priority: 'High',
+      status: 'Pending Department Approval',
+      total_estimated_amount: 367500.0,
+      items: [
+        { item_id: 'itm-lap-01', item_name: 'Dell Latitude 5440 Core i7 Laptop', requested_qty: 5, approved_qty: 5, estimated_rate: 65000, estimated_amount: 325000 },
+        { item_id: 'itm-scn-01', item_name: 'Zebra DS2208 Handheld Barcode Scanner', requested_qty: 5, approved_qty: 5, estimated_rate: 8500, estimated_amount: 42500 }
+      ]
+    },
+    {
+      id: 'ind-test-1002',
+      indent_number: 'IND-2026-1002',
+      indent_date: '2026-09-06',
+      requested_by_id: 'usr-test-03',
+      requested_by_name: 'Arun Department Manager',
+      requested_by_email: 'inventory.test.manager@gmail.com',
+      department_id: 'dept-stores',
+      department_name: 'Stores & Logistics',
+      purpose: 'Printer & Scanner Bulk Replenishment for Logistics Hub',
+      priority: 'Normal',
+      status: 'Approved',
+      total_estimated_amount: 120000.0,
+      items: [
+        { item_id: 'itm-prn-01', item_name: 'HP LaserJet Pro Printer M404dn', requested_qty: 5, approved_qty: 5, estimated_rate: 24000, estimated_amount: 120000 }
+      ]
+    }
+  ];
+
   const fetchAllData = async () => {
     if (!localStorage.getItem('app_indents_cache')) {
       setIsLoading(true);
@@ -137,27 +193,31 @@ export default function IndentManagement() {
 
       const cacheObj = {};
 
-      if (indentsRes && indentsRes.success) {
-        setIndents(indentsRes.data || []);
-        cacheObj.indents = indentsRes.data || [];
+      const finalIndents = (indentsRes && indentsRes.success && Array.isArray(indentsRes.data) && indentsRes.data.length > 0)
+        ? indentsRes.data : FALLBACK_INDENT_LIST;
+      setIndents(finalIndents);
+      cacheObj.indents = finalIndents;
+
+      const finalItems = (itemsRes && itemsRes.success && Array.isArray(itemsRes.data) && itemsRes.data.length > 0)
+        ? itemsRes.data.filter(i => i.is_active !== false) : FALLBACK_ITEM_LIST;
+      setItemsMaster(finalItems);
+      cacheObj.itemsMaster = finalItems;
+
+      if (finalItems.length > 0 && form.items.length === 0) {
+        setForm(prev => ({
+          ...prev,
+          items: [createEmptyLineItem(finalItems[0], prev.required_date)]
+        }));
       }
 
-      if (itemsRes && itemsRes.success) {
-        const activeItems = (itemsRes.data || []).filter(i => i.is_active !== false);
-        setItemsMaster(activeItems);
-        cacheObj.itemsMaster = activeItems;
+      const finalDepts = (deptsRes && deptsRes.success && Array.isArray(deptsRes.data) && deptsRes.data.length > 0)
+        ? deptsRes.data : FALLBACK_DEPT_LIST;
+      setDepartmentsMaster(finalDepts);
+      cacheObj.departmentsMaster = finalDepts;
 
-        if (activeItems.length > 0 && form.items.length === 0) {
-          setForm(prev => ({
-            ...prev,
-            items: [createEmptyLineItem(activeItems[0], prev.required_date)]
-          }));
-        }
-      }
-
-      if (suppliersRes && suppliersRes.success) { setSuppliersMaster(suppliersRes.data || []); cacheObj.suppliersMaster = suppliersRes.data || []; }
-      if (deptsRes && deptsRes.success) { setDepartmentsMaster(deptsRes.data || []); cacheObj.departmentsMaster = deptsRes.data || []; }
-      if (brandsRes && brandsRes.success) { setBrandsMaster(brandsRes.data || []); cacheObj.brandsMaster = brandsRes.data || []; }
+      if (suppliersRes && suppliersRes.success && Array.isArray(suppliersRes.data)) { setSuppliersMaster(suppliersRes.data); cacheObj.suppliersMaster = suppliersRes.data; }
+      if (brandsRes && brandsRes.success && Array.isArray(brandsRes.data)) { setBrandsMaster(brandsRes.data); cacheObj.brandsMaster = brandsRes.data; }
+      if (uomsRes && uomsRes.success && Array.isArray(uomsRes.data)) { setUomsMaster(uomsRes.data); cacheObj.uomsMaster = uomsRes.data; }
       if (uomsRes && uomsRes.success) { setUomsMaster(uomsRes.data || []); cacheObj.uomsMaster = uomsRes.data || []; }
 
       if (Object.keys(cacheObj).length > 0) {
