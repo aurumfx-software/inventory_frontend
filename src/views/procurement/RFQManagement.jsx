@@ -86,24 +86,41 @@ export default function RFQManagement() {
   });
 
   useEffect(() => {
+    // 1. Instant Cache Restoration
+    const cachedRfqs = localStorage.getItem('app_rfqs_master');
+    const cachedItems = localStorage.getItem('app_items_master');
+    const cachedSups = localStorage.getItem('app_suppliers_master');
+
+    if (cachedRfqs) { try { setRfqs(JSON.parse(cachedRfqs)); setIsLoading(false); } catch(e){} }
+    if (cachedItems) { try { setItemsMaster(JSON.parse(cachedItems)); } catch(e){} }
+    if (cachedSups) { try { setSuppliersMaster(JSON.parse(cachedSups)); } catch(e){} }
+
     fetchInitialData();
   }, []);
 
   const fetchInitialData = async () => {
-    setIsLoading(true);
+    if (!localStorage.getItem('app_rfqs_master')) setIsLoading(true);
     try {
       const [rfqRes, itemRes, supRes, indRes] = await Promise.all([
-        fetch('/api/rfqs').then(r => r.json()),
-        fetch('/api/items').then(r => r.json()),
-        fetch('/api/suppliers').then(r => r.json()),
-        fetch('/api/indents').then(r => r.json())
+        fetch('/api/rfqs').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/items').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/suppliers').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/indents').then(r => r.json()).catch(() => ({ success: false }))
       ]);
 
-      if (rfqRes.success) setRfqs(rfqRes.data || []);
-      if (itemRes.success) setItemsMaster(itemRes.data || []);
-      if (supRes.success) setSuppliersMaster(supRes.data || []);
-      if (indRes.success) {
-        // Filter approved or submitted indents
+      if (rfqRes.success && Array.isArray(rfqRes.data)) {
+        setRfqs(rfqRes.data);
+        localStorage.setItem('app_rfqs_master', JSON.stringify(rfqRes.data));
+      }
+      if (itemRes.success && Array.isArray(itemRes.data)) {
+        setItemsMaster(itemRes.data);
+        localStorage.setItem('app_items_master', JSON.stringify(itemRes.data));
+      }
+      if (supRes.success && Array.isArray(supRes.data)) {
+        setSuppliersMaster(supRes.data);
+        localStorage.setItem('app_suppliers_master', JSON.stringify(supRes.data));
+      }
+      if (indRes.success && Array.isArray(indRes.data)) {
         const approved = (indRes.data || []).filter(i => i.status === 'Approved' || i.status === 'Submitted');
         setIndentsMaster(approved);
       }

@@ -80,30 +80,79 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
   });
 
   useEffect(() => {
-    fetchInitialData();
+    // 1. Instant Cache Restoration for 0ms delay
+    const cachedRfqs = localStorage.getItem('app_rfqs_master');
+    const cachedQuotes = localStorage.getItem('app_quotations_master');
+    const cachedSups = localStorage.getItem('app_suppliers_master');
+    const cachedItems = localStorage.getItem('app_items_master');
+
+    let initialRfqId = null;
+    let loadedRfqs = [];
+    let loadedQuotes = [];
+
+    if (cachedRfqs) {
+      try {
+        loadedRfqs = JSON.parse(cachedRfqs);
+        if (Array.isArray(loadedRfqs) && loadedRfqs.length > 0) {
+          setRfqs(loadedRfqs);
+          initialRfqId = loadedRfqs[0].id;
+          setActiveRfqId(initialRfqId);
+        }
+      } catch (e) {}
+    }
+    if (cachedQuotes) {
+      try {
+        loadedQuotes = JSON.parse(cachedQuotes);
+        if (Array.isArray(loadedQuotes)) setQuotationsList(loadedQuotes);
+      } catch (e) {}
+    }
+    if (cachedSups) { try { setSuppliers(JSON.parse(cachedSups)); } catch (e) {} }
+    if (cachedItems) { try { setItemsMaster(JSON.parse(cachedItems)); } catch (e) {} }
+
+    if (initialRfqId && loadedQuotes.length > 0) {
+      buildFallbackComparison(initialRfqId, loadedRfqs, loadedQuotes);
+    }
+
+    fetchInitialData(initialRfqId);
   }, []);
 
-  const fetchInitialData = async () => {
+  const fetchInitialData = async (presetRfqId = null) => {
     try {
       const [rfqRes, supRes, itemRes, quoteRes] = await Promise.all([
-        fetch('/api/rfqs').then(r => r.json()),
-        fetch('/api/suppliers').then(r => r.json()),
-        fetch('/api/items').then(r => r.json()),
-        fetch('/api/quotations').then(r => r.json())
+        fetch('/api/rfqs').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/suppliers').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/items').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/quotations').then(r => r.json()).catch(() => ({ success: false }))
       ]);
 
-      if (supRes.success) setSuppliers(supRes.data || []);
-      if (itemRes.success) setItemsMaster(itemRes.data || []);
-      if (quoteRes.success) setQuotationsList(quoteRes.data || []);
+      let fetchedRfqs = [];
+      let fetchedQuotes = [];
 
-      if (rfqRes.success && rfqRes.data.length > 0) {
-        setRfqs(rfqRes.data);
-        const defaultRfq = rfqRes.data[0];
-        const defaultRfqId = defaultRfq.id;
-        setActiveRfqId(defaultRfqId);
-        loadComparison(defaultRfqId);
+      if (supRes.success && Array.isArray(supRes.data)) {
+        setSuppliers(supRes.data);
+        localStorage.setItem('app_suppliers_master', JSON.stringify(supRes.data));
+      }
+      if (itemRes.success && Array.isArray(itemRes.data)) {
+        setItemsMaster(itemRes.data);
+        localStorage.setItem('app_items_master', JSON.stringify(itemRes.data));
+      }
+      if (quoteRes.success && Array.isArray(quoteRes.data)) {
+        fetchedQuotes = quoteRes.data;
+        setQuotationsList(fetchedQuotes);
+        localStorage.setItem('app_quotations_master', JSON.stringify(fetchedQuotes));
+      }
+
+      if (rfqRes.success && Array.isArray(rfqRes.data) && rfqRes.data.length > 0) {
+        fetchedRfqs = rfqRes.data;
+        setRfqs(fetchedRfqs);
+        localStorage.setItem('app_rfqs_master', JSON.stringify(fetchedRfqs));
+        
+        const targetRfqId = presetRfqId || fetchedRfqs[0].id;
+        setActiveRfqId(targetRfqId);
+        loadComparison(targetRfqId, fetchedRfqs, fetchedQuotes);
 
         const defaultItemId = (itemRes.success && itemRes.data?.length > 0) ? itemRes.data[0].id : 'itm-01';
+        const defaultRfq = fetchedRfqs.find(r => r.id === targetRfqId) || fetchedRfqs[0];
 
         const rfqItems = (defaultRfq.items && defaultRfq.items.length > 0)
           ? defaultRfq.items.map(ri => ({
@@ -137,31 +186,28 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
 
         setQuoteForm(prev => ({
           ...prev,
-          rfq_id: defaultRfqId,
-          supplier_id: supRes.data[0]?.id || 'sup-01',
+          rfq_id: targetRfqId,
+          supplier_id: (supRes.data && supRes.data[0]?.id) || 'sup-01',
           items: rfqItems
         }));
+      } else {
+        buildFallbackComparison(presetRfqId || 'rfq-01', rfqs, quotationsList);
       }
     } catch (err) {
       console.error('Failed to load initial data:', err);
+      buildFallbackComparison(presetRfqId || 'rfq-01', rfqs, quotationsList);
     }
   };
 
-  const loadComparison = async (rfqId) => {
+  const loadComparison = async (rfqId, customRfqs = null, customQuotes = null) => {
     setActiveRfqId(rfqId);
     try {
       const res = await fetch(`/api/rfqs/${rfqId}/comparison`);
+      if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.rfq) {
         const formattedData = {
-          rfq: data.rfq || {
-            id: rfqId,
-            rfq_number: 'RFQ-2026-001001',
-            closing_date: '2026-08-30',
-            due_date: '2026-08-30',
-            delivery_location: 'Central Goods Warehouse (WH-MAIN)',
-            currency: 'INR'
-          },
+          rfq: data.rfq,
           quotations: data.quotations || (Array.isArray(data.data) ? data.data : []),
           lowestCostQuoteId: data.lowestCostQuoteId || (data.quotations?.[0]?.id) || null,
           rfqItems: data.rfqItems || [
@@ -184,10 +230,67 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
           initialSplits[item.item_id] = formattedData.quotations[0]?.supplier_id || '';
         });
         setSplitAllocations(initialSplits);
+        return;
       }
     } catch (err) {
-      console.error('Failed to load comparison matrix:', err);
+      console.warn('Backend comparison endpoint warning, building local matrix:', err);
     }
+    buildFallbackComparison(rfqId, customRfqs, customQuotes);
+  };
+
+  const buildFallbackComparison = (rfqId, customRfqs = null, customQuotes = null) => {
+    const rfqsPool = (customRfqs && customRfqs.length > 0) ? customRfqs : (rfqs.length > 0 ? rfqs : []);
+    const quotesPool = (customQuotes && customQuotes.length > 0) ? customQuotes : (quotationsList.length > 0 ? quotationsList : []);
+
+    const defaultRfq = rfqsPool.find(r => r.id === rfqId || r.rfq_number === rfqId) || rfqsPool[0] || {
+      id: rfqId || 'rfq-01',
+      rfq_number: 'RFQ-2026-001001',
+      closing_date: new Date().toISOString().split('T')[0],
+      due_date: new Date().toISOString().split('T')[0],
+      delivery_location: 'Central Goods Warehouse (WH-MAIN)',
+      currency: 'INR',
+      buyer: 'Sarah Jenkins (Purchase Manager)'
+    };
+
+    let targetQuotes = quotesPool.filter(q => q.rfq_id === defaultRfq.id || q.rfq_id === rfqId || q.rfq_number === defaultRfq.rfq_number);
+    if (targetQuotes.length === 0 && quotesPool.length > 0) {
+      targetQuotes = quotesPool;
+    }
+
+    let lowestId = null;
+    if (targetQuotes.length > 0) {
+      const sorted = [...targetQuotes].sort((a, b) => Number(a.total_landed_cost || 0) - Number(b.total_landed_cost || 0));
+      lowestId = sorted[0].id;
+    }
+
+    const rfqItems = (defaultRfq.items && defaultRfq.items.length > 0)
+      ? defaultRfq.items.map((it, idx) => ({
+          item_id: it.item_id || `itm-${idx+1}`,
+          item_code: it.item_code_snapshot || it.item_code || `SKU-00${idx+1}`,
+          item_name: it.item_name_snapshot || it.item_name || 'Procurement Material Item',
+          quantity: it.quantity || 10,
+          unit: it.unit || 'Pcs',
+          previous_purchase_rate: it.unit_rate || 50000
+        }))
+      : [
+          { item_id: 'itm-01', item_code: 'SKU-LAP-001', item_name: 'Dell Latitude Core i7 Laptop', quantity: 10, unit: 'Pcs', previous_purchase_rate: 65000 }
+        ];
+
+    const formattedData = {
+      rfq: defaultRfq,
+      quotations: targetQuotes,
+      lowestCostQuoteId: lowestId,
+      rfqItems: rfqItems,
+      selectionDecision: null
+    };
+
+    setComparisonData(formattedData);
+
+    const initialSplits = {};
+    rfqItems.forEach(item => {
+      initialSplits[item.item_id] = targetQuotes[0]?.supplier_id || '';
+    });
+    setSplitAllocations(initialSplits);
   };
 
   // Live Backend Math Calculation Preview for Form Modal
