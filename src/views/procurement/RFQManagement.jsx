@@ -360,6 +360,11 @@ export default function RFQManagement() {
 
       const data = await res.json();
       if (data.success) {
+        try {
+          localStorage.removeItem('app_rfqs_master');
+          localStorage.removeItem('app_indents_cache');
+          localStorage.removeItem('app_dashboard_kpi');
+        } catch (e) {}
         setShowRfqModal(false);
         fetchInitialData();
       }

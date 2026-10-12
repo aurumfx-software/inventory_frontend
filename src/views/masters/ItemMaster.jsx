@@ -29,7 +29,8 @@ import {
   Ban,
   Building2,
   Check,
-  Plus
+  Plus,
+  Percent
 } from 'lucide-react';
 import QRCodeSVG from '../../components/common/QRCodeSVG';
 
@@ -85,8 +86,13 @@ export default function ItemMaster() {
     uom_id: 'uom-01',
     purchase_uom_id: 'uom-02',
     conversion_ratio: 20,
-    tax_name: 'GST 18%',
-    tax_percentage: 18,
+    tax_name: 'GST 5%',
+    tax_percentage: 5,
+    enable_gst: true,
+    gst_rate: 5,
+    cgst_rate: 2.5,
+    sgst_rate: 2.5,
+    igst_rate: 5,
     tax_type: 'Exclusive',
     effective_date: '2026-08-11',
     hsn_sac_code: '84713010',
@@ -494,9 +500,22 @@ export default function ItemMaster() {
   // Open Edit Form
   const openEditModal = (item) => {
     setEditingItem(item);
+    const gstRate = item.gst_rate !== undefined ? Number(item.gst_rate) : (Number(item.tax_percentage) || 5);
+    const isGstEnabled = item.enable_gst !== undefined ? item.enable_gst : (gstRate > 0);
+    const cgst = item.cgst_rate !== undefined ? Number(item.cgst_rate) : Number((gstRate / 2).toFixed(2));
+    const sgst = item.sgst_rate !== undefined ? Number(item.sgst_rate) : Number((gstRate / 2).toFixed(2));
+    const igst = item.igst_rate !== undefined ? Number(item.igst_rate) : gstRate;
+
     setFormData({
       ...initialFormState,
       ...item,
+      enable_gst: isGstEnabled,
+      gst_rate: gstRate,
+      cgst_rate: cgst,
+      sgst_rate: sgst,
+      igst_rate: igst,
+      tax_percentage: gstRate,
+      tax_name: item.tax_name || `GST ${gstRate}%`,
       category_id: item.category_id || 'cat-01',
       subcategory: item.subcategory || 'Laptops',
       brand_id: item.brand_id || 'brd-01',
@@ -637,6 +656,11 @@ export default function ItemMaster() {
           conversion_ratio: formData.conversion_ratio,
           tax_name: formData.tax_name,
           tax_percentage: formData.tax_percentage,
+          enable_gst: formData.enable_gst !== false,
+          gst_rate: Number(formData.gst_rate) || Number(formData.tax_percentage) || 5,
+          cgst_rate: Number(formData.cgst_rate) || 2.5,
+          sgst_rate: Number(formData.sgst_rate) || 2.5,
+          igst_rate: Number(formData.igst_rate) || 5,
           tax_type: formData.tax_type,
           effective_date: formData.effective_date,
           hsn_sac_code: formData.hsn_sac_code,
@@ -1026,8 +1050,18 @@ export default function ItemMaster() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-slate-50/70 border border-slate-200 rounded-2xl p-4 space-y-2">
                   <h4 className="font-bold text-xs uppercase tracking-wider text-emerald-700 border-b border-slate-200 pb-2">3. Tax & Classification</h4>
-                  <p><span className="text-slate-400 font-bold">Tax Name:</span> <strong className="text-slate-800">{showViewModal.tax_name || 'GST 18%'}</strong></p>
-                  <p><span className="text-slate-400 font-bold">Tax Type:</span> <strong className="text-slate-800">{showViewModal.tax_type || 'Exclusive'}</strong></p>
+                  <div className="flex items-center justify-between">
+                    <p><span className="text-slate-400 font-bold">Tax Name:</span> <strong className="text-slate-800">{showViewModal.tax_name || `GST ${showViewModal.gst_rate || 5}%`}</strong></p>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${showViewModal.enable_gst !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
+                      {showViewModal.enable_gst !== false ? 'GST Enabled' : 'GST Exempt'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-white p-2.5 rounded-xl border border-slate-200">
+                    <div><span className="text-slate-400 font-bold block">Total GST:</span> <strong className="text-slate-900 font-mono">{showViewModal.gst_rate ?? showViewModal.tax_percentage ?? 5}%</strong></div>
+                    <div><span className="text-slate-400 font-bold block">Tax Type:</span> <strong className="text-slate-800">{showViewModal.tax_type || 'Exclusive'}</strong></div>
+                    <div><span className="text-slate-400 font-bold block">CGST / SGST:</span> <strong className="text-slate-800 font-mono">{showViewModal.cgst_rate ?? 2.5}% / {showViewModal.sgst_rate ?? 2.5}%</strong></div>
+                    <div><span className="text-slate-400 font-bold block">IGST:</span> <strong className="text-slate-800 font-mono">{showViewModal.igst_rate ?? 5}%</strong></div>
+                  </div>
                   <p><span className="text-slate-400 font-bold">Effective Date:</span> <span className="font-mono text-slate-700">{showViewModal.effective_date || '2026-08-01'}</span></p>
                   <p><span className="text-slate-400 font-bold">HSN/SAC Code:</span> <span className="font-mono font-bold text-purple-700">{showViewModal.hsn_sac_code || '84713010'}</span></p>
                 </div>
@@ -1524,31 +1558,203 @@ export default function ItemMaster() {
 
               {/* SECTION 3 — Tax & Classification */}
               <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
-                <div className="flex items-center space-x-2.5 border-b border-slate-100 pb-3">
-                  <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">3</div>
-                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-heading">SECTION 3 — Tax & Classification</h4>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">3</div>
+                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider font-heading">SECTION 3 — Tax & Classification</h4>
+                  </div>
+                  {/* Enable GST Checkbox */}
+                  <div className="flex items-center space-x-2 bg-emerald-50/80 border border-emerald-200/80 px-3 py-1.5 rounded-xl self-start sm:self-auto">
+                    <label htmlFor="enable_gst_toggle" className="text-xs font-bold text-emerald-900 cursor-pointer select-none">
+                      Enable GST
+                    </label>
+                    <input
+                      id="enable_gst_toggle"
+                      type="checkbox"
+                      checked={formData.enable_gst !== false}
+                      onChange={e => {
+                        const enabled = e.target.checked;
+                        setFormData(prev => ({
+                          ...prev,
+                          enable_gst: enabled,
+                          tax_percentage: enabled ? (prev.gst_rate || 5) : 0,
+                          tax_name: enabled ? (prev.tax_name === 'Exempt 0%' ? 'GST 5%' : prev.tax_name) : 'Exempt 0%'
+                        }));
+                      }}
+                      className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
+                    />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  {/* Tax Name & Rate */}
+                {/* GST & Tax Configuration Card */}
+                <div className={`p-4 rounded-xl border transition ${formData.enable_gst !== false ? 'bg-slate-50/70 border-slate-200' : 'bg-slate-100/50 border-slate-200/60 opacity-60'}`}>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Percent className="w-4 h-4 text-emerald-600" />
+                    <span className="font-bold text-xs uppercase tracking-wider text-slate-800">
+                      GST & Tax Configuration
+                    </span>
+                    {formData.enable_gst === false && (
+                      <span className="text-[11px] text-amber-600 font-medium ml-2">(GST disabled for this item)</span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                    {/* Total GST % */}
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">
+                        Total GST %
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="28"
+                          disabled={formData.enable_gst === false}
+                          value={formData.gst_rate ?? formData.tax_percentage ?? 5}
+                          onChange={e => {
+                            const val = parseFloat(e.target.value) || 0;
+                            const half = Number((val / 2).toFixed(2));
+                            let name = `GST ${val}%`;
+                            if (val === 18) name = 'GST 18%';
+                            else if (val === 12) name = 'GST 12%';
+                            else if (val === 5) name = 'GST 5%';
+                            else if (val === 28) name = 'GST 28%';
+                            else if (val === 0) name = 'Exempt 0%';
+                            setFormData(prev => ({
+                              ...prev,
+                              gst_rate: val,
+                              cgst_rate: half,
+                              sgst_rate: half,
+                              igst_rate: val,
+                              tax_percentage: val,
+                              tax_name: name
+                            }));
+                          }}
+                          className="w-full pr-7 pl-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 text-slate-900 font-mono font-bold bg-white outline-none transition disabled:bg-slate-100"
+                        />
+                        <span className="absolute right-2.5 top-2 text-slate-400 font-bold">%</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 font-medium">Default rate</p>
+                    </div>
+
+                    {/* CGST % (Central) */}
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">
+                        CGST % (Central)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.05"
+                          min="0"
+                          max="14"
+                          disabled={formData.enable_gst === false}
+                          value={formData.cgst_rate ?? Number(((formData.gst_rate ?? 5) / 2).toFixed(2))}
+                          onChange={e => {
+                            const cgst = parseFloat(e.target.value) || 0;
+                            setFormData(prev => ({
+                              ...prev,
+                              cgst_rate: cgst,
+                              gst_rate: Number((cgst + (prev.sgst_rate || cgst)).toFixed(2)),
+                              tax_percentage: Number((cgst + (prev.sgst_rate || cgst)).toFixed(2))
+                            }));
+                          }}
+                          className="w-full pr-7 pl-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 text-slate-900 font-mono font-bold bg-white outline-none transition disabled:bg-slate-100"
+                        />
+                        <span className="absolute right-2.5 top-2 text-slate-400 font-bold">%</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 font-medium">Usually GST / 2</p>
+                    </div>
+
+                    {/* SGST % (State) */}
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">
+                        SGST % (State)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.05"
+                          min="0"
+                          max="14"
+                          disabled={formData.enable_gst === false}
+                          value={formData.sgst_rate ?? Number(((formData.gst_rate ?? 5) / 2).toFixed(2))}
+                          onChange={e => {
+                            const sgst = parseFloat(e.target.value) || 0;
+                            setFormData(prev => ({
+                              ...prev,
+                              sgst_rate: sgst,
+                              gst_rate: Number(((prev.cgst_rate || sgst) + sgst).toFixed(2)),
+                              tax_percentage: Number(((prev.cgst_rate || sgst) + sgst).toFixed(2))
+                            }));
+                          }}
+                          className="w-full pr-7 pl-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 text-slate-900 font-mono font-bold bg-white outline-none transition disabled:bg-slate-100"
+                        />
+                        <span className="absolute right-2.5 top-2 text-slate-400 font-bold">%</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 font-medium">Usually GST / 2</p>
+                    </div>
+
+                    {/* IGST % (Interstate) */}
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">
+                        IGST % (Interstate)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="28"
+                          disabled={formData.enable_gst === false}
+                          value={formData.igst_rate ?? (formData.gst_rate ?? 5)}
+                          onChange={e => {
+                            const igst = parseFloat(e.target.value) || 0;
+                            setFormData(prev => ({ ...prev, igst_rate: igst }));
+                          }}
+                          className="w-full pr-7 pl-3 py-2 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 text-slate-900 font-mono font-bold bg-white outline-none transition disabled:bg-slate-100"
+                        />
+                        <span className="absolute right-2.5 top-2 text-slate-400 font-bold">%</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 font-medium">For outside state</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Classification Controls */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-1">
+                  {/* Tax Name & Rate Preset */}
                   <div>
-                    <label className="block text-slate-700 font-bold mb-1">Tax Name & Rate</label>
+                    <label className="block text-slate-700 font-bold mb-1 text-xs">Standard Tax Presets</label>
                     <select 
                       value={formData.tax_name} 
+                      disabled={formData.enable_gst === false}
                       onChange={e => {
                         const val = e.target.value;
-                        let pct = 18;
-                        if (val.includes('12%')) pct = 12;
+                        let pct = 5;
+                        if (val.includes('18%')) pct = 18;
+                        else if (val.includes('12%')) pct = 12;
                         else if (val.includes('5%')) pct = 5;
                         else if (val.includes('28%')) pct = 28;
                         else if (val.includes('Exempt')) pct = 0;
-                        setFormData({ ...formData, tax_name: val, tax_percentage: pct });
+                        const half = Number((pct / 2).toFixed(2));
+                        setFormData(prev => ({
+                          ...prev,
+                          tax_name: val,
+                          tax_percentage: pct,
+                          gst_rate: pct,
+                          cgst_rate: half,
+                          sgst_rate: half,
+                          igst_rate: pct,
+                          enable_gst: pct > 0
+                        }));
                       }} 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:bg-white focus:outline-none focus:border-purple-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 text-xs font-medium focus:bg-white focus:outline-none focus:border-emerald-500 disabled:bg-slate-100"
                     >
-                      <option value="GST 18%">GST 18% Standard</option>
-                      <option value="GST 12%">GST 12% Reduced</option>
                       <option value="GST 5%">GST 5% Lower</option>
+                      <option value="GST 12%">GST 12% Reduced</option>
+                      <option value="GST 18%">GST 18% Standard</option>
                       <option value="GST 28%">GST 28% Premium</option>
                       <option value="Exempt 0%">Exempt (0%)</option>
                     </select>
@@ -1556,11 +1762,11 @@ export default function ItemMaster() {
 
                   {/* Tax Type */}
                   <div>
-                    <label className="block text-slate-700 font-bold mb-1">Tax Type</label>
+                    <label className="block text-slate-700 font-bold mb-1 text-xs">Tax Type</label>
                     <select 
                       value={formData.tax_type} 
                       onChange={e => setFormData({ ...formData, tax_type: e.target.value })} 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:bg-white focus:outline-none focus:border-purple-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 text-xs font-medium focus:bg-white focus:outline-none focus:border-emerald-500"
                     >
                       <option value="Exclusive">Exclusive (Added to Base Price)</option>
                       <option value="Inclusive">Inclusive (Included in Base Price)</option>
@@ -1571,24 +1777,24 @@ export default function ItemMaster() {
 
                   {/* Tax Effective Date */}
                   <div>
-                    <label className="block text-slate-700 font-bold mb-1">Effective Date</label>
+                    <label className="block text-slate-700 font-bold mb-1 text-xs">Effective Date</label>
                     <input 
                       type="date" 
                       value={formData.effective_date} 
                       onChange={e => setFormData({ ...formData, effective_date: e.target.value })} 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-medium focus:bg-white focus:outline-none focus:border-purple-500" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 text-xs font-medium focus:bg-white focus:outline-none focus:border-emerald-500" 
                     />
                   </div>
 
                   {/* HSN / SAC Code */}
                   <div>
-                    <label className="block text-slate-700 font-bold mb-1">HSN / SAC Code</label>
+                    <label className="block text-slate-700 font-bold mb-1 text-xs">HSN / SAC Code</label>
                     <input 
                       type="text" 
                       value={formData.hsn_sac_code} 
                       onChange={e => setFormData({ ...formData, hsn_sac_code: e.target.value })} 
                       placeholder="84713010" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-mono focus:bg-white focus:outline-none focus:border-purple-500" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 font-mono text-xs focus:bg-white focus:outline-none focus:border-emerald-500" 
                     />
                   </div>
                 </div>

@@ -71,14 +71,19 @@ export default function Header({ setActiveTab, onToggleMobileSidebar }) {
     { id: 'asset-tracking', name: 'Asset Tracking Page', desc: 'IT equipment tracking & warranty' },
     { id: 'reports', name: '16 Specialized Reports', desc: 'Stock valuation, ageing & consumption reports' },
     { id: 'audit-logs', name: 'Audit Activity Logs', desc: 'Tamper-proof system activity trail' },
-    { id: 'settings', name: 'System Configuration', desc: 'Company settings & document counters' }
+    { id: 'settings', name: 'System Configuration', desc: 'Company settings & document counters' },
+    { id: 'sec-36', name: 'POS Billing', desc: 'Point of sale billing, checkout & invoices' },
+    { id: 'sec-37', name: 'Billing History', desc: 'Past invoices, customer payments & returns' }
   ];
 
   useEffect(() => {
-    // Fetch search data sources
-    fetch('/api/items').then(r => r.json()).then(d => d.success && setItemsData(d.data));
-    fetch('/api/suppliers').then(r => r.json()).then(d => d.success && setSuppliersData(d.data));
-    fetch('/api/indents').then(r => r.json()).then(d => d.success && setIndentsData(d.data));
+    // Deferred fetch search data sources to avoid network contention with active page
+    const timer = setTimeout(() => {
+      fetch('/api/items').then(r => r.json()).then(d => d.success && setItemsData(d.data)).catch(() => {});
+      fetch('/api/suppliers').then(r => r.json()).then(d => d.success && setSuppliersData(d.data)).catch(() => {});
+      fetch('/api/indents').then(r => r.json()).then(d => d.success && setIndentsData(d.data)).catch(() => {});
+    }, 800);
+    return () => clearTimeout(timer);
   }, []);
 
   // Perform Live Global Search when searchQuery changes
@@ -145,7 +150,7 @@ export default function Header({ setActiveTab, onToggleMobileSidebar }) {
         setLiveNotifs(data.data);
       }
     } catch (err) {
-      console.error('Failed to load notifications:', err);
+      console.warn('Notification fetch deferred:', err.message);
     }
   };
 
@@ -169,7 +174,8 @@ export default function Header({ setActiveTab, onToggleMobileSidebar }) {
     { id: 'role-dept-mgr', label: 'Department Manager' },
     { id: 'role-requester', label: 'Employee / Requester' },
     { id: 'role-finance', label: 'Finance User' },
-    { id: 'role-auditor', label: 'Auditor' }
+    { id: 'role-auditor', label: 'Auditor' },
+    { id: 'role-biller', label: 'Biller' }
   ];
 
   return (

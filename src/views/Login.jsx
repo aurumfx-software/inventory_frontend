@@ -55,7 +55,8 @@ export default function Login() {
     { id: 'role-dept-mgr', label: 'Department Manager' },
     { id: 'role-requester', label: 'Requester / Employee' },
     { id: 'role-finance', label: 'Finance User' },
-    { id: 'role-auditor', label: 'Auditor' }
+    { id: 'role-auditor', label: 'Auditor' },
+    { id: 'role-biller', label: 'Biller / Cashier' }
   ];
 
   const isValidEmail = (emailStr) => {

@@ -454,6 +454,8 @@ export default function IndentManagement() {
 
       const data = await res.json();
       if (data.success) {
+        localStorage.removeItem('app_approval_cache');
+        localStorage.removeItem('app_indents_cache');
         setShowFormModal(false);
         fetchIndents();
         if (targetStatus === 'Draft') {
@@ -485,6 +487,8 @@ export default function IndentManagement() {
       });
       const data = await res.json();
       if (data.success) {
+        localStorage.removeItem('app_approval_cache');
+        localStorage.removeItem('app_indents_cache');
         fetchIndents();
         if (detailModalIndent && detailModalIndent.id === indentId) {
           setDetailModalIndent(data.data);

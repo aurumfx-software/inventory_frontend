@@ -26,6 +26,8 @@ import AssetTracking from './views/inventory/AssetTracking';
 import Reports from './views/Reports';
 import AuditLogs from './views/AuditLogs';
 import Settings from './views/Settings';
+import BillingPage from './views/billing/BillingPage';
+import BillingSettings from './views/billing/BillingSettings';
 
 // System & Document Feature Views
 import StockAvailabilityReview from './views/system/StockAvailabilityReview';
@@ -54,7 +56,7 @@ function MainLayout() {
       'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
       'sec-11', 'sec-12', 'sec-13', 'sec-14', 'sec-15', 'sec-16', 'sec-17', 'sec-18', 'sec-19', 'sec-20',
       'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30',
-      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35'
+      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35', 'sec-36', 'sec-37', 'sec-38'
     ],
     'role-purchase': [
       'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
@@ -73,6 +75,9 @@ function MainLayout() {
     ],
     'role-auditor': [
       'sec-5', 'sec-19', 'sec-20', 'sec-26', 'sec-29', 'sec-30', 'sec-31'
+    ],
+    'role-biller': [
+      'sec-5', 'sec-36', 'sec-37'
     ]
   };
 
@@ -83,6 +88,16 @@ function MainLayout() {
       localStorage.setItem('app-active-tab', 'sec-5');
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    const handleNav = (e) => {
+      if (e.detail) {
+        setActiveTab(e.detail);
+      }
+    };
+    window.addEventListener('navigate-tab', handleNav);
+    return () => window.removeEventListener('navigate-tab', handleNav);
+  }, []);
 
   const [visitedTabs, setVisitedTabs] = useState(() => new Set([activeTab, 'sec-5']));
 
@@ -166,25 +181,37 @@ function MainLayout() {
         return <SearchFiltersEngine />;
       case 'sec-35':
         return <DocumentAttachments />;
+      case 'sec-36':
+        return <BillingPage key="pos-billing" initialView="billing" />;
+      case 'sec-37':
+        return <BillingPage key="billing-history" initialView="history" />;
+      case 'sec-38':
+        return <BillingSettings onBack={() => setActiveTab('sec-36')} />;
       default:
         return <Dashboard setActiveTab={setActiveTab} />;
     }
   };
 
+  const isBillingSettings = activeTab === 'sec-38';
+
   return (
     <div className="flex h-screen bg-slate-100/70 overflow-hidden text-slate-900 font-sans relative">
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        isOpen={isMobileSidebarOpen}
-        onClose={() => setIsMobileSidebarOpen(false)}
-      />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header 
+      {!isBillingSettings && (
+        <Sidebar 
+          activeTab={activeTab} 
           setActiveTab={setActiveTab} 
-          onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
         />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-6 bg-slate-100/70">
+      )}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {!isBillingSettings && (
+          <Header 
+            setActiveTab={setActiveTab} 
+            onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          />
+        )}
+        <main className={`flex-1 overflow-y-auto overflow-x-hidden ${isBillingSettings ? 'p-0 bg-slate-50' : 'p-3 sm:p-6 bg-slate-100/70'}`}>
           {renderSingleTab(activeTab)}
         </main>
       </div>

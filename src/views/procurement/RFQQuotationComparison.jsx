@@ -453,7 +453,15 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
         })
       });
       const data = await res.json();
-      if (data.success) loadComparison(activeRfqId);
+      if (data.success) {
+        try {
+          localStorage.removeItem('app_rfqs_master');
+          localStorage.removeItem('app_quotations_master');
+          localStorage.removeItem('app_purchase_orders');
+          localStorage.removeItem('app_dashboard_kpi');
+        } catch (e) {}
+        loadComparison(activeRfqId);
+      }
     } catch (err) {
       console.error('Failed to submit L1 selection:', err);
     }
@@ -474,6 +482,12 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
       });
       const data = await res.json();
       if (data.success) {
+        try {
+          localStorage.removeItem('app_rfqs_master');
+          localStorage.removeItem('app_quotations_master');
+          localStorage.removeItem('app_purchase_orders');
+          localStorage.removeItem('app_dashboard_kpi');
+        } catch (e) {}
         setShowJustificationModal(false);
         setJustificationRemarks('');
         loadComparison(activeRfqId);
@@ -496,6 +510,12 @@ export default function RFQQuotationComparison({ initialSubTab = 'matrix', setAc
       });
       const data = await res.json();
       if (data.success) {
+        try {
+          localStorage.removeItem('app_rfqs_master');
+          localStorage.removeItem('app_quotations_master');
+          localStorage.removeItem('app_purchase_orders');
+          localStorage.removeItem('app_dashboard_kpi');
+        } catch (e) {}
         setShowSplitModal(false);
         loadComparison(activeRfqId);
       }

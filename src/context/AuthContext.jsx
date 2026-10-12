@@ -5,7 +5,7 @@ const rolePermissionsMap = {
     'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
     'sec-11', 'sec-12', 'sec-13', 'sec-14', 'sec-15', 'sec-16', 'sec-17', 'sec-18', 'sec-19', 'sec-20',
     'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30',
-    'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35'
+    'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35', 'sec-36', 'sec-37'
   ],
   'role-purchase': [
     'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
@@ -27,6 +27,9 @@ const rolePermissionsMap = {
   ],
   'role-director': [
     'sec-5', 'sec-11', 'sec-12', 'sec-13', 'sec-16', 'sec-29', 'sec-30'
+  ],
+  'role-biller': [
+    'sec-5', 'sec-36', 'sec-37'
   ]
 };
 
@@ -68,9 +71,15 @@ export function AuthProvider({ children }) {
       'app_locations_master',
       'app_suppliers_master',
       'app_indents',
+      'app_indents_cache',
       'app_purchase_orders',
       'app_rfqs',
+      'app_rfqs_master',
       'app_quotations',
+      'app_quotations_master',
+      'app_approval_cache',
+      'app_dashboard_kpi',
+      'app_system_settings',
       'app_current_company',
       'app_current_user_email',
       'app_current_user_role',
@@ -143,7 +152,8 @@ if (typeof window !== 'undefined' && !_nativeFetch.__isIntercepted) {
       'role-dept-mgr': { name: 'Department Manager', user: 'Department Manager', email: 'deptmgr@company.com', id: 'usr-04' },
       'role-requester': { name: 'Employee / Requester', user: 'Store Requester', email: 'requester@company.com', id: 'usr-05' },
       'role-finance': { name: 'Finance User', user: 'Finance Manager', email: 'finance@company.com', id: 'usr-06' },
-      'role-auditor': { name: 'Auditor', user: 'System Auditor', email: 'auditor@company.com', id: 'usr-07' }
+      'role-auditor': { name: 'Auditor', user: 'System Auditor', email: 'auditor@company.com', id: 'usr-07' },
+      'role-biller': { name: 'Biller', user: 'Biller', email: 'biller@gmail.com', id: 'usr-biller-01' }
     };
 
     const target = roleMap[roleId] || roleMap['role-admin'];

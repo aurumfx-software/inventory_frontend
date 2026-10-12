@@ -32,7 +32,10 @@ import {
   ShieldCheck,
   ChevronDown,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Receipt,
+  IndianRupee,
+  SlidersHorizontal
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }) {
@@ -48,7 +51,8 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }) {
     { id: 'role-dept-mgr', label: 'Department Manager' },
     { id: 'role-requester', label: 'Employee / Requester' },
     { id: 'role-finance', label: 'Finance User' },
-    { id: 'role-auditor', label: 'Auditor' }
+    { id: 'role-auditor', label: 'Auditor' },
+    { id: 'role-biller', label: 'Biller' }
   ];
 
   React.useEffect(() => {
@@ -61,7 +65,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }) {
           setPendingApprovalCount(pending);
         }
       } catch (err) {
-        console.error('Failed to load pending approval count:', err);
+        console.warn('Pending approval count fetch deferred:', err.message);
       }
     };
 
@@ -76,7 +80,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }) {
       'sec-5', 'sec-6', 'sec-7', 'sec-8', 'sec-9', 'sec-10',
       'sec-11', 'sec-12', 'sec-13', 'sec-14', 'sec-15', 'sec-16', 'sec-17', 'sec-18', 'sec-19', 'sec-20',
       'sec-21', 'sec-22', 'sec-23', 'sec-24', 'sec-25', 'sec-26', 'sec-27', 'sec-28', 'sec-29', 'sec-30',
-      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35'
+      'sec-31', 'sec-32', 'sec-33', 'sec-34', 'sec-35', 'sec-36', 'sec-37', 'sec-38'
     ],
     'role-purchase': [
       'sec-5', 'sec-6', 'sec-7', 'sec-11', 'sec-14', 'sec-15', 'sec-16', 'sec-20', 'sec-23', 'sec-29', 'sec-30'
@@ -98,6 +102,9 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }) {
     ],
     'role-director': [
       'sec-5', 'sec-11', 'sec-12', 'sec-13', 'sec-16', 'sec-29', 'sec-30'
+    ],
+    'role-biller': [
+      'sec-5', 'sec-36', 'sec-37'
     ]
   };
 
@@ -146,6 +153,14 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }) {
         { id: 'sec-26', label: 'Physical Verification', icon: ClipboardList },
         { id: 'sec-27', label: 'Reservation Management', icon: BookmarkCheck },
         { id: 'sec-28', label: 'Asset Tracking', icon: Laptop }
+      ]
+    },
+    {
+      group: "BILLING MODULE",
+      items: [
+        { id: 'sec-36', label: 'POS Billing', icon: Receipt },
+        { id: 'sec-37', label: 'Billing History', icon: IndianRupee },
+        { id: 'sec-38', label: 'Billing Settings', icon: SlidersHorizontal }
       ]
     },
     {

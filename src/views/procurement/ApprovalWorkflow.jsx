@@ -123,28 +123,48 @@ export default function ApprovalWorkflow() {
     }
   ];
 
-  const fetchAllData = async () => {
-    if (!localStorage.getItem('app_approval_cache')) {
-      setIsLoading(true);
-    }
+  const fetchWithTimeout = async (url, timeoutMs = 4000) => {
     try {
-      const [appRes, histRes, wfRes, delRes, usersRes, deptsRes, catRes] = await Promise.all([
-        fetch('/api/approvals').then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/approvals/history').then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/approvals/workflows').then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/approvals/delegations').then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/users').then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/departments').then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/masters/item-categories').then(r => r.json()).catch(() => ({ success: false }))
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(id);
+      return await res.json();
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  };
+
+  const fetchAllData = async () => {
+    // 1. Immediately fetch approvals inbox first with zero delay
+    try {
+      const appRes = await fetchWithTimeout('/api/approvals', 4000);
+      if (appRes && appRes.success && Array.isArray(appRes.data)) {
+        setApprovals(appRes.data);
+        setIsLoading(false);
+      } else if (!localStorage.getItem('app_approval_cache')) {
+        setApprovals(FALLBACK_PENDING_APPROVALS);
+        setIsLoading(false);
+      }
+    } catch (e) {
+      if (!localStorage.getItem('app_approval_cache')) {
+        setApprovals(FALLBACK_PENDING_APPROVALS);
+      }
+      setIsLoading(false);
+    }
+
+    // 2. Fetch secondary metadata non-blockingly in background
+    try {
+      const [histRes, wfRes, delRes, usersRes, deptsRes, catRes] = await Promise.all([
+        fetchWithTimeout('/api/approvals/history', 4000),
+        fetchWithTimeout('/api/approvals/workflows', 4000),
+        fetchWithTimeout('/api/approvals/delegations', 4000),
+        fetchWithTimeout('/api/users', 4000),
+        fetchWithTimeout('/api/departments', 4000),
+        fetchWithTimeout('/api/masters/item-categories', 4000)
       ]);
 
       const cacheObj = {};
-      const finalApprovals = (appRes && appRes.success && Array.isArray(appRes.data) && appRes.data.length > 0)
-        ? appRes.data : FALLBACK_PENDING_APPROVALS;
-
-      setApprovals(finalApprovals);
-      cacheObj.approvals = finalApprovals;
-
       if (histRes && histRes.success) { setHistoryLogs(histRes.data || []); cacheObj.historyLogs = histRes.data || []; }
       if (wfRes && wfRes.success) { setWorkflows(wfRes.data || []); cacheObj.workflows = wfRes.data || []; }
       if (delRes && delRes.success) { setDelegations(delRes.data || []); cacheObj.delegations = delRes.data || []; }
@@ -156,8 +176,7 @@ export default function ApprovalWorkflow() {
         localStorage.setItem('app_approval_cache', JSON.stringify(cacheObj));
       }
     } catch (err) {
-      console.error('Failed to load approval workflow data:', err);
-      setApprovals(FALLBACK_PENDING_APPROVALS);
+      console.warn('Secondary approval metadata non-blocking fetch:', err);
     } finally {
       setIsLoading(false);
     }
@@ -245,6 +264,12 @@ export default function ApprovalWorkflow() {
       const data = await res.json();
       if (data.success) {
         setSelectedApp(null);
+        try {
+          localStorage.removeItem('app_indents_cache');
+          localStorage.removeItem('app_rfqs_master');
+          localStorage.removeItem('app_approval_cache');
+          localStorage.removeItem('app_dashboard_kpi');
+        } catch (e) {}
         fetchAllData();
         const typeLabel = actionType === 'Approve' ? 'Approved' : actionType === 'Return' ? 'Returned for Correction' : actionType;
         showToast(
