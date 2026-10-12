@@ -269,6 +269,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(false);
 
   useEffect(() => {
+    localStorage.removeItem('app_current_user_obj');
+    localStorage.removeItem('app_current_token');
     localStorage.removeItem('app_items_master');
     localStorage.removeItem('app_suppliers_master');
     localStorage.removeItem('app_departments_master');

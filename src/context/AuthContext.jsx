@@ -38,7 +38,14 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
-      const savedUser = localStorage.getItem('app_current_user_obj');
+      // Purge persistent localStorage auth to guarantee Login Page appears first when opening the application
+      localStorage.removeItem('app_current_user_obj');
+      localStorage.removeItem('app_current_token');
+      localStorage.removeItem('app_current_user_email');
+      localStorage.removeItem('app_current_user_role');
+
+      // Use sessionStorage so active session persists during tab use, but fresh links/tabs always require login
+      const savedUser = sessionStorage.getItem('app_current_user_obj');
       if (savedUser) {
         const u = JSON.parse(savedUser);
         return {
@@ -50,7 +57,7 @@ export function AuthProvider({ children }) {
     return null;
   });
   const [token, setToken] = useState(() => {
-    return localStorage.getItem('app_current_token') || null;
+    return sessionStorage.getItem('app_current_token') || null;
   });
   const [activeWarehouse, setActiveWarehouse] = useState('wh-01');
   const [themeMode, setThemeMode] = useState(() => {
@@ -108,10 +115,10 @@ if (typeof window !== 'undefined' && !_nativeFetch.__isIntercepted) {
     config = config || {};
     config.headers = config.headers || {};
 
-    const activeCompany = localStorage.getItem('app_current_company') || 'Organization';
-    const activeEmail = localStorage.getItem('app_current_user_email') || '';
-    const activeRole = localStorage.getItem('app_current_user_role') || '';
-    const activeToken = localStorage.getItem('app_current_token') || '';
+    const activeCompany = sessionStorage.getItem('app_current_company') || localStorage.getItem('app_current_company') || 'Organization';
+    const activeEmail = sessionStorage.getItem('app_current_user_email') || localStorage.getItem('app_current_user_email') || '';
+    const activeRole = sessionStorage.getItem('app_current_user_role') || localStorage.getItem('app_current_user_role') || '';
+    const activeToken = sessionStorage.getItem('app_current_token') || localStorage.getItem('app_current_token') || '';
 
     const headersToSet = {
       'X-Company-Name': activeCompany,
@@ -217,12 +224,12 @@ if (typeof window !== 'undefined' && !_nativeFetch.__isIntercepted) {
           clearDomainCaches();
         }
 
-        localStorage.setItem('app_current_user_email', newEmail);
-        localStorage.setItem('app_current_company', newCompany);
-        localStorage.setItem('app_current_user_role', data.user.role_id || '');
-        localStorage.setItem('app_current_user_obj', JSON.stringify(data.user));
+        sessionStorage.setItem('app_current_user_email', newEmail);
+        sessionStorage.setItem('app_current_company', newCompany);
+        sessionStorage.setItem('app_current_user_role', data.user.role_id || '');
+        sessionStorage.setItem('app_current_user_obj', JSON.stringify(data.user));
         if (data.token) {
-          localStorage.setItem('app_current_token', data.token);
+          sessionStorage.setItem('app_current_token', data.token);
         }
 
         setUser({
@@ -253,6 +260,11 @@ if (typeof window !== 'undefined' && !_nativeFetch.__isIntercepted) {
 
   const logout = () => {
     clearDomainCaches();
+    sessionStorage.clear();
+    localStorage.removeItem('app_current_user_obj');
+    localStorage.removeItem('app_current_token');
+    localStorage.removeItem('app_current_user_email');
+    localStorage.removeItem('app_current_user_role');
     setUser(null);
     setToken(null);
     localStorage.setItem('app-active-tab', 'sec-5');
@@ -295,12 +307,12 @@ if (typeof window !== 'undefined' && !_nativeFetch.__isIntercepted) {
           clearDomainCaches();
         }
 
-        localStorage.setItem('app_current_user_email', newEmail);
-        localStorage.setItem('app_current_company', newCompany);
-        localStorage.setItem('app_current_user_role', data.user.role_id || '');
-        localStorage.setItem('app_current_user_obj', JSON.stringify(data.user));
+        sessionStorage.setItem('app_current_user_email', newEmail);
+        sessionStorage.setItem('app_current_company', newCompany);
+        sessionStorage.setItem('app_current_user_role', data.user.role_id || '');
+        sessionStorage.setItem('app_current_user_obj', JSON.stringify(data.user));
         if (data.token) {
-          localStorage.setItem('app_current_token', data.token);
+          sessionStorage.setItem('app_current_token', data.token);
         }
 
         setUser({
